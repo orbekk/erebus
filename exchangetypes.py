@@ -72,7 +72,7 @@ class ExchangeItem(object):
                 e = ET.SubElement(self.et, elem)
                 if len(splt) == 2:
                     e.text = val
-                elif len(splt == 3:
+                elif len(splt) == 3:
                     e.attrib[att] = val
         
         return None
@@ -106,7 +106,18 @@ class ExchangeItem(object):
 
         return e
 
+    def __fromICal(self, ical):
+
+        for ical_e,xml_e,f in self.trans_ical2xml:
+            self.set(xml_e, f(ical[ical_e]))
+
+
 class Calendar(ExchangeItem):
+    @staticmethod
+    def framICal(ical):
+        cal = Calendar(Element(m('Items')))
+        return cal.__fromICal()
+    
     @staticmethod
     def fromXML(s):
         return Calendar(ET.XML(s))
@@ -132,18 +143,30 @@ class Calendar(ExchangeItem):
 
         return cal
 
+    def fromICal(self):
+        # for hvert event: blabla
+        pass
+
 class CalendarItem(ExchangeItem):
-    def __init__(self, et=None):
+    @staticmethod
+    def fromICal(ical):
+        item = CalendarItem(Element(t('CalendarItem')))
+        return item.__fromICal()
+
+    def __init__(self, et):
         ExchangeItem.__init__(self,et)
         self.get_attrs()
-        self.trans_xml2ical = \ # See ExchangeItem.toICal
-        [ 
+        self.trans_xml2ical = \
+        [  # See ExchangeItem.toICal
             ('t:Subject', 'summary', identity),
             ('t:Start',   'dtstart', xsdt2datetime),
             ('t:End',     'dtend'  , xsdt2datetime),
             ('t:DateTimeCreated', 'dtstamp', xsdt2datetime)
         ]
-    
+        self.trans_ical2xml = \
+        [
+            ('summary', 't:Subject', identity)
+        ]    
 
     def get_attrs(self):
         et = self.et
@@ -160,6 +183,9 @@ class CalendarItem(ExchangeItem):
 #         self.attrs['Start'] = self.search(t('Start')).text
 #         self.attrs['End']   = self.search(t('End')).text
 #         self.attrs['DateTimeCreated'] = self.search(t('DateTimeCreated')).text
+
+    def fromICal(self, iCal):
+        ExchangeItem.__fromICal(iCal)
 
     def toICal(self):
         e = ExchangeItem.toICal(self)

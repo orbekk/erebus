@@ -20,8 +20,6 @@ class ExchangeItem(object):
         [mt]_Element_Attr: get the attribute Attr in Element
         """
 
-        print "getattr: " + attr
-
         p = re.compile("([tm]):")
         if p.match(attr):
             splt = attr.split(":")
@@ -44,6 +42,41 @@ class ExchangeItem(object):
                         return a
         
         return None
+
+    def set(self, attr, val):
+        """
+        attr: same as above (TODO: do we need sub elements)
+        val: value to sett attr to
+        """
+        
+        p = re.compile("([tm]):")
+        if p.match(attr):
+            splt = attr.split(":")
+            if len(splt) == 2:
+                ns, elem = splt
+            elif len(splt) == 3:
+                ns, elem, att = splt
+                
+            if ns == "m": ns = messages
+            if ns == "t": ns = types
+
+            elem = with_ns(ns, elem)
+
+            e = self.search(elem)
+            if e:
+                if len(splt) == 2:
+                    e.text = val
+                elif len(splt) == 3:
+                    e.attrib[att] = val
+            else:
+                e = ET.SubElement(self.et, elem)
+                if len(splt) == 2:
+                    e.text = val
+                elif len(splt == 3:
+                    e.attrib[att] = val
+        
+        return None
+        
     
     def searchAll (self, tag, et=None):
         if et == None: et = self.et

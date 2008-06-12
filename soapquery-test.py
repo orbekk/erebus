@@ -3,7 +3,7 @@ from soapquery import *
 from exchangetypes import *
 from localpw import *
 
-c = SoapConn("http://mail1.ansatt.hig.no:80",False,username,password)
+c = SoapConn(host,False,username,password)
 q = SoapQuery(c)
 
 ### DELETE ALL ITEMS:

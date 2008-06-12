@@ -1,0 +1,13 @@
+Erebus
+======
+
+Dependencies
+------------
+- Python 2.?
+- iCalendar, http://codespeak.net/icalendar/
+
+To use soapquery-test.py, add a file named localpw.py, containing:
+
+host     = <your exchange 2007 server>
+username = <your username>
+password = <your password>

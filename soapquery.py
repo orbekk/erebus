@@ -179,38 +179,3 @@ class SoapQuery:
 </CreateItem>
 """%(sendMeetingInvitations,
      xml_fields))
-        
-        
-    
-
-# createItemQuery = msquery("""
-# <CreateItem SendMeetingInvitations="SendToNone">
-#   <Items>
-#     <t:CalendarItem>
-#       <t:Subject>Bli tuktet av StianH</t:Subject>
-#       <t:Start>2008-06-12T08:00:00+01:00</t:Start>
-#       <t:End>2008-06-12T16:00:00+01:00</t:End>
-#     </t:CalendarItem>
-#   </Items>      
-# </CreateItem>
-# """)
-
-# getItem = msquery("""
-# <GetItem>
-#   <ItemShape>
-#     <t:BaseShape>Default</t:BaseShape>
-#   </ItemShape>
-# </GetItem>
-# """)
-
-# findItems = msquery("""
-# <FindItem Traversal="Shallow">
-#   <ItemShape>
-#     <t:BaseShape>AllProperties</t:BaseShape>
-#   </ItemShape>
-#   <ParentFolderIds>
-#     <t:DistinguishedFolderId Id="calendar"/>
-#   </ParentFolderIds>
-# </FindItem>
-# """)
-

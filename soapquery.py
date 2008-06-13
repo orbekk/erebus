@@ -179,3 +179,63 @@ class SoapQuery:
 </CreateItem>
 """%(sendMeetingInvitations,
      xml_fields))
+
+
+    def createAttachedNote(self, parent_id, parent_chkey, name, content):
+        """
+        Create a note (PostItem) as an attachment to (parent_id,parent_chkey)
+        """
+
+        return self.msquery("""
+<CreateAttachment>
+  <ParentItemId Id="%s" ChangeKey="%s" />
+  <Attachments>
+    <t:ItemAttachment>
+      <t:Name>%s</t:Name>
+      <t:Message>
+        <t:Body BodyType="Text">%s</t:Body>
+      </t:Message>
+    </t:ItemAttachment>
+  </Attachments>
+</CreateAttachment>
+""" % (parent_id, parent_chkey, name, content))
+
+
+    def getItem(self, itemIds, shape="AllProperties",
+                additionalProperties=""):
+        """
+        Get an item
+        """
+        if additionalProperties != "":
+            additionalProperties = \
+                "<t:AdditionalProperties>%s</t:AdditionalProperties>" % additionalProperties
+
+        ids = ""
+        if type(itemIds) == list:
+            for itemid,chkey in itemIds:
+                ids += """<t:ItemId Id="%s" ChangeKey="%s"/>""" %(itemid,chkey)
+        else:
+            ids = """<t:ItemId Id="%s" ChangeKey="%s"/>""" % itemIds
+        
+        
+        return self.msquery("""
+<GetItem>
+  <ItemShape>
+    <t:BaseShape>%s</t:BaseShape>
+    %s
+  </ItemShape>
+  <ItemIds>
+  %s
+  </ItemIds>
+</GetItem>
+""" %(shape,additionalProperties,ids))
+                
+
+    def getAttachedNote(self, item_id, item_chkey, name):
+        """
+        Get an attached note created by `createAttachedNote'
+        """
+
+        # getitem
+        pass
+      

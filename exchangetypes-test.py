@@ -1,6 +1,7 @@
 from exchangetypes import *
 from helper.etsearch import elementsearch
 from namespaces import *
+from datetime import datetime
 import icalendar
 import xml.etree.ElementTree as ET
 
@@ -20,6 +21,9 @@ def ical2xml():
     elem = icalendar.Event()
     elem['uid'] = ':)'
     elem.add('summary', 'heisann hoppsann')
+    elem.add('dtstart', datetime(2006, 01, 02, 14, 00))
+    elem.add('dtend', datetime(2006, 01, 02, 16, 00))
+    elem.add('dtstamp', datetime(2006, 01, 02, 10, 00))
     cal.add_component(elem)
 
     c = Calendar.fromICal(cal)

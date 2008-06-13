@@ -184,7 +184,10 @@ class CalendarItem(ExchangeItem):
 
         self.trans_ical2xml = \
         [
-            ('summary', 't:Subject', identity)
+            ('summary', 't:Subject',         identity),
+            ('dtstart', 't:Start',           ical2xsdt),
+            ('dtend',   't:End',             ical2xsdt),
+            ('dtstamp', 't:DateTimeCreated', ical2xsdt),
         ]    
 
 

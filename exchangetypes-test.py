@@ -29,5 +29,7 @@ def ical2xml():
     c = Calendar.fromICal(cal)
     print ET.tostring(c.et)
 
+    print "<ical>%s</ical>" % c.toICal()
+
 ical2xml()
 

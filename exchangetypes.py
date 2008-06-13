@@ -89,7 +89,7 @@ class ExchangeItem(object):
         return item
 
     def toICal(self):
-        e = Event() # Wrong.
+        item = self.icalClass()
 
         # - xml_e is an element in the form get() accepts
         # - ical_e is the corresponding elementname in the iCalendar format
@@ -102,9 +102,9 @@ class ExchangeItem(object):
         for xml_e,ical_e,f in self.trans_xml2ical:
             xml_e = self.get(xml_e)
             if xml_e:
-                e.add(ical_e, f(xml_e))
+                item.add(ical_e, f(xml_e))
 
-        return e
+        return item
 
 
     def _fromICal(self, ical):
@@ -133,8 +133,10 @@ class Calendar(ExchangeItem):
         ExchangeItem.__init__(self,et)
         self.calendarItems = []
         self.__get_calendarItems()
+        
         self.trans_xml2ical = []
         self.trans_ical2xml = []
+        self.icalClass = ICal
 
     def __get_calendarItems(self):
         cis = self.searchAll(t('CalendarItem'))
@@ -174,6 +176,9 @@ class CalendarItem(ExchangeItem):
     def __init__(self, et):
         ExchangeItem.__init__(self,et)
         self.get_attrs()
+
+        self.icalClass = ICal
+        
         self.trans_xml2ical = \
         [  # See ExchangeItem.toICal
             ('t:Subject', 'summary', identity),
@@ -196,17 +201,6 @@ class CalendarItem(ExchangeItem):
         if et.tag != t('CalendarItem'):
             raise Exception("Invalid item: %s, expected %s" %(et.tag, 'CalendarItem'))
 
-#         e_id = self.search(t('ItemId'))
-#         self.attrs['ItemId'] = e_id.attrib['Id']
-#         self.attrs['ChangeKey'] = e_id.attrib['ChangeKey']
-        
-#         e_subject = self.search(t('Subject'))
-#         self.attrs['Subject'] = e_subject.text
-
-#         self.attrs['Start'] = self.search(t('Start')).text
-#         self.attrs['End']   = self.search(t('End')).text
-#         self.attrs['DateTimeCreated'] = self.search(t('DateTimeCreated')).text
-
     def _fromICal(self, ical):
         # Handle UID
         uid = ical['uid']
@@ -223,10 +217,6 @@ class CalendarItem(ExchangeItem):
     def toICal(self):
         e = ExchangeItem.toICal(self)
 
-#         e.add('summary', self.get("t:Subject"))
-#         e.add('dtstart', xsdt2datetime(self.get("t:Start")))
-#         e.add('dtend',   xsdt2datetime(self.get("t:End")))
-#         e.add('dtstamp', xsdt2datetime(self.get("t:DateTimeCreated")))
         e['uid'] = "%s.%s@hig.no" %(self.get("t:ItemId:Id"),
                                     self.get("t:ItemId:ChangeKey"))
 

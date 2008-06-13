@@ -89,7 +89,7 @@ class ExchangeItem(object):
         return item
 
     def toICal(self):
-        e = Event()
+        e = Event() # Wrong.
 
         # - xml_e is an element in the form get() accepts
         # - ical_e is the corresponding elementname in the iCalendar format
@@ -107,17 +107,20 @@ class ExchangeItem(object):
         return e
 
 
-    def __fromICal(self, ical):
-
-        for ical_e,xml_e,f in self.trans_ical2xml:
-            self.set(xml_e, f(ical[ical_e]))
+    def _fromICal(self, ical):
+        try:
+            for ical_e,xml_e,f in self.trans_ical2xml:
+                self.set(xml_e, f(ical[ical_e]))
+        except KeyError:
+            pass
 
 
 class Calendar(ExchangeItem):
     @staticmethod
     def fromICal(ical):
-        cal = Calendar(Element(m('Items')))
-        return cal.__fromICal()
+        cal = Calendar(ET.Element(m('Items')))
+        cal._fromICal(ical)
+        return cal
     
     @staticmethod
 
@@ -128,6 +131,8 @@ class Calendar(ExchangeItem):
         ExchangeItem.__init__(self,et)
         self.calendarItems = []
         self.__get_calendarItems()
+        self.trans_xml2ical = []
+        self.trans_ical2xml = []
 
     def __get_calendarItems(self):
         cis = self.searchAll(t('CalendarItem'))
@@ -145,17 +150,19 @@ class Calendar(ExchangeItem):
 
         return cal
 
-    def __fromICal(self):
-        # for hvert event: blabla
-        pass
+    def _fromICal(self, ical):
+        super(Calendar, self)._fromICal(ical)
+
+#         for item in ical.subcomponents:
+#             self.et.append(CalendarItem.fromICal(item))
 
 
 class CalendarItem(ExchangeItem):
 
     @staticmethod
     def fromICal(ical):
-        item = CalendarItem(Element(t('CalendarItem')))
-        return item.__fromICal()
+        item = CalendarItem(ET.Element(t('CalendarItem')))
+        return item._fromICal(ical)
 
     def __init__(self, et):
         ExchangeItem.__init__(self,et)
@@ -190,8 +197,9 @@ class CalendarItem(ExchangeItem):
 #         self.attrs['End']   = self.search(t('End')).text
 #         self.attrs['DateTimeCreated'] = self.search(t('DateTimeCreated')).text
 
-    def fromICal(self, iCal):
-        ExchangeItem.__fromICal(iCal)
+    def _fromICal(self, iCal):
+        # ExchangeItem._fromICal(iCal)
+        pass
 
     def toICal(self):
         e = ExchangeItem.toICal(self)
@@ -208,7 +216,4 @@ class CalendarItem(ExchangeItem):
 #     @staticmethod
 #     def transform(
 
-#     @staticmethod
-#     def fromICal(event):
-        
         

@@ -1,9 +1,10 @@
 from exchangetypes import *
 from helper.etsearch import elementsearch
 from namespaces import *
+import icalendar
 import xml.etree.ElementTree as ET
 
-def main():
+def xml2ical():
     f = open('calendar.xml')
     s = f.read()
     et = ET.XML(s)
@@ -14,5 +15,14 @@ def main():
     calendar = Calendar(et)
     print calendar.toICal()
 
-main()
+def ical2xml():
+    cal = icalendar.Calendar()
+    elem = icalendar.Event()
+    elem['uid'] = ':)'
+    cal.add_component(elem)
+
+    c = Calendar.fromICal(cal)
+    print ET.tostring(c.et)
+
+ical2xml()
 

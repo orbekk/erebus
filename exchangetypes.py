@@ -31,6 +31,7 @@ class ExchangeItem(object):
             if ns == "m": ns = messages
             if ns == "t": ns = types
 
+            # TODO: searchAll in case of attributes?
             e = self.search(with_ns(ns, elem))
 
             if e != None:
@@ -63,7 +64,8 @@ class ExchangeItem(object):
             elem = with_ns(ns, elem)
 
             e = self.search(elem)
-            if e:
+
+            if e != None: # e claims to be a `false' :o
                 if len(splt) == 2:
                     e.text = val
                 elif len(splt) == 3:

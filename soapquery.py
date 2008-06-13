@@ -1,5 +1,7 @@
+# -*- coding: utf8 -*-
 from xml.etree import ElementTree as ET
 from helper.etsearch import elementsearch
+from namespaces import *
 import httplib
 import base64
 import re
@@ -229,13 +231,60 @@ class SoapQuery:
   </ItemIds>
 </GetItem>
 """ %(shape,additionalProperties,ids))
-                
+
+
+    def getAttachment(self, ids):
+        if not type(ids) == list:
+            ids = [ids]
+
+        itemIds = ""
+        for i in ids:
+            itemIds += '<t:AttachmentId Id="%s"/>' % i
+
+        return self.msquery("""
+<GetAttachment>
+  <AttachmentIds>
+  %s
+  </AttachmentIds>
+</GetAttachment>
+""" % itemIds)
+
 
     def getAttachedNote(self, item_id, item_chkey, name):
         """
         Get an attached note created by `createAttachedNote'
         """
 
-        # getitem
-        pass
+        props = """
+<t:FieldURI FieldURI="item:Attachments"/>
+<t:FieldURI FieldURI="item:HasAttachments"/>"""
+
+        item = self.getItem((item_id, item_chkey),shape="IdOnly",
+                            additionalProperties=props)
       
+
+        # Find all attachments
+        et = ET.XML(item)
+        attachments = elementsearch(et, t('ItemAttachment'), True)
+
+        def nameFilter(e):
+            t_name = e.find(t('Name'))
+            if t_name == None: return False
+            return t_name.text == name
+
+        attachments = filter(nameFilter, attachments)
+
+        # if len(attachments) > 1: oops?
+        if len(attachments) == 0:
+            return None
+
+        # Just take the first for now
+        attachment = attachments[0]
+        attachment_id = attachment.find(t('AttachmentId')).attrib['Id']
+
+        at_xml  = self.getAttachment(attachment_id)
+        print at_xml
+        at_elem = ET.XML(at_xml) # TODO: feilsøking?
+        
+        body = elementsearch(at_elem, t('Body'))
+        return body.text

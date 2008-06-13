@@ -208,6 +208,16 @@ class CalendarItem(ExchangeItem):
 #         self.attrs['DateTimeCreated'] = self.search(t('DateTimeCreated')).text
 
     def _fromICal(self, ical):
+        # Handle UID
+        uid = ical['uid']
+        m = re.match('([^.]*)\.([^@])', uid)
+        if not m:
+            raise ValueError, uid
+
+        id, chkey = m.groups()
+        self.set('t:ItemId:Id', id)
+        self.set('t:ItemId:ChangeKey', chkey)
+
         super(CalendarItem, self)._fromICal(ical)
 
     def toICal(self):

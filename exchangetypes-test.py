@@ -19,7 +19,7 @@ def xml2ical():
 def ical2xml():
     cal = icalendar.Calendar()
     elem = icalendar.Event()
-    elem['uid'] = ':)'
+    elem['uid'] = 'AAAUADk5NTU1NUBhbnNhdHQuaGlnLm5vAEYAAAAAAFweQ/PYr15OrbYzBHnAiuAHACOPZb+9/tdIoI9+J7qYDTsAC6b9m+QAACOPZb+9/tdIoI9+J7qYDTsADbsWUlkAAA==.DwAAABYAAAAjj2W/vf7XSKCPfie6mA07AA27FqHR@hig.no'
     elem.add('summary', 'heisann hoppsann')
     elem.add('dtstart', datetime(2006, 01, 02, 14, 00))
     elem.add('dtend', datetime(2006, 01, 02, 16, 00))

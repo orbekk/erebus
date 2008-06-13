@@ -108,6 +108,8 @@ class ExchangeItem(object):
 
 
     def _fromICal(self, ical):
+        # print "fromICal: ", self.__class__
+        
         try:
             for ical_e,xml_e,f in self.trans_ical2xml:
                 self.set(xml_e, f(ical[ical_e]))
@@ -153,8 +155,12 @@ class Calendar(ExchangeItem):
     def _fromICal(self, ical):
         super(Calendar, self)._fromICal(ical)
 
-#         for item in ical.subcomponents:
-#             self.et.append(CalendarItem.fromICal(item))
+        for item in ical.subcomponents:
+            self.addCalendarItem(CalendarItem.fromICal(item))
+
+    def addCalendarItem(self, item):
+        self.et.append(item.et)
+        self.calendarItems.append(item)
 
 
 class CalendarItem(ExchangeItem):
@@ -162,7 +168,8 @@ class CalendarItem(ExchangeItem):
     @staticmethod
     def fromICal(ical):
         item = CalendarItem(ET.Element(t('CalendarItem')))
-        return item._fromICal(ical)
+        item._fromICal(ical)
+        return item
 
     def __init__(self, et):
         ExchangeItem.__init__(self,et)
@@ -197,9 +204,8 @@ class CalendarItem(ExchangeItem):
 #         self.attrs['End']   = self.search(t('End')).text
 #         self.attrs['DateTimeCreated'] = self.search(t('DateTimeCreated')).text
 
-    def _fromICal(self, iCal):
-        # ExchangeItem._fromICal(iCal)
-        pass
+    def _fromICal(self, ical):
+        super(CalendarItem, self)._fromICal(ical)
 
     def toICal(self):
         e = ExchangeItem.toICal(self)
@@ -212,8 +218,3 @@ class CalendarItem(ExchangeItem):
                                     self.get("t:ItemId:ChangeKey"))
 
         return e
-
-#     @staticmethod
-#     def transform(
-
-        

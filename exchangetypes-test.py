@@ -19,6 +19,7 @@ def ical2xml():
     cal = icalendar.Calendar()
     elem = icalendar.Event()
     elem['uid'] = ':)'
+    elem.add('summary', 'heisann hoppsann')
     cal.add_component(elem)
 
     c = Calendar.fromICal(cal)

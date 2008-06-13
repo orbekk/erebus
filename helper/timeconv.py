@@ -1,12 +1,26 @@
 import re
-from icalendar import UTC, LocalTimezone, FixedOffset
+from icalendar import UTC, LocalTimezone, FixedOffset, vDatetime
 from datetime import datetime
 
+def ical2xsdt(t):
+    """
+    Conversion from iCalendar time to xs:dateTime
+    """
+    ical_time = t.ical()
+    dt = vDatetime.from_ical(ical_time)
+    return datetime2xsdt(dt)
+
 def datetime2xsdt(time):
+    """
+    Conversion from python's datetime to xs:dateTime
+    """
     if time.tzinfo == UTC:
         tzinfo = "Z"
     else:
-        delta = time.tzinfo.utcoffset(time)
+        tzinfo = time.tzinfo
+        if not tzinfo: tzinfo = LocalTimezone()
+
+        delta = tzinfo.utcoffset(time)
 
         if delta.days < 0:
             # timedelta = wierd format
@@ -27,6 +41,9 @@ def datetime2xsdt(time):
     return dt
 
 def xsdt2datetime(time):
+    """
+    Conversion from xs:dateTime to python's datetime
+    """
     #                year   month   day    hour   min    sec   secfrac   tz
     p = re.compile('(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(?:\.\d+)?(.*)$')
     m = p.match(time)

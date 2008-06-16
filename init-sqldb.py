@@ -9,7 +9,8 @@ c = conn.cursor()
 c.execute("""
 create table items (id integer primary key autoincrement,
                     icalendar_id varchar(256),
-                    soap_id varchar(256))
+                    soap_id varchar(256),
+                    soap_chkey varchar(256))
 """)
 
 c.execute("""

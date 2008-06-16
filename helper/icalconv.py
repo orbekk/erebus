@@ -95,3 +95,8 @@ def setICalFields(item_id=None,icalendar_id=None,exchange_id=None,fields):
     conn.commit()
     conn.close()
 
+def insertICalFields(ical):
+    """
+    Inserts necessary ical fields into db
+    """
+    pass

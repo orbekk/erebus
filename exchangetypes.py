@@ -7,6 +7,7 @@ from Queue import Queue
 from icalendar import Event
 from icalendar import Calendar as ICal
 from datetime import datetime
+import helper.icalconv as icalconv
 import re
 
 class ExchangeItem(object):
@@ -211,13 +212,16 @@ class CalendarItem(ExchangeItem):
         if m:
             # Case 1, items made in exchange will have the
             # id.chkey@hig.no uid
-            id, chkey = m.groups()
-            self.set('t:ItemId:Id', id)
-            self.set('t:ItemId:ChangeKey', chkey)
+            ex_id, ex_chkey = m.groups()
+            self.set('t:ItemId:Id', ex_id)
+            self.set('t:ItemId:ChangeKey', ex_chkey)
         else:
-            # Case 2, items made somewhere else must be put into
-            # exchange in a special way.
-            raise ValueError, m
+            # Case 2, convert with icalconv
+            exchange_id = icalconv.getExchangeId(uid)
+            if exchange_id:
+                ex_id, ex_chkey = exchange_id
+                self.set('t:ItemId:Id', ex_id)
+                self.set('t:ItemId:ChangeKey', ex_chkey)
 
         super(CalendarItem, self)._fromICal(ical)
 

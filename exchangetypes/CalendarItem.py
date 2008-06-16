@@ -9,6 +9,7 @@ from icalendar import Calendar as ICal
 from datetime import datetime
 import helper.icalconv as icalconv
 import re
+import copy
 
 from exchangetypes.ExchangeItem import ExchangeItem
 
@@ -38,7 +39,7 @@ class CalendarItem(ExchangeItem):
             ('summary', 't:Subject',         identity),
             ('dtstart', 't:Start',           ical2xsdt),
             ('dtend',   't:End',             ical2xsdt),
-            ('dtstamp', 't:DateTimeCreated', ical2xsdt),
+#            ('dtstamp', 't:DateTimeCreated', ical2xsdt),
         ]    
 
     def is_exchangeItem(self):
@@ -46,7 +47,7 @@ class CalendarItem(ExchangeItem):
         This is a exchange item if ItemId:Id is set
         """
         itemid = self.get('t:ItemId:Id')
-        return itemid != None and itemid != ''
+        return (itemid != None and itemid != '')
 
     def get_attrs(self):
         et = self.et
@@ -84,3 +85,15 @@ class CalendarItem(ExchangeItem):
                                     self.get("t:ItemId:ChangeKey"))
 
         return e
+
+    def toNewExchangeItem(self):
+        if self.is_exchangeItem():
+            return None
+
+        # We just need to delete the empty ItemId node:
+        ex_tree = copy.deepcopy(self.et)
+        ex_tree.remove(ex_tree.find(t('ItemId')))
+            
+        return ex_tree
+            
+            

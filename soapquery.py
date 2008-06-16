@@ -161,26 +161,19 @@ class SoapQuery:
 </DeleteItem>
 """ %(deleteType, sendMeetingCancellations, ids))
 
-    def createItem(self,props,sendMeetingInvitations="SendToNone"):
+    def createItem(self,calendarItems,sendMeetingInvitations="SendToNone"):
         """
         sendMeetingCancellations: {*SendToNone*, SendOnlyToAll, SendToAllAndSaveCopy}
         """
 
-        # This is suboptimal. Better use a element tree
-        xml_fields = ""
-        for k,v in props:
-            xml_fields += ("<%s>%s</%s>" %(k,v,k))
-
         return self.msquery("""
 <CreateItem SendMeetingInvitations="%s">
   <Items>
-    <t:CalendarItem>
     %s
-    </t:CalendarItem>
   </Items>      
 </CreateItem>
 """%(sendMeetingInvitations,
-     xml_fields))
+     calendarItems))
 
 
     def getItem(self, itemIds, shape="AllProperties",

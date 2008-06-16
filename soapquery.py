@@ -250,15 +250,15 @@ class SoapQuery:
 """ % itemIds)
 
 
-    def getAttachedNote(self, item_id, item_chkey, name):
+    def getNamedAttachment(self, itemId, name):
         """
-        Get an attached note created by `createAttachedNote'
+        Return the attachment with name `name'
         """
-
         props = """
 <t:FieldURI FieldURI="item:Attachments"/>
 <t:FieldURI FieldURI="item:HasAttachments"/>"""
 
+        item_id, item_chkey = itemId
         item = self.getItem((item_id, item_chkey),shape="IdOnly",
                             additionalProperties=props)
       
@@ -282,9 +282,16 @@ class SoapQuery:
         attachment = attachments[0]
         attachment_id = attachment.find(t('AttachmentId')).attrib['Id']
 
-        at_xml  = self.getAttachment(attachment_id)
-        print at_xml
-        at_elem = ET.XML(at_xml) # TODO: feilsøking?
+        return self.getAttachment(attachment_id)
+
+
+    def getAttachedNote(self, item_id, item_chkey, name):
+        """
+        Get an attached note created by `createAttachedNote'
+        """
+
+        attachment = self.getNamedAttachment( (item_id, item_chkey), name)
+        at_elem = ET.XML(attachment) # feilsjekking
         
         body = elementsearch(at_elem, t('Body'))
         return body.text

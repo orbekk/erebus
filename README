@@ -3,7 +3,7 @@ Erebus
 
 Dependencies
 ------------
-- Python 2.?
+- Python 2.4
 - iCalendar, http://codespeak.net/icalendar/
 
 To use soapquery-test.py, add a file named localpw.py, containing:

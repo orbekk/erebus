@@ -160,7 +160,7 @@ class Calendar(ExchangeItem):
     def _fromICal(self, ical):
         super(Calendar, self)._fromICal(ical)
 
-        for item in ical.subcomponents:
+        for item in ical.walk('VEVENT'):
             self.addCalendarItem(CalendarItem.fromICal(item))
 
     def addCalendarItem(self, item):
@@ -179,7 +179,6 @@ class CalendarItem(ExchangeItem):
     def __init__(self, et):
         ExchangeItem.__init__(self,et)
         self.get_attrs()
-
         self.icalClass = Event
         
         self.trans_xml2ical = \
@@ -198,6 +197,12 @@ class CalendarItem(ExchangeItem):
             ('dtstamp', 't:DateTimeCreated', ical2xsdt),
         ]    
 
+    def is_exchangeItem(self):
+        """
+        This is a exchange item if ItemId:Id is set
+        """
+        itemid = self.get('t:ItemId:Id')
+        return itemid != None and itemid != ''
 
     def get_attrs(self):
         et = self.et
@@ -208,6 +213,9 @@ class CalendarItem(ExchangeItem):
         # Handle UID, two cases
         uid = ical['uid']
 
+        # Add this to the natural position in the tree
+        self.set('t:ItemId:Id', '') 
+        
         m = re.search('([^.]*)\.([^@]*)@hig\.no', uid)
         if m:
             # Case 1, items made in exchange will have the

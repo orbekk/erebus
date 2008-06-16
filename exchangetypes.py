@@ -180,7 +180,7 @@ class CalendarItem(ExchangeItem):
         ExchangeItem.__init__(self,et)
         self.get_attrs()
 
-        self.icalClass = ICal
+        self.icalClass = Event
         
         self.trans_xml2ical = \
         [  # See ExchangeItem.toICal

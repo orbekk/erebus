@@ -4,6 +4,8 @@ from localpw import *
 from exchangetypes import *
 from soapquery import *
 from web_auth import *
+import xml.etree.ElementTree as ET
+import icalendar
 
 web.webapi.internalerror = web.debugerror
 
@@ -23,6 +25,10 @@ def log(msg):
 
 class calendar:
     def GET(self, url=None):
+        web.header('Dav', dav_header)
+        web.header('ETag', 'roflbar')
+        web.header('Content-Type', 'text/calendar')
+
         log('=== GET ===')
         log(web.ctx.env)
         log(web.data())
@@ -39,32 +45,58 @@ class calendar:
 
                 q = SoapQuery(c)
                 its = q.findItems('calendar')
+                log(its)
                 cal = Calendar.fromXML(its)
             except:
                 auth_fail()
                 return
-            print cal.toICal().as_string()
+            res = cal.toICal().as_string()
+            web.header('Content-Length', len(res))
+            print res
         else:
             web.notfound()
 
     def REPORT(self, url=None):
+        web.header('DAV', dav_header)
         log('=== REPORT ===')
         log(web.ctx.env)
         log(web.data())
         web.notfound()
 
     def PROPFIND(self, url=None):
+        web.header('DAV', dav_header)
         log('=== PROPFIND ===')
         log(web.ctx.env)
         log(web.data())
-        web.notfound()
+
+        web.ctx.status = "207 Multi-Status"
+
+        print \
+"""<?xml version="1.0" encoding="utf-8"?>
+<multistatus xmlns="DAV:">
+  <response>
+    <href>/calendar/exchange.ics</href>
+    <propstat>
+      <prop>
+        <getetag>test1234</getetag>
+      </prop>
+    <status>HTTP/1.1 200 OK</status>  
+    </propstat>
+  </response>  
+</multistatus>"""
 
     def PUT(self, url=None):
+        web.header('DAV', dav_header)
         log('=== PUT ===')
-        log(web.ctx.env)
+        log(url)
+        log('INPUT DATA')
         log(web.data())
 
-        # TODO: Stappe ting opp i Exchange
+        ical = icalendar.Calendar.from_string(web.data())
+        log('ICAL AS STRING')
+        log(ical.as_string())
+        # cal = Calendar.fromICal(ical)
+#        log(ET.tostring(cal.et))
 
         print "ok"
 

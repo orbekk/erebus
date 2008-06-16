@@ -208,7 +208,7 @@ class CalendarItem(ExchangeItem):
         # Handle UID, two cases
         uid = ical['uid']
 
-        m = re.match('([^.]*)\.([^@])@hig\.no', uid)
+        m = re.search('([^.]*)\.([^@]*)@hig\.no', uid)
         if m:
             # Case 1, items made in exchange will have the
             # id.chkey@hig.no uid

@@ -183,26 +183,6 @@ class SoapQuery:
      xml_fields))
 
 
-    def createAttachedNote(self, parent_id, parent_chkey, name, content):
-        """
-        Create a note (PostItem) as an attachment to (parent_id,parent_chkey)
-        """
-
-        return self.msquery("""
-<CreateAttachment>
-  <ParentItemId Id="%s" ChangeKey="%s" />
-  <Attachments>
-    <t:ItemAttachment>
-      <t:Name>%s</t:Name>
-      <t:Message>
-        <t:Body BodyType="Text">%s</t:Body>
-      </t:Message>
-    </t:ItemAttachment>
-  </Attachments>
-</CreateAttachment>
-""" % (parent_id, parent_chkey, name, content))
-
-
     def getItem(self, itemIds, shape="AllProperties",
                 additionalProperties=""):
         """
@@ -285,13 +265,64 @@ class SoapQuery:
         return self.getAttachment(attachment_id)
 
 
-    def getAttachedNote(self, item_id, item_chkey, name):
+    def getAttachedNote(self, itemId, name):
         """
         Get an attached note created by `createAttachedNote'
         """
 
-        attachment = self.getNamedAttachment( (item_id, item_chkey), name)
+        attachment = self.getNamedAttachment(itemId, name)
         at_elem = ET.XML(attachment) # feilsjekking
         
         body = elementsearch(at_elem, t('Body'))
         return body.text
+
+    def deleteAttachment(self, attId):
+        if not type(attId) == list:
+            attId = [attId]
+
+        attachments = ""
+        for aid in attId:
+            attachments += "<t:AttachmentId Id=\"%s\"/>" % aid
+
+        return self.msquery("""
+<DeleteAttachment>
+  <AttachmentIds>%s</AttachmentIds>
+</DeleteAttachment>
+""" % attachments)
+
+
+    def createAttachedNote(self, itemId, name, content):
+        """
+        Create an Attachment to itemId = (parent_id,parent_chkey)
+        """
+        parent_id, parent_chkey = itemId
+
+        return self.msquery("""
+<CreateAttachment>
+  <ParentItemId Id="%s" ChangeKey="%s" />
+  <Attachments>
+    <t:ItemAttachment>
+      <t:Name>%s</t:Name>
+      <t:Message>
+        <t:Body BodyType="Text">%s</t:Body>
+      </t:Message>
+    </t:ItemAttachment>
+  </Attachments>
+</CreateAttachment>
+""" % (parent_id, parent_chkey, name, content))
+
+
+    def deleteNamedAttachment(self, itemId, name):
+        attachment = self.getNamedAttachment(itemId, name)
+        at_elem = ET.XML(attachment)
+        print attachment
+
+        # TODO: feilsjekking
+        a_id_elem = elementsearch(at_elem, t('AttachmentId'))
+        a_id = a_id_elem.attrib['Id']
+
+        return self.deleteAttachment(a_id)
+
+    def replaceAttachment(self, itemId, name, new_content):
+        self.deleteNamedAttachment(itemId, name)
+        return self.createAttachedNote(itemId, name, new_content)

@@ -60,8 +60,8 @@ class Calendar(ExchangeItem):
         self.et.append(item.et)
         self.calendarItems.append(item)
 
-    def toNewExchangeItems(self):
-        newItems = [i.toNewExchangeItem() for i in self.calendarItems]
+    def toNewExchangeItems(self, uid_ignore):
+        newItems = [i.toNewExchangeItem(uid_ignore) for i in self.calendarItems]
         xml = ""
 
         for i in newItems:

@@ -56,12 +56,12 @@ class CalendarItem(ExchangeItem):
 
     def _fromICal(self, ical):
         # Handle UID, two cases
-        uid = ical['uid']
+        self.uid = ical['uid']
 
         # Add this to the natural position in the tree
         self.set('t:ItemId:Id', '') 
         
-        m = re.search('([^.]*)\.([^@]*)@hig\.no', uid)
+        m = re.search('([^.]*)\.([^@]*)@hig\.no', self.uid)
         if m:
             # Case 1, items made in exchange will have the
             # id.chkey@hig.no uid
@@ -70,7 +70,7 @@ class CalendarItem(ExchangeItem):
             self.set('t:ItemId:ChangeKey', ex_chkey)
         else:
             # Case 2, convert with icalconv
-            exchange_id = icalconv.getExchangeId(uid)
+            exchange_id = icalconv.getExchangeId(self.uid)
             if exchange_id:
                 ex_id, ex_chkey = exchange_id
                 self.set('t:ItemId:Id', ex_id)
@@ -86,14 +86,16 @@ class CalendarItem(ExchangeItem):
 
         return e
 
-    def toNewExchangeItem(self):
-        if self.is_exchangeItem():
+    def toNewExchangeItem(self, uid_ignore):
+        if self.is_exchangeItem() or uid_ignore.has_key(self.uid):
             return None
 
         # We just need to delete the empty ItemId node:
         ex_tree = copy.deepcopy(self.et)
         ex_tree.remove(ex_tree.find(t('ItemId')))
-            
+
+        uid_ignore[self.uid] = True
+        
         return ex_tree
             
             

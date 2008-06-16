@@ -13,8 +13,10 @@ def elementsearch(et, name, all=False):
                 return e
             else:
                 results.append(e)
-            
-        [q.put(child) for child in e]
+
+        for child in e:
+            q.put(child)
+            child.parent = e # Nice to have :-)
             
     if all:
         return results

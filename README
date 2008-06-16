@@ -1,6 +1,8 @@
 Erebus
 ======
 
+This is the Erebus Exchange CalDAV Connector.
+
 Dependencies
 ------------
 - Python 2.4

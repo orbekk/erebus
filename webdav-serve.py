@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 import icalendar
 
 web.webapi.internalerror = web.debugerror
+uid_ignore = {}
 
 urls = (
     '/calendar/(.*)', 'calendar',
@@ -30,8 +31,8 @@ class calendar:
         web.header('Content-Type', 'text/calendar')
 
         log('=== GET ===')
-        log(web.ctx.env)
-        log(web.data())
+#         log(web.ctx.env)
+#         log(web.data())
 
         authorized = auth()
         if not authorized:
@@ -59,15 +60,15 @@ class calendar:
     def REPORT(self, url=None):
         web.header('DAV', dav_header)
         log('=== REPORT ===')
-        log(web.ctx.env)
-        log(web.data())
+#         log(web.ctx.env)
+#         log(web.data())
         web.notfound()
 
     def PROPFIND(self, url=None):
         web.header('DAV', dav_header)
         log('=== PROPFIND ===')
-        log(web.ctx.env)
-        log(web.data())
+#         log(web.ctx.env)
+#         log(web.data())
 
         web.ctx.status = "207 Multi-Status"
 
@@ -86,17 +87,24 @@ class calendar:
 </multistatus>"""
 
     def PUT(self, url=None):
+        authorized = auth()
+        if not authorized:
+            auth_fail()
+            return
+        
         web.header('DAV', dav_header)
         log('=== PUT ===')
-        log(url)
-        log('INPUT DATA')
-        log(web.data())
+#         log('INPUT DATA')
+#         log(web.data())
 
         ical = icalendar.Calendar.from_string(web.data())
-        log('ICAL AS STRING')
-        log(ical.as_string())
-        # cal = Calendar.fromICal(ical)
-#        log(ET.tostring(cal.et))
+        cal = Calendar.fromICal(ical)
+
+        c = SoapConn("http://mail1.ansatt.hig.no:80",False,
+                     auth=authorized)
+        q = SoapQuery(c)
+        newItems = cal.toNewExchangeItems(uid_ignore)
+        if newItems: q.createItem(newItems)
 
         print "ok"
 

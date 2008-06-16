@@ -204,15 +204,20 @@ class CalendarItem(ExchangeItem):
             raise Exception("Invalid item: %s, expected %s" %(et.tag, 'CalendarItem'))
 
     def _fromICal(self, ical):
-        # Handle UID
+        # Handle UID, two cases
         uid = ical['uid']
-        m = re.match('([^.]*)\.([^@])', uid)
-        if not m:
-            raise ValueError, uid
 
-        id, chkey = m.groups()
-        self.set('t:ItemId:Id', id)
-        self.set('t:ItemId:ChangeKey', chkey)
+        m = re.match('([^.]*)\.([^@])@hig\.no', uid)
+        if m:
+            # Case 1, items made in exchange will have the
+            # id.chkey@hig.no uid
+            id, chkey = m.groups()
+            self.set('t:ItemId:Id', id)
+            self.set('t:ItemId:ChangeKey', chkey)
+        else:
+            # Case 2, items made somewhere else must be put into
+            # exchange in a special way.
+            raise ValueError, m
 
         super(CalendarItem, self)._fromICal(ical)
 

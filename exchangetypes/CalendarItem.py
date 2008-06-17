@@ -86,9 +86,10 @@ class CalendarItem(ExchangeItem):
 
         return e
 
-    def toNewExchangeItem(self, uid_ignore):
-        if self.is_exchangeItem() or uid_ignore.has_key(self.uid):
-            return None
+    def toNewExchangeItem(self, uid_ignore, allItems):
+        if allItems == False:
+            if self.is_exchangeItem() or uid_ignore.has_key(self.uid):
+                return None
 
         # We just need to delete the empty ItemId node:
         ex_tree = copy.deepcopy(self.et)

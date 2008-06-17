@@ -105,7 +105,9 @@ class ExchangeItem(object):
         for xml_e,ical_e,f in self.trans_xml2ical:
             xml_e = self.get(xml_e)
             if xml_e:
-                item.add(ical_e, f(xml_e))
+                new = f(xml_e)
+                if new != None:
+                    item.add(ical_e, f(xml_e))
 
         return item
 
@@ -115,6 +117,9 @@ class ExchangeItem(object):
         
         try:
             for ical_e,xml_e,f in self.trans_ical2xml:
-                self.set(xml_e, f(ical[ical_e]))
+                if ical[ical_e]:
+                    new = f(ical[ical_e])
+                    if new != None:
+                        self.set(xml_e, f(ical[ical_e]))
         except KeyError:
             pass

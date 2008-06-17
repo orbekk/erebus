@@ -100,3 +100,26 @@ def insertICalFields(ical):
     Inserts necessary ical fields into db
     """
     pass
+
+
+#####
+# Misc. iCalendar conversion functions
+#
+
+def class2sensitivity(cl):
+    sens = { 'PUBLIC'       : 'Normal',
+             'PRIVATE'      : 'Private',
+             'CONFIDENTIAL' : 'Confidential' }
+
+    if sens.has_key(cl): return sens[cl]
+    else:                return None
+
+def sensitivity2class(s):
+    cs = { 'Normal'         : 'PUBLIC',
+           'Personal'       : 'PRIVATE', # loosing information here.
+           'Private'        : 'PRIVATE',
+           'Confidential'   : 'CONFIDENTIAL' }
+
+    if cs.has_key(s): return cs[s]
+    else:             return None
+

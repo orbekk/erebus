@@ -28,17 +28,23 @@ class CalendarItem(ExchangeItem):
         
         self.trans_xml2ical = \
         [  # See ExchangeItem.toICal
-            ('t:Subject', 'summary', identity),
-            ('t:Start',   'dtstart', xsdt2datetime),
-            ('t:End',     'dtend'  , xsdt2datetime),
-            ('t:DateTimeCreated', 'dtstamp', xsdt2datetime)
+            ('t:Subject',         'summary',     identity),
+            ('t:Sensitivity',     'class',       class2sensitivity)
+            ('t:Start',           'dtstart',     xsdt2datetime),
+            ('t:End',             'dtend'  ,     xsdt2datetime),
+            ('t:Location',        'location',    identity),
+            ('t:DateTimeCreated', 'dtstamp',     xsdt2datetime),
+            ('t:Body',            'description', identity)
         ]
 
         self.trans_ical2xml = \
         [
-            ('summary', 't:Subject',         identity),
-            ('dtstart', 't:Start',           ical2xsdt),
-            ('dtend',   't:End',             ical2xsdt),
+            ('summary',     't:Subject',         identity),
+            ('class',       't:Sensitivity',     class2sensitivity),
+            ('dtstart',     't:Start',           ical2xsdt),
+            ('dtend',       't:End',             ical2xsdt),
+            ('location',    't:Location',        identity),
+            ('description', 't:Body',            identity)
 #            ('dtstamp', 't:DateTimeCreated', ical2xsdt),
         ]    
 

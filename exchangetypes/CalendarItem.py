@@ -29,7 +29,7 @@ class CalendarItem(ExchangeItem):
         self.trans_xml2ical = \
         [  # See ExchangeItem.toICal
             ('t:Subject',         'summary',     identity),
-            ('t:Sensitivity',     'class',       class2sensitivity)
+            ('t:Sensitivity',     'class',       class2sensitivity),
             ('t:Start',           'dtstart',     xsdt2datetime),
             ('t:End',             'dtend'  ,     xsdt2datetime),
             ('t:Location',        'location',    identity),
@@ -66,7 +66,9 @@ class CalendarItem(ExchangeItem):
 
         # Add this to the natural position in the tree
         self.set('t:ItemId:Id', '') 
-        
+
+        ####
+        # ID handling
         m = re.search('([^.]*)\.([^@]*)@hig\.no', self.uid)
         if m:
             # Case 1, items made in exchange will have the

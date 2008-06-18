@@ -80,3 +80,37 @@ def xs_dateTime2xs_time(str):
     Conversion from xs:dateTime to xs:date
     """
     return str.split('T')[1]
+
+def weekday_ical2xml(weekday):
+    """
+    Conversion from ical days (MO, TU, ...) to xml days (Monday,
+    Tuesday, ...)
+    """
+    tab = {
+        'MO' : 'Monday',
+        'TU' : 'Tuesday',
+        'WE' : 'Wednesday',
+        'TH' : 'Thursday',
+        'FR' : 'Friday',
+        'SA' : 'Saturday',
+        'SU' : 'Sunday'
+        }
+    if tab.has_key(weekday): return tab[weekday]
+    else:                    return None
+
+def weekday_xml2ical(weekday):
+    """
+    Conversion from xml days (Monday, Tuesday, ...) to ical days (MO,
+    TU, ...)
+    """
+    tab = {
+        'Monday'    : 'MO',
+        'Tuesday'   : 'TU',
+        'Wednesday' : 'WE',
+        'Thursday'  : 'TH',
+        'Friday'    : 'FR',
+        'Saturday'  : 'SA',
+        'Sunday'    : 'SU'
+        }
+    if tab.has_key(weekday): return tab[weekday]
+    else:                    return None

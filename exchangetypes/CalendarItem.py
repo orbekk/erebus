@@ -100,7 +100,60 @@ class CalendarItem(ExchangeItem):
         e['uid'] = "%s.%s@hig.no" %(self.get("t:ItemId:Id"),
                                     self.get("t:ItemId:ChangeKey"))
 
+
+        # Handle recurrence
+        rec = self.recurrenceFromXML()
+        if rec: e.add('rrule', rec)
+
         return e
+
+    def recurrenceFromXML(self):
+        fi = open('/tmp/recurrence.log', 'a')
+        fi.write('checking for recurrence\n')
+
+        def recurrence2rrule(item):
+            cs = item.getchildren()
+            rec_pattern = cs[0]
+            rec_range   = cs[1]
+            rrule = {}
+
+            rec_ptag  = no_namespace(rec_pattern.tag)
+            rec_table = {
+                'DailyRecurrence'           : 'DAILY',
+                'WeeklyRecurrence'          : 'WEEKLY',
+                'RelativeMonthlyRecurrence' : 'MONTHLY',
+                'AbsoluteMonthlyRecurrence' : 'MONTHLY',
+                'RelativeYearlyRecurrence'  : 'YEARLY',
+                'AbsoluteYearlyRecurrence'  : 'YEARLY',
+                }
+
+            freq = rec_table[rec_ptag]
+            rrule['FREQ'] = freq
+
+            # Check for interval
+            if freq != 'YEARLY':
+                interval = rec_pattern.find(t('Interval'))
+                if interval != None:
+                    rrule['INTERVAL'] =interval.text
+
+            fi.write("FREQ=%s;INTERVAL=%s\n" %(freq, interval))
+
+            return rrule
+
+        
+        recur = self.get('t:IsRecurring')
+        if recur == 'true':
+            fi.write('Item is recurring, TODO: get RecurringMaster\n')
+
+        recur = self.get('t:CalendarItemType')
+        if recur == 'RecurringMaster':
+            fi.write('Item is RecurringMaster. TODO: magic!\n')
+            rec = recurrence2rrule(self.getItem('t:Recurrence'))
+            fi.write("Got recurrence: %s\n\n" % rec)
+            return rec
+        
+        return None
+
 
     def toNewExchangeItem(self, uid_ignore, allItems):
         if allItems == False:

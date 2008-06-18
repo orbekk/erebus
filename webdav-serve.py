@@ -126,7 +126,9 @@ class calendar:
 
         delete = [(i.get('t:ItemId:Id'), i.get('t:ItemId:ChangeKey'))
                   for i in oldCal.calendarItems]
-        q.deleteItems(delete)
+
+        if len(delete) > 0:
+            q.deleteItems(delete)
 
         print "ok"
 

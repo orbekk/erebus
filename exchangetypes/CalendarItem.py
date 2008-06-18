@@ -7,7 +7,7 @@ from Queue import Queue
 from icalendar import Event
 from icalendar import Calendar as ICal
 from datetime import datetime
-import helper.icalconv as icalconv
+from helper.icalconv import *
 import re
 import copy
 
@@ -29,9 +29,9 @@ class CalendarItem(ExchangeItem):
         self.trans_xml2ical = \
         [  # See ExchangeItem.toICal
             ('t:Subject',         'summary',     identity),
-            ('t:Sensitivity',     'class',       class2sensitivity),
             ('t:Start',           'dtstart',     xsdt2datetime),
             ('t:End',             'dtend'  ,     xsdt2datetime),
+            ('t:Sensitivity',     'class',       sensitivity2class),
             ('t:Location',        'location',    identity),
             ('t:DateTimeCreated', 'dtstamp',     xsdt2datetime),
             ('t:Body',            'description', identity)
@@ -41,10 +41,10 @@ class CalendarItem(ExchangeItem):
         [
             ('summary',     't:Subject',         identity),
             ('class',       't:Sensitivity',     class2sensitivity),
+            ('description', 't:Body',            identity),
             ('dtstart',     't:Start',           ical2xsdt),
             ('dtend',       't:End',             ical2xsdt),
             ('location',    't:Location',        identity),
-            ('description', 't:Body',            identity)
 #            ('dtstamp', 't:DateTimeCreated', ical2xsdt),
         ]    
 
@@ -78,13 +78,21 @@ class CalendarItem(ExchangeItem):
             self.set('t:ItemId:ChangeKey', ex_chkey)
         else:
             # Case 2, convert with icalconv
-            exchange_id = icalconv.getExchangeId(self.uid)
+            exchange_id = getExchangeId(self.uid)
             if exchange_id:
                 ex_id, ex_chkey = exchange_id
                 self.set('t:ItemId:Id', ex_id)
                 self.set('t:ItemId:ChangeKey', ex_chkey)
 
         super(CalendarItem, self)._fromICal(ical)
+
+        if self.get('t:Body') != None:
+            self.set('t:Body:BodyType', 'Text')
+            
+        # debug
+        # f = open("/tmp/item_fromICal.xml", "w")
+        # f.write(ET.tostring(self.et))
+        # f.close()
 
     def toICal(self):
         e = ExchangeItem.toICal(self)

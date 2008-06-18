@@ -102,24 +102,38 @@ class ExchangeItem(object):
         # Subclasses should override this method whenever it's not
         # flexible enough
         #
+
+        # debug
+        # fi = open('/tmp/ical_elem.xml', 'w')
+        # fi.write(ET.tostring(self.et))
+        
         for xml_e,ical_e,f in self.trans_xml2ical:
             xml_e = self.get(xml_e)
             if xml_e:
                 new = f(xml_e)
                 if new != None:
-                    item.add(ical_e, f(xml_e))
+                    item.add(ical_e, new)
 
         return item
 
 
     def _fromICal(self, ical):
         # print "fromICal: ", self.__class__
+
+        # debug :)
+        # fi = open("/tmp/conv_log", "a")
         
-        try:
-            for ical_e,xml_e,f in self.trans_ical2xml:
+        for ical_e,xml_e,f in self.trans_ical2xml:
+            # fi.write("\n")
+            try:
+                # fi.write("%s->%s" %(ical_e, xml_e))
                 if ical[ical_e]:
-                    new = f(ical[ical_e])
+                    # fi.write(" ical_e(%s), %s = new(%s)" % (ical_e,xml_e,str(f(ical[ical_e]))))
+                    new = str(f(ical[ical_e]))
                     if new != None:
-                        self.set(xml_e, f(ical[ical_e]))
-        except KeyError:
-            pass
+                        self.set(xml_e, new)
+            except KeyError:
+                pass
+
+        # fi.write("\n\n")
+        # fi.close()

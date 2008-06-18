@@ -6,6 +6,9 @@ from soapquery import *
 from web_auth import *
 import xml.etree.ElementTree as ET
 import icalendar
+import pprint
+import sys
+pp = pprint.PrettyPrinter()
 
 web.webapi.internalerror = web.debugerror
 uid_ignore = {}
@@ -30,10 +33,12 @@ class calendar:
         web.header('ETag', 'roflbar')
         web.header('Content-Type', 'text/calendar')
 
-        # log('=== GET ===')
+        log('=== GET ===')
+        log(pp.pformat(web.ctx.env))
         # log(web.data())
 
-        authorized = auth()
+        authorized = auth(web.ctx.env)
+        log("Response from auth: %s" % pp.pformat(authorized))
         if not authorized:
             auth_fail()
             return
@@ -44,10 +49,10 @@ class calendar:
                              auth=authorized)
 
                 q = SoapQuery(c)
-                its = q.findItems('calendar')
-                log(its)
+                its = q.getAllItemsForCalendar()
                 cal = Calendar.fromXML(its)
             except:
+                log("error: %s" % pp.pformat(sys.exc_info()))
                 auth_fail()
                 return
             res = cal.toICal().as_string()
@@ -96,7 +101,7 @@ class calendar:
         anyway)
         """
 
-        authorized = auth()
+        authorized = auth(web.ctx.env)
         if not authorized:
             auth_fail()
             return

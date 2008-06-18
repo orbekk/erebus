@@ -1,4 +1,6 @@
 import web
+import pprint
+pp = pprint.PrettyPrinter()
 
 def auth_fail(realm="HiG Exchange transport"):
     web.ctx.status = '401 Authorization failed'
@@ -6,9 +8,9 @@ def auth_fail(realm="HiG Exchange transport"):
     print 'Please log in'
     return
 
-def auth():
+def auth(headers):
     try:
-        authorization = web.ctx.env['HTTP_AUTHORIZATION']
+        authorization = headers['HTTP_AUTHORIZATION']
     except KeyError:
         return None
 

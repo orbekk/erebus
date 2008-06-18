@@ -237,6 +237,7 @@ class SoapQuery:
         r = ET.XML(self.findItems('calendar', baseShape="IdOnly"))
         id_elems = elementsearch(r, t('ItemId'), all=True)
         item_ids = [(i.attrib['Id'], i.attrib['ChangeKey']) for i in id_elems]
+        if len(item_ids) == 0: return "<Items></Items>"
 
         return self.getItem(item_ids, extraProps=['item:Body'])
 

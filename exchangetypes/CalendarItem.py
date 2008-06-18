@@ -125,7 +125,7 @@ class CalendarItem(ExchangeItem):
 
             noend     = ET.Element(t('NoEndRecurrence'))
             startdate = ET.Element(t('StartDate')) # User start date
-            startdate.text = '2008-06-16Z'
+            startdate.text = xs_dateTime2xs_date(self.get('t:Start'))
             noend.append(startdate)
             
             recurrence.append(noend)

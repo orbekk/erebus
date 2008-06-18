@@ -104,6 +104,14 @@ class CalendarItem(ExchangeItem):
                 # TODO: Check BYWEEKNO, BYDAY
                 pass
 
+            # Find interval (or default to 1)
+            if rrule.has_key('INTERVAL'):
+                interval = rrule['INTERVAL'][0]
+            else:
+                interval = 1
+            interval_e = ET.Element(t('Interval'))
+            interval_e.text = str(interval)
+
             has_recurrence = False
             recurrence = ET.Element(t('Recurrence'))
 
@@ -112,16 +120,26 @@ class CalendarItem(ExchangeItem):
             if rrule['FREQ'][0] == 'DAILY':
                 has_recurrence = True
                 reqpattern = ET.Element(t('DailyRecurrence'))
-                interval   = 1
-
-                if rrule.has_key('INTERVAL'):
-                    interval = rrule['INTERVAL'][0]
-
-                interval_e = ET.Element(t('Interval'))
-                interval_e.text = str(interval)
                 reqpattern.append(interval_e)
 
                 recurrence.append(reqpattern)
+
+            elif rrule['FREQ'][0] == 'WEEKLY':
+                has_recurrence = True
+                reqpattern = ET.Element(t('WeeklyRecurrence'))
+
+                if rrule.has_key('WKST'):
+                    daysofweek = ET.Element(t('DaysOfWeek'))
+                    for w in rrule['WKST']:
+                        daysofweek.text += weekday_ical2xml(str(w))
+                else: # TODO: Get weekday from python
+                    pass
+                recpattern.append(interval_e)
+
+                recurrence.append(reqpattern)
+
+            
+
 
             noend     = ET.Element(t('NoEndRecurrence'))
             startdate = ET.Element(t('StartDate')) # User start date

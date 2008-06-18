@@ -88,6 +88,59 @@ class CalendarItem(ExchangeItem):
 
         if self.get('t:Body') != None:
             self.set('t:Body:BodyType', 'Text')
+
+
+        ####
+        # Recurrence handling
+        fi = open('/tmp/recurrence.log', 'a')
+        fi.write('checking for recurrence\n')
+        
+        def rrule2recurrence(rrule):
+            # Check for relative types
+            if rrule['FREQ'][0] == 'YEARLY':
+                # TODO: Check BYWEEKNO, BYDAY
+                pass
+            elif rrule['FREQ'][0] == 'MONTHLY':
+                # TODO: Check BYWEEKNO, BYDAY
+                pass
+
+            has_recurrence = False
+            recurrence = ET.Element(t('Recurrence'))
+
+            fi.write("rrule: "+str(rrule)+"\n\n")
+            # Assume absolute types
+            if rrule['FREQ'][0] == 'DAILY':
+                has_recurrence = True
+                reqpattern = ET.Element(t('DailyRecurrence'))
+                interval   = 1
+
+                if rrule.has_key('INTERVAL'):
+                    interval = rrule['INTERVAL'][0]
+
+                interval_e = ET.Element(t('Interval'))
+                interval_e.text = str(interval)
+                reqpattern.append(interval_e)
+
+                recurrence.append(reqpattern)
+
+            noend     = ET.Element(t('NoEndRecurrence'))
+            startdate = ET.Element(t('StartDate')) # User start date
+            startdate.text = '2008-06-16Z'
+            noend.append(startdate)
+            
+            recurrence.append(noend)
+
+            return recurrence
+                    
+
+        if ical.has_key('rrule'):
+            fi.write("ical has rrule!\n")
+            fi.write(ical.as_string())
+            recurrence = rrule2recurrence(ical['rrule'])
+            if recurrence != None:
+                self.et.append(recurrence)
+
+        fi.write("Exchange item:\n%s\n\n" % ET.tostring(self.et))
             
         # debug
         # f = open("/tmp/item_fromICal.xml", "w")

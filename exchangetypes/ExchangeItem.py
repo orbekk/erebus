@@ -113,8 +113,8 @@ class ExchangeItem(object):
         #
 
         # debug
-        # fi = open('/tmp/ical_elem.xml', 'w')
-        # fi.write(ET.tostring(self.et))
+        fi = open('/tmp/ical_elem.xml', 'w')
+        fi.write(ET.tostring(self.et))
         
         for xml_e,ical_e,f in self.trans_xml2ical:
             xml_e = self.get(xml_e)

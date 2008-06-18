@@ -67,3 +67,16 @@ def xsdt2datetime(time):
 
     return datetime(int(m[0]), int(m[1]), int(m[2]), int(m[3]),
                     int(m[4]), int(m[5]), tzinfo=tzinfo)
+
+
+def xs_dateTime2xs_date(str):
+    """
+    Conversion from xs:dateTime to xs:date
+    """
+    return str.split('T')[0]
+
+def xs_dateTime2xs_time(str):
+    """
+    Conversion from xs:dateTime to xs:date
+    """
+    return str.split('T')[1]

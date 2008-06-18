@@ -14,13 +14,7 @@ class ExchangeItem(object):
     def __init__(self, et):
         self.et = et
 
-    def get(self, attr):
-        """
-        m_Element: get the text of Element in the message namespace
-        t_Element: same, but in the target namespace
-        [mt]_Element_Attr: get the attribute Attr in Element
-        """
-
+    def _get(self, attr, item):
         p = re.compile("([tm]):")
         if p.match(attr):
             splt = attr.split(":")
@@ -34,6 +28,7 @@ class ExchangeItem(object):
 
             # TODO: searchAll in case of attributes?
             e = self.search(with_ns(ns, elem))
+            if item: return e
 
             if e != None:
                 if len(splt) == 2:
@@ -44,6 +39,20 @@ class ExchangeItem(object):
                         return a
         
         return None
+
+    def get(self, attr):
+        """
+        m_Element: get the text of Element in the message namespace
+        t_Element: same, but in the target namespace
+        [mt]_Element_Attr: get the attribute Attr in Element
+        """
+        return self._get(attr, False)
+
+    def getItem(self, attr):
+        """
+        Same as get, but return the element instead of the text
+        """
+        return self._get(attr, True)
 
     def set(self, attr, val):
         """

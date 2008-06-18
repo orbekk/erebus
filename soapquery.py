@@ -84,6 +84,7 @@ def soapmethod(f):
 class SoapQuery:
 
     def msquery(self,string,header=""):
+        header += '<t:RequestServerVersion Version="Exchange2007_SP1"/>'
         query = \
 """<?xml version="1.0" encoding="utf-8"?>
  <soap:Envelope
@@ -97,6 +98,11 @@ class SoapQuery:
      </soap:Body>
    </soap:Envelope>""" %(messages, types, header, string)
 
+        # Handy for debugging last request
+        f = open('/tmp/lastquery.xml', 'a')
+        f.write("\n\n\n"+query)
+        f.close()
+        
         xml = ET.XML(query)
         body = elementsearch(xml, "{http://schemas.xmlsoap.org/soap/envelope/}Body")
         if body == None: raise Exception("Could not find soap:Body element")
@@ -125,17 +131,29 @@ class SoapQuery:
 """ % folderName)
 
 
-    def findItems(self,parentFolder,baseShape="AllProperties"):
+    def findItems(self,parentFolder,baseShape="AllProperties",extraProps=[]):
+        props = ""
+        for p in extraProps:
+            props += "<t:FieldURI FieldURI=\"%s\"/>" % p
+
+        if props != "":
+            props = """
+<t:AdditionalProperties>
+  %s
+</t:AdditionalProperties>""" % props
+
+
         return self.msquery("""
 <FindItem Traversal="Shallow">
   <ItemShape>
     <t:BaseShape>%s</t:BaseShape>
+    %s
   </ItemShape>
   <ParentFolderIds>
     <t:DistinguishedFolderId Id="%s"/>
   </ParentFolderIds>
 </FindItem>
-""" % (baseShape, parentFolder))
+""" % (baseShape, props, parentFolder))
 
 
     def deleteItems(self,itemIds,deleteType="MoveToDeletedItems",
@@ -177,13 +195,19 @@ class SoapQuery:
 
 
     def getItem(self, itemIds, shape="AllProperties",
-                additionalProperties=""):
+                extraProps=""):
         """
         Get an item
         """
-        if additionalProperties != "":
-            additionalProperties = \
-                "<t:AdditionalProperties>%s</t:AdditionalProperties>" % additionalProperties
+        props = ""
+        for p in extraProps:
+            props += "<t:FieldURI FieldURI=\"%s\"/>" % p
+
+        if props != "":
+            props = """
+<t:AdditionalProperties>
+  %s
+</t:AdditionalProperties>""" % props
 
         ids = ""
         if type(itemIds) == list:
@@ -203,7 +227,18 @@ class SoapQuery:
   %s
   </ItemIds>
 </GetItem>
-""" %(shape,additionalProperties,ids))
+""" %(shape,props,ids))
+
+
+    def getAllItemsForCalendar(self):
+        """
+        Return all items with all needed properties
+        """
+        r = ET.XML(self.findItems('calendar', baseShape="IdOnly"))
+        id_elems = elementsearch(r, t('ItemId'), all=True)
+        item_ids = [(i.attrib['Id'], i.attrib['ChangeKey']) for i in id_elems]
+
+        return self.getItem(item_ids, extraProps=['item:Body'])
 
 
     def getAttachment(self, ids):
@@ -233,7 +268,7 @@ class SoapQuery:
 
         item_id, item_chkey = itemId
         item = self.getItem((item_id, item_chkey),shape="IdOnly",
-                            additionalProperties=props)
+                            extraProps=props)
       
 
         # Find all attachments

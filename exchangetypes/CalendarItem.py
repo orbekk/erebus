@@ -253,9 +253,9 @@ class CalendarItem(ExchangeItem):
                 for w in ical_dow:
                     rrule['BYDAY'].append(w)
 
-                if freq == 'WEEKLY' and len(ical_dow) > 1:
-                    freq = 'DAILY'
-                    
+#                 if freq == 'WEEKLY' and len(ical_dow) > 1:
+#                     freq = 'DAILY'
+
             if freq == 'MONTHLY':
                 dayofmonth = self.get('t:DayOfMonth')
                 rrule['BYMONTHDAY'] = dayofmonth
@@ -271,6 +271,7 @@ class CalendarItem(ExchangeItem):
         recur = self.get('t:CalendarItemType')
         if recur == 'RecurringMaster' or self.get_item('t:Recurrence'):
             fi.write('Item is RecurringMaster. TODO: magic!\n')
+            fi.write(ET.tostring(self.get_item('t:Recurrence')) + "\n")
             rec = recurrence2rrule(self.get_item('t:Recurrence'))
             fi.write("Got recurrence: %s\n\n" % rec)
             return rec

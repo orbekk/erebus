@@ -16,6 +16,7 @@ from exchangetypes.CalendarItem import CalendarItem
 class Calendar(ExchangeItem):
     @staticmethod
     def from_ical(ical):
+        """Create a Calendar from an iCalendar object"""
         cal = Calendar(ET.Element(m('Items')))
         cal._from_ical(ical)
         return cal
@@ -23,6 +24,11 @@ class Calendar(ExchangeItem):
     @staticmethod
 
     def from_xml(s):
+        """Create a Calendar from a XML string as given by exchange
+
+        (The calendar events are created from CalendarItems in the
+        XML)
+        """
         return Calendar(ET.XML(s))
 
     def __init__(self, et):

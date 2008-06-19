@@ -15,57 +15,59 @@ from exchangetypes.CalendarItem import CalendarItem
 
 class Calendar(ExchangeItem):
     @staticmethod
-    def fromICal(ical):
+    def from_ical(ical):
         cal = Calendar(ET.Element(m('Items')))
-        cal._fromICal(ical)
+        cal._from_ical(ical)
         return cal
     
     @staticmethod
 
-    def fromXML(s):
+    def from_xml(s):
         return Calendar(ET.XML(s))
 
     def __init__(self, et):
         ExchangeItem.__init__(self,et)
-        self.calendarItems = []
-        self.__get_calendarItems()
+        self.calendar_items = []
+        self.__get_calendar_items()
         
         self.trans_xml2ical = []
         self.trans_ical2xml = []
         self.icalClass = ICal
 
-    def __get_calendarItems(self):
-        cis = self.searchAll(t('CalendarItem'))
+    def __get_calendar_items(self):
+        cis = self.search_all(t('CalendarItem'))
 
         for ci in cis:
-            self.calendarItems.append(CalendarItem(ci))
+            self.calendar_items.append(CalendarItem(ci))
 
-    def toICal(self):
+    def to_ical(self):
         cal = ICal()
         cal.add('prodid', '-//iCalendar from Exchange//hig.no//')
         cal.add('version', '2.0')
 
-        for item in self.calendarItems:
-            cal.add_component(item.toICal())
+        for item in self.calendar_items:
+            cal.add_component(item.to_ical())
 
         return cal
 
-    def _fromICal(self, ical):
-        super(Calendar, self)._fromICal(ical)
+    def _from_ical(self, ical):
+        super(Calendar, self)._from_ical(ical)
 
         for item in ical.walk('VEVENT'):
-            self.addCalendarItem(CalendarItem.fromICal(item))
+            self.add_calendaritem(CalendarItem.from_ical(item))
 
-    def addCalendarItem(self, item):
+    def add_calendaritem(self, item):
         self.et.append(item.et)
-        self.calendarItems.append(item)
+        self.calendar_items.append(item)
 
-    def toNewExchangeItems(self, uid_ignore={}, allItems=False):
-        newItems = [i.toNewExchangeItem(uid_ignore,allItems)
-                    for i in self.calendarItems]
+    def get_new_xmlitems(self, uid_ignore={}, allItems=False):
+        """Return all items not yet in Exchange"""
+        
+        new_items = [i.get_new_exchangeitem(uid_ignore,allItems)
+                    for i in self.calendar_items]
         xml = ""
 
-        for i in newItems:
+        for i in new_items:
             if i != None:
                 xml += ET.tostring(i)
             

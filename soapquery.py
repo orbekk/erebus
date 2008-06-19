@@ -45,14 +45,14 @@ class SoapConn:
 
         return conn
 
-    def do_query(self,path,query,action,extraHeaders=[]):
+    def do_query(self,path,query,action,extra_headers=[]):
         headers = self.headers
 
         headers["SOAPAction"] = action
         headers["Content-Length"] = len(query)
 
 
-        for k,v in extraHeaders:
+        for k,v in extra_headers:
             headers[k] = v
 
         conn = self.make_connection()
@@ -76,9 +76,9 @@ def soapmethod(f):
         if body == None:
             raise Exception("Could not find <soap:Body/> element")
 
-        soapAction = body.getchildren()[0].tag
+        soap_action = body.getchildren()[0].tag
 
-        return self.soapconn.do_query("/ews/Exchange.asmx",f(*args,**kws),soapAction)
+        return self.soapconn.do_query("/ews/Exchange.asmx",f(*args,**kws),soap_action)
 
 
 class SoapQuery:
@@ -107,18 +107,18 @@ class SoapQuery:
         body = elementsearch(xml, "{http://schemas.xmlsoap.org/soap/envelope/}Body")
         if body == None: raise Exception("Could not find soap:Body element")
 
-        soapAction = body.getchildren()[0].tag
-        soapAction = re.sub('{', '', soapAction)
-        soapAction = re.sub('}', '/', soapAction)
+        soap_action = body.getchildren()[0].tag
+        soap_action = re.sub('{', '', soap_action)
+        soap_action = re.sub('}', '/', soap_action)
         
-        return self.soapconn.do_query("/ews/Exchange.asmx",query,soapAction)
+        return self.soapconn.do_query("/ews/Exchange.asmx",query,soap_action)
         
 
     def __init__(self,soapconn):
         self.soapconn = soapconn
 
     
-    def getFolder(self,folderName):
+    def get_folder(self,foldername):
         return self.msquery("""
 <GetFolder>
   <FolderShape>
@@ -128,12 +128,12 @@ class SoapQuery:
     <t:DistinguishedFolderId Id=\"%s\"/>
   </FolderIds>
 </GetFolder>
-""" % folderName)
+""" % foldername)
 
 
-    def findItems(self,parentFolder,baseShape="AllProperties",extraProps=[]):
+    def find_items(self,parent_folder,baseshape="AllProperties",extra_props=[]):
         props = ""
-        for p in extraProps:
+        for p in extra_props:
             props += "<t:FieldURI FieldURI=\"%s\"/>" % p
 
         if props != "":
@@ -153,22 +153,22 @@ class SoapQuery:
     <t:DistinguishedFolderId Id="%s"/>
   </ParentFolderIds>
 </FindItem>
-""" % (baseShape, props, parentFolder))
+""" % (baseshape, props, parent_folder))
 
 
-    def deleteItems(self,itemIds,deleteType="MoveToDeletedItems",
-                   sendMeetingCancellations="SendToNone"):
+    def delete_items(self,itemids,delete_type="MoveToDeletedItems",
+                   send_cancellations="SendToNone"):
         """
-        deleteType: {HardDelete, SoftDelete, *MoveToDeletedItems*}
-        sendMeetingCancellations: {*SendToNone*, SendOnlyToAll, SendToAllAndSaveCopy}
+        delete_type: {HardDelete, SoftDelete, *MoveToDeletedItems*}
+        send_cancellations: {*SendToNone*, SendOnlyToAll, SendToAllAndSaveCopy}
         """
 
         ids = ""
-        if type(itemIds) == list:
-            for itemid,chkey in itemIds:
+        if type(itemids) == list:
+            for itemid,chkey in itemids:
                 ids += """<t:ItemId Id="%s" ChangeKey="%s"/>""" %(itemid,chkey)
         else:
-            ids = """<t:ItemId Id="%s" ChangeKey="%s"/>""" % itemIds
+            ids = """<t:ItemId Id="%s" ChangeKey="%s"/>""" % itemids
         
         return self.msquery("""
 <DeleteItem DeleteType="%s"
@@ -177,11 +177,11 @@ class SoapQuery:
     %s
   </ItemIds>
 </DeleteItem>
-""" %(deleteType, sendMeetingCancellations, ids))
+""" %(delete_type, send_cancellations, ids))
 
-    def createItem(self,calendarItems,sendMeetingInvitations="SendToNone"):
+    def create_item(self,calendar_items,send_invitations="SendToNone"):
         """
-        sendMeetingCancellations: {*SendToNone*, SendOnlyToAll, SendToAllAndSaveCopy}
+        send_cancellations: {*SendToNone*, SendOnlyToAll, SendToAllAndSaveCopy}
         """
 
         return self.msquery("""
@@ -190,17 +190,17 @@ class SoapQuery:
     %s
   </Items>      
 </CreateItem>
-"""%(sendMeetingInvitations,
-     calendarItems))
+"""%(send_invitations,
+     calendar_items))
 
 
-    def getItem(self, itemIds, shape="AllProperties",
-                extraProps=""):
+    def get_item(self, itemids, shape="AllProperties",
+                extra_props=""):
         """
         Get an item
         """
         props = ""
-        for p in extraProps:
+        for p in extra_props:
             props += "<t:FieldURI FieldURI=\"%s\"/>" % p
 
         if props != "":
@@ -210,11 +210,11 @@ class SoapQuery:
 </t:AdditionalProperties>""" % props
 
         ids = ""
-        if type(itemIds) == list:
-            for itemid,chkey in itemIds:
+        if type(itemids) == list:
+            for itemid,chkey in itemids:
                 ids += """<t:ItemId Id="%s" ChangeKey="%s"/>""" %(itemid,chkey)
         else:
-            ids = """<t:ItemId Id="%s" ChangeKey="%s"/>""" % itemIds
+            ids = """<t:ItemId Id="%s" ChangeKey="%s"/>""" % itemids
         
         
         return self.msquery("""
@@ -230,25 +230,25 @@ class SoapQuery:
 """ %(shape,props,ids))
 
 
-    def getAllItemsForCalendar(self):
+    def get_all_calendar_items(self):
         """
         Return all items with all needed properties
         """
-        r = ET.XML(self.findItems('calendar', baseShape="IdOnly"))
+        r = ET.XML(self.find_items('calendar', baseshape="IdOnly"))
         id_elems = elementsearch(r, t('ItemId'), all=True)
         item_ids = [(i.attrib['Id'], i.attrib['ChangeKey']) for i in id_elems]
         if len(item_ids) == 0: return "<Items></Items>"
 
-        return self.getItem(item_ids, extraProps=['item:Body'])
+        return self.get_item(item_ids, extra_props=['item:Body'])
 
 
-    def getAttachment(self, ids):
+    def get_attachment(self, ids):
         if not type(ids) == list:
             ids = [ids]
 
-        itemIds = ""
+        itemids = ""
         for i in ids:
-            itemIds += '<t:AttachmentId Id="%s"/>' % i
+            itemids += '<t:AttachmentId Id="%s"/>' % i
 
         return self.msquery("""
 <GetAttachment>
@@ -256,10 +256,10 @@ class SoapQuery:
   %s
   </AttachmentIds>
 </GetAttachment>
-""" % itemIds)
+""" % itemids)
 
 
-    def getNamedAttachment(self, itemId, name):
+    def get_named_attachment(self, itemid, name):
         """
         Return the attachment with name `name'
         """
@@ -267,21 +267,21 @@ class SoapQuery:
 <t:FieldURI FieldURI="item:Attachments"/>
 <t:FieldURI FieldURI="item:HasAttachments"/>"""
 
-        item_id, item_chkey = itemId
-        item = self.getItem((item_id, item_chkey),shape="IdOnly",
-                            extraProps=props)
+        item_id, item_chkey = itemid
+        item = self.get_item((item_id, item_chkey),shape="IdOnly",
+                            extra_props=props)
       
 
         # Find all attachments
         et = ET.XML(item)
         attachments = elementsearch(et, t('ItemAttachment'), True)
 
-        def nameFilter(e):
+        def name_filter(e):
             t_name = e.find(t('Name'))
             if t_name == None: return False
             return t_name.text == name
 
-        attachments = filter(nameFilter, attachments)
+        attachments = filter(name_filter, attachments)
 
         # if len(attachments) > 1: oops?
         if len(attachments) == 0:
@@ -291,21 +291,21 @@ class SoapQuery:
         attachment = attachments[0]
         attachment_id = attachment.find(t('AttachmentId')).attrib['Id']
 
-        return self.getAttachment(attachment_id)
+        return self.get_attachment(attachment_id)
 
 
-    def getAttachedNote(self, itemId, name):
+    def get_attached_note(self, itemid, name):
         """
         Get an attached note created by `createAttachedNote'
         """
 
-        attachment = self.getNamedAttachment(itemId, name)
+        attachment = self.get_named_attachment(itemid, name)
         at_elem = ET.XML(attachment) # feilsjekking
         
         body = elementsearch(at_elem, t('Body'))
         return body.text
 
-    def deleteAttachment(self, attId):
+    def delete_attachment(self, attId):
         if not type(attId) == list:
             attId = [attId]
 
@@ -320,11 +320,11 @@ class SoapQuery:
 """ % attachments)
 
 
-    def createAttachedNote(self, itemId, name, content):
+    def create_attached_note(self, itemid, name, content):
         """
-        Create an Attachment to itemId = (parent_id,parent_chkey)
+        Create an Attachment to itemid = (parent_id,parent_chkey)
         """
-        parent_id, parent_chkey = itemId
+        parent_id, parent_chkey = itemid
 
         return self.msquery("""
 <CreateAttachment>
@@ -341,8 +341,8 @@ class SoapQuery:
 """ % (parent_id, parent_chkey, name, content))
 
 
-    def deleteNamedAttachment(self, itemId, name):
-        attachment = self.getNamedAttachment(itemId, name)
+    def delete_named_attachment(self, itemid, name):
+        attachment = self.get_named_attachment(itemid, name)
         at_elem = ET.XML(attachment)
         print attachment
 
@@ -350,8 +350,8 @@ class SoapQuery:
         a_id_elem = elementsearch(at_elem, t('AttachmentId'))
         a_id = a_id_elem.attrib['Id']
 
-        return self.deleteAttachment(a_id)
+        return self.delete_attachment(a_id)
 
-    def replaceAttachment(self, itemId, name, new_content):
-        self.deleteNamedAttachment(itemId, name)
-        return self.createAttachedNote(itemId, name, new_content)
+    def replace_attachment(self, itemid, name, new_content):
+        self.delete_named_attachment(itemid, name)
+        return self.create_attached_note(itemid, name, new_content)

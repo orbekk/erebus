@@ -18,9 +18,9 @@ from exchangetypes.ExchangeItem import ExchangeItem
 class CalendarItem(ExchangeItem):
 
     @staticmethod
-    def fromICal(ical):
+    def from_ical(ical):
         item = CalendarItem(ET.Element(t('CalendarItem')))
-        item._fromICal(ical)
+        item._from_ical(ical)
         return item
 
     def __init__(self, et):
@@ -29,7 +29,7 @@ class CalendarItem(ExchangeItem):
         self.icalClass = Event
         
         self.trans_xml2ical = \
-        [  # See ExchangeItem.toICal
+        [  # See ExchangeItem.to_ical
             ('t:Subject',         'summary',     identity),
             ('t:Start',           'dtstart',     xsdt2datetime),
             ('t:End',             'dtend'  ,     xsdt2datetime),
@@ -62,7 +62,7 @@ class CalendarItem(ExchangeItem):
         if et.tag != t('CalendarItem'):
             raise Exception("Invalid item: %s, expected %s" %(et.tag, 'CalendarItem'))
 
-    def _fromICal(self, ical):
+    def _from_ical(self, ical):
         # Handle UID, two cases
         self.uid = ical['uid']
 
@@ -86,7 +86,7 @@ class CalendarItem(ExchangeItem):
                 self.set('t:ItemId:Id', ex_id)
                 self.set('t:ItemId:ChangeKey', ex_chkey)
 
-        super(CalendarItem, self)._fromICal(ical)
+        super(CalendarItem, self)._from_ical(ical)
 
         if self.get('t:Body') != None:
             self.set('t:Body:BodyType', 'Text')
@@ -195,12 +195,12 @@ class CalendarItem(ExchangeItem):
         fi.write("Exchange item:\n%s\n\n" % ET.tostring(self.et))
             
         # debug
-        # f = open("/tmp/item_fromICal.xml", "w")
+        # f = open("/tmp/item_from_ical.xml", "w")
         # f.write(ET.tostring(self.et))
         # f.close()
 
-    def toICal(self):
-        e = ExchangeItem.toICal(self)
+    def to_ical(self):
+        e = ExchangeItem.to_ical(self)
 
         if self.get('t:ItemId:Id') and self.get('t:ItemId:ChangeKey'):
             e['uid'] = "%s.%s@hig.no" %(self.get("t:ItemId:Id"),
@@ -208,12 +208,12 @@ class CalendarItem(ExchangeItem):
 
 
         # Handle recurrence
-        rec = self.recurrenceFromXML()
+        rec = self.recurrence_exch2ical()
         if rec: e.add('rrule', rec)
 
         return e
 
-    def recurrenceFromXML(self):
+    def recurrence_exch2ical(self):
         fi = open('/tmp/recurrence.log', 'a')
         fi.write('checking for recurrence\n')
 
@@ -269,16 +269,16 @@ class CalendarItem(ExchangeItem):
             fi.write('Item is recurring, TODO: get RecurringMaster\n')
 
         recur = self.get('t:CalendarItemType')
-        if recur == 'RecurringMaster' or self.getItem('t:Recurrence'):
+        if recur == 'RecurringMaster' or self.get_item('t:Recurrence'):
             fi.write('Item is RecurringMaster. TODO: magic!\n')
-            rec = recurrence2rrule(self.getItem('t:Recurrence'))
+            rec = recurrence2rrule(self.get_item('t:Recurrence'))
             fi.write("Got recurrence: %s\n\n" % rec)
             return rec
         
         return None
 
 
-    def toNewExchangeItem(self, uid_ignore, allItems):
+    def get_new_exchangeitem(self, uid_ignore, allItems):
         if allItems == False:
             if self.is_exchangeItem() or uid_ignore.has_key(self.uid):
                 return None

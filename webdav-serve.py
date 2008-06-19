@@ -49,13 +49,13 @@ class calendar:
                              auth=authorized)
 
                 q = SoapQuery(c)
-                its = q.getAllItemsForCalendar()
-                cal = Calendar.fromXML(its)
+                its = q.get_all_calendar_items()
+                cal = Calendar.from_xml(its)
             except:
                 log("error: %s" % pp.pformat(sys.exc_info()))
                 auth_fail()
                 return
-            res = cal.toICal().as_string()
+            res = cal.to_ical().as_string()
 
             # web.py doesn't add Content-Length header when setting
             # Content-Type manually
@@ -112,23 +112,23 @@ class calendar:
         # log(web.data())
 
         ical = icalendar.Calendar.from_string(web.data())
-        cal = Calendar.fromICal(ical)
+        cal = Calendar.from_ical(ical)
 
         c = SoapConn("http://mail1.ansatt.hig.no:80",False,
                      auth=authorized)
         q = SoapQuery(c)
 
-        newItems = cal.toNewExchangeItems(uid_ignore, allItems=True)
-        oldItems = q.findItems('calendar')
-        oldCal   = Calendar.fromXML(oldItems)
+        newItems = cal.get_new_xmlitems(uid_ignore, allItems=True)
+        oldItems = q.find_items('calendar')
+        oldCal   = Calendar.from_xml(oldItems)
         
-        if newItems: q.createItem(newItems)
+        if newItems: q.create_item(newItems)
 
         delete = [(i.get('t:ItemId:Id'), i.get('t:ItemId:ChangeKey'))
-                  for i in oldCal.calendarItems]
+                  for i in oldCal.calendar_items]
 
         if len(delete) > 0:
-            q.deleteItems(delete)
+            q.delete_items(delete)
 
         print "ok"
 

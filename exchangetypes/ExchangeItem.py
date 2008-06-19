@@ -26,7 +26,7 @@ class ExchangeItem(object):
             if ns == "m": ns = messages
             if ns == "t": ns = types
 
-            # TODO: searchAll in case of attributes?
+            # TODO: search_all in case of attributes?
             e = self.search(with_ns(ns, elem))
             if item: return e
 
@@ -48,7 +48,7 @@ class ExchangeItem(object):
         """
         return self._get(attr, False)
 
-    def getItem(self, attr):
+    def get_item(self, attr):
         """
         Same as get, but return the element instead of the text
         """
@@ -90,7 +90,7 @@ class ExchangeItem(object):
         return None
         
     
-    def searchAll (self, tag, et=None):
+    def search_all (self, tag, et=None):
         if et == None: et = self.et
         items = elementsearch(et, tag, True)
         return items
@@ -100,7 +100,7 @@ class ExchangeItem(object):
         item = elementsearch(et, tag)
         return item
 
-    def toICal(self):
+    def to_ical(self):
         item = self.icalClass()
 
         # - xml_e is an element in the form get() accepts
@@ -128,8 +128,8 @@ class ExchangeItem(object):
         return item
 
 
-    def _fromICal(self, ical):
-        # print "fromICal: ", self.__class__
+    def _from_ical(self, ical):
+        # print "from_ical: ", self.__class__
 
         # debug :)
         # fi = open("/tmp/conv_log", "a")

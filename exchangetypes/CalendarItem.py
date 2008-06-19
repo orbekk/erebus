@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from xml.etree import ElementTree as ET
 from helper.etsearch import elementsearch
 from helper.timeconv import *
@@ -117,9 +118,10 @@ class CalendarItem(ExchangeItem):
             recurrence = ET.Element(t('Recurrence'))
 
             fi.write("rrule: "+str(rrule)+"\n\n")
-            #
+
+            ##
             # Assume absolute types
-            #
+
 
             freq = rrule['FREQ'][0]
 
@@ -132,7 +134,7 @@ class CalendarItem(ExchangeItem):
                 daysofweek = ET.Element(t('DaysOfWeek'))
                 
                 if rrule.has_key('WKST') or rrule.has_key('BYDAY'):
-                    if rrule.has_key('WKST'):
+                    if rrule.has_key('WKST'): # TODO: really?
                         ical_days = rrule['WKST']
                     else:
                         ical_days = rrule['BYDAY']
@@ -200,8 +202,9 @@ class CalendarItem(ExchangeItem):
     def toICal(self):
         e = ExchangeItem.toICal(self)
 
-        e['uid'] = "%s.%s@hig.no" %(self.get("t:ItemId:Id"),
-                                    self.get("t:ItemId:ChangeKey"))
+        if self.get('t:ItemId:Id') and self.get('t:ItemId:ChangeKey'):
+            e['uid'] = "%s.%s@hig.no" %(self.get("t:ItemId:Id"),
+                                        self.get("t:ItemId:ChangeKey"))
 
 
         # Handle recurrence
@@ -233,12 +236,24 @@ class CalendarItem(ExchangeItem):
             freq = rec_table[rec_ptag]
             rrule['FREQ'] = freq
 
-            # Check for interval
-            if freq != 'YEARLY':
-                interval = rec_pattern.find(t('Interval'))
-                if interval != None:
-                    rrule['INTERVAL'] =interval.text
+            interval = rec_pattern.find(t('Interval'))
+            if interval != None:
+                interval = interval.text
+            else:
+                interval = '1'
 
+            if freq != 'YEARLY':
+                rrule['INTERVAL'] = interval
+
+            # Check DaysOfWeek
+            dow = self.get('t:DaysOfWeek')
+            if dow != '':
+                ical_dow = [weekday_xml2ical(w) for w in dow.split()]
+
+                rrule['BYDAY'] = []
+                for w in ical_dow:
+                    rrule['BYDAY'].append(w)
+                    
             fi.write("FREQ=%s;INTERVAL=%s\n" %(freq, interval))
 
             return rrule
@@ -249,7 +264,7 @@ class CalendarItem(ExchangeItem):
             fi.write('Item is recurring, TODO: get RecurringMaster\n')
 
         recur = self.get('t:CalendarItemType')
-        if recur == 'RecurringMaster':
+        if recur == 'RecurringMaster' or self.getItem('t:Recurrence'):
             fi.write('Item is RecurringMaster. TODO: magic!\n')
             rec = recurrence2rrule(self.getItem('t:Recurrence'))
             fi.write("Got recurrence: %s\n\n" % rec)

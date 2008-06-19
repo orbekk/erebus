@@ -8,6 +8,7 @@ from icalendar import Event
 from icalendar import Calendar as ICal
 from datetime import datetime
 from helper.icalconv import *
+from string import join
 import re
 import copy
 
@@ -116,22 +117,29 @@ class CalendarItem(ExchangeItem):
             recurrence = ET.Element(t('Recurrence'))
 
             fi.write("rrule: "+str(rrule)+"\n\n")
+            #
             # Assume absolute types
-            if rrule['FREQ'][0] == 'DAILY':
-                has_recurrence = True
-                reqpattern = ET.Element(t('DailyRecurrence'))
-                reqpattern.append(interval_e)
+            #
 
-                recurrence.append(reqpattern)
+            freq = rrule['FREQ'][0]
 
-            elif rrule['FREQ'][0] == 'WEEKLY':
+            if freq == 'WEEKLY' or \
+               (freq == 'DAILY' and rrule.has_key('BYDAY')):
+                                    
                 has_recurrence = True
                 reqpattern = ET.Element(t('WeeklyRecurrence'))
 
                 daysofweek = ET.Element(t('DaysOfWeek'))
-                if rrule.has_key('WKST'):
-                    for w in rrule['WKST']:
-                        daysofweek.text += weekday_ical2xml(str(w))
+                
+                if rrule.has_key('WKST') or rrule.has_key('BYDAY'):
+                    if rrule.has_key('WKST'):
+                        ical_days = rrule['WKST']
+                    else:
+                        ical_days = rrule['BYDAY']
+                    
+                    days = [weekday_ical2xml(w) for w in ical_days]
+                    daysofweek.text = " ".join(days)
+
                 else:
                     tt = xsdt2datetime(self.get('t:Start'))
                     wkday = dt2xml_weekday(tt)
@@ -142,6 +150,15 @@ class CalendarItem(ExchangeItem):
 
                 recurrence.append(reqpattern)
 
+            
+            elif rrule['FREQ'][0] == 'DAILY':
+                has_recurrence = True
+                reqpattern = ET.Element(t('DailyRecurrence'))
+                reqpattern.append(interval_e)
+
+                recurrence.append(reqpattern)
+
+            
             
 
 

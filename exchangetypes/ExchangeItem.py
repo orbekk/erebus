@@ -146,3 +146,6 @@ class ExchangeItem(object):
 
         # fi.write("\n\n")
         # fi.close()
+
+    def tostring(self):
+        return ET.tostring(self.et)

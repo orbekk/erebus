@@ -121,6 +121,8 @@ class ExchangeItem(object):
             if xml_e:
                 new = f(xml_e)
                 if new != None:
+                    if type(new) == str:
+                        new = unicode(new, 'utf8')
                     item.add(ical_e, new)
 
         return item

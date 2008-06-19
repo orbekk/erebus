@@ -67,3 +67,56 @@ def xsdt2datetime(time):
 
     return datetime(int(m[0]), int(m[1]), int(m[2]), int(m[3]),
                     int(m[4]), int(m[5]), tzinfo=tzinfo)
+
+
+def xs_dateTime2xs_date(str):
+    """
+    Conversion from xs:dateTime to xs:date
+    """
+    return str.split('T')[0]
+
+def xs_dateTime2xs_time(str):
+    """
+    Conversion from xs:dateTime to xs:date
+    """
+    return str.split('T')[1]
+
+def weekday_ical2xml(weekday):
+    """
+    Conversion from ical days (MO, TU, ...) to xml days (Monday,
+    Tuesday, ...)
+    """
+    tab = {
+        'MO' : 'Monday',
+        'TU' : 'Tuesday',
+        'WE' : 'Wednesday',
+        'TH' : 'Thursday',
+        'FR' : 'Friday',
+        'SA' : 'Saturday',
+        'SU' : 'Sunday'
+        }
+    if tab.has_key(weekday): return tab[weekday]
+    else:                    return None
+
+def weekday_xml2ical(weekday):
+    """
+    Conversion from xml days (Monday, Tuesday, ...) to ical days (MO,
+    TU, ...)
+    """
+    tab = {
+        'Monday'    : 'MO',
+        'Tuesday'   : 'TU',
+        'Wednesday' : 'WE',
+        'Thursday'  : 'TH',
+        'Friday'    : 'FR',
+        'Saturday'  : 'SA',
+        'Sunday'    : 'SU'
+        }
+    if tab.has_key(weekday): return tab[weekday]
+    else:                    return None
+
+def dt2xml_weekday(dt):
+    ar = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
+          'Saturday', 'Sunday']
+
+    return ar[dt.weekday()]

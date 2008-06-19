@@ -113,14 +113,16 @@ class ExchangeItem(object):
         #
 
         # debug
-        # fi = open('/tmp/ical_elem.xml', 'w')
-        # fi.write(ET.tostring(self.et))
+        fi = open('/tmp/ical_elem.xml', 'w')
+        fi.write(ET.tostring(self.et))
         
         for xml_e,ical_e,f in self.trans_xml2ical:
             xml_e = self.get(xml_e)
             if xml_e:
                 new = f(xml_e)
                 if new != None:
+                    if type(new) == str:
+                        new = unicode(new, 'utf8')
                     item.add(ical_e, new)
 
         return item
@@ -146,3 +148,6 @@ class ExchangeItem(object):
 
         # fi.write("\n\n")
         # fi.close()
+
+    def tostring(self):
+        return ET.tostring(self.et)

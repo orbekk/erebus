@@ -234,7 +234,6 @@ class CalendarItem(ExchangeItem):
                 }
 
             freq = rec_table[rec_ptag]
-            rrule['FREQ'] = freq
 
             interval = rec_pattern.find(t('Interval'))
             if interval != None:
@@ -247,15 +246,21 @@ class CalendarItem(ExchangeItem):
 
             # Check DaysOfWeek
             dow = self.get('t:DaysOfWeek')
-            if dow != '':
+            if dow:
                 ical_dow = [weekday_xml2ical(w) for w in dow.split()]
 
                 rrule['BYDAY'] = []
                 for w in ical_dow:
                     rrule['BYDAY'].append(w)
-                    
-            fi.write("FREQ=%s;INTERVAL=%s\n" %(freq, interval))
 
+                if freq == 'WEEKLY' and len(ical_dow) > 1:
+                    freq = 'DAILY'
+                    
+            if freq == 'MONTHLY':
+                dayofmonth = self.get('t:DayOfMonth')
+                rrule['BYMONTHDAY'] = dayofmonth
+
+            rrule['FREQ'] = freq
             return rrule
 
         

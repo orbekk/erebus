@@ -128,13 +128,17 @@ class CalendarItem(ExchangeItem):
                 has_recurrence = True
                 reqpattern = ET.Element(t('WeeklyRecurrence'))
 
+                daysofweek = ET.Element(t('DaysOfWeek'))
                 if rrule.has_key('WKST'):
-                    daysofweek = ET.Element(t('DaysOfWeek'))
                     for w in rrule['WKST']:
                         daysofweek.text += weekday_ical2xml(str(w))
-                else: # TODO: Get weekday from python
-                    pass
-                recpattern.append(interval_e)
+                else:
+                    tt = xsdt2datetime(self.get('t:Start'))
+                    wkday = dt2xml_weekday(tt)
+                    daysofweek.text = wkday
+
+                reqpattern.append(interval_e)
+                reqpattern.append(daysofweek)
 
                 recurrence.append(reqpattern)
 

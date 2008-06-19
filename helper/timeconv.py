@@ -114,3 +114,9 @@ def weekday_xml2ical(weekday):
         }
     if tab.has_key(weekday): return tab[weekday]
     else:                    return None
+
+def dt2xml_weekday(dt):
+    ar = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
+          'Saturday', 'Sunday']
+
+    return ar[dt.weekday()]

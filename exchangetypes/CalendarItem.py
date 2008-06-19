@@ -150,16 +150,27 @@ class CalendarItem(ExchangeItem):
 
                 recurrence.append(reqpattern)
 
-            
-            elif rrule['FREQ'][0] == 'DAILY':
-                has_recurrence = True
+            elif freq == 'MONTHLY':
+                reqpattern = ET.Element(t('AbsoluteMonthlyRecurrence'))
+                reqpattern.append(interval_e)
+
+                if rrule.has_key('BYMONTHDAY'):
+                    mday = str(rrule['BYMONTHDAY'][0])
+                else:
+                    dt = xsdt2datetime(self.get('t:Start'))
+                    mday = str(dt.day)
+
+                dayofmonth = ET.Element(t('DayOfMonth'))
+                dayofmonth.text = mday
+                
+                reqpattern.append(dayofmonth)
+                recurrence.append(reqpattern)
+                
+            elif freq == 'DAILY':
                 reqpattern = ET.Element(t('DailyRecurrence'))
                 reqpattern.append(interval_e)
 
                 recurrence.append(reqpattern)
-
-            
-            
 
 
             noend     = ET.Element(t('NoEndRecurrence'))

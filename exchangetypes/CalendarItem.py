@@ -141,7 +141,6 @@ class CalendarItem(ExchangeItem):
 
                     month_e = xsdt2ex_month(self.get('t:Start'))
                     
-                    reqpattern.append(interval_e)
                     reqpattern.append(monthday_e)
                     reqpattern.append(month_e)
 
@@ -155,12 +154,11 @@ class CalendarItem(ExchangeItem):
                 reqpattern = ET.Element(t('RelativeMonthlyRecurrence'))
                 dow_e, weekindex_e = byday2rel_month(day)
 
-                reqpattern.append(interval_e)
                 reqpattern.append(dow_e)
                 reqpattern.append(weekindex_e)
 
                 recurrence.append(reqpattern)
-                    
+
                 
             elif freq == 'WEEKLY' or \
                (freq == 'DAILY' and rrule.has_key('BYDAY')):

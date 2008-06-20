@@ -69,6 +69,16 @@ def xsdt2datetime(time):
                     int(m[4]), int(m[5]), tzinfo=tzinfo)
 
 
+def xs_date2datetime(str):
+    m = p.match('(\d{4})-(\d\d)-(\d\d)(Z)?', str)
+    if m == None:
+        raise Exception("Invalid date format")
+
+    if (m[4] == 'Z'): tzinfo = UTC
+    else:             tzinfo = LocalTimezone()
+
+    return datetime(int(m[0]), int(m[1]), int(m[2]), tzinfo=tzinfo)
+
 def xs_dateTime2xs_date(str):
     """
     Conversion from xs:dateTime to xs:date

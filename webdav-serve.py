@@ -34,7 +34,7 @@ class calendar:
         web.header('Content-Type', 'text/calendar')
 
         log('=== GET ===')
-        log(pp.pformat(web.ctx.env))
+        # log(pp.pformat(web.ctx.env))
         # log(web.data())
 
         authorized = auth(web.ctx.env)
@@ -55,6 +55,7 @@ class calendar:
                 log("error: %s" % pp.pformat(sys.exc_info()))
                 auth_fail()
                 return
+            log(pp.pformat(cal.tostring()))
             res = cal.to_ical().as_string()
 
             # web.py doesn't add Content-Length header when setting

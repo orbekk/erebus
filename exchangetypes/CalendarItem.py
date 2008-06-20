@@ -207,13 +207,34 @@ class CalendarItem(ExchangeItem):
 
                 recurrence.append(reqpattern)
 
-
-            noend     = ET.Element(t('NoEndRecurrence'))
             startdate = ET.Element(t('StartDate')) # User start date
             startdate.text = xs_dateTime2xs_date(self.get('t:Start'))
-            noend.append(startdate)
+
+            if rrule.has_key('count'):
+                reqrange = ET.Element(t('NumberedRecurrence'))
+
+                count_e = ET.Element(t('NumberOfOccurences'))
+                count_e.text = rrule['count']
+
+                reqrange.append(startdate)
+                reqrange.append(count_e)
+
+            elif rrule.has_key('until'):
+                reqrange = ET.Element(t('EndDateRecurrence'))
+
+                enddate = ical2xsdt(rrule['until'])
+                enddate = xs_dateTime2xs_date
+                enddate_e = ET.Element(t('EndDate'))
+                enddate_e.text = enddate
+
+                reqrange.append(startdate)
+                reqrange.append(enddate_e)
+
+            else:
+                noend     = ET.Element(t('NoEndRecurrence'))
+                noend.append(startdate)
             
-            recurrence.append(noend)
+                recurrence.append(noend)
 
             return recurrence
                     
@@ -294,8 +315,8 @@ class CalendarItem(ExchangeItem):
                 if weekindex == 'Last':
                     cal_idx = -1
                 else:
-                    cal_idx = ['', 'First',
-                               'Second', 'Third', 'Fourth'].index(weekindex)
+                    wks = ['', 'First', 'Second', 'Third', 'Fourth']
+                    cal_idx = wks.index(weekindex)
                 byday_rules = ["%s%s" %(str(cal_idx), r) for r in byday_rules]
 
             if self.get('t:DayOfMonth') != None:
@@ -304,6 +325,18 @@ class CalendarItem(ExchangeItem):
 
             if byday_rules != []:
                 rrule['BYDAY'] = byday_rules
+
+
+            range_type = no_namespace(rec_range.tag)
+            if range_type == 'NumberedRecurrence':
+                count = rec_range.find(t('NumberOfOccurences')).text
+                rrule['COUNT'] = count
+            elif range_type == 'EndDateRecurrence':
+                enddate = rec_range.find(t('EndDate'))
+                rrule['UNTIL'] = xs_date2datetime(enddate)
+            else:
+                # NoEndRecurrence is the default in iCalendar
+                pass
                 
             rrule['FREQ'] = freq
             return rrule

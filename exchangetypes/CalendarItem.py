@@ -98,13 +98,6 @@ class CalendarItem(ExchangeItem):
         fi.write('checking for recurrence\n')
         
         def rrule2recurrence(rrule):
-            # Check for relative types
-            if rrule['FREQ'][0] == 'YEARLY':
-                # TODO: Check BYWEEKNO, BYDAY
-                pass
-            elif rrule['FREQ'][0] == 'MONTHLY':
-                # TODO: Check BYWEEKNO, BYDAY
-                pass
 
             # Find interval (or default to 1)
             if rrule.has_key('INTERVAL'):
@@ -118,10 +111,6 @@ class CalendarItem(ExchangeItem):
             recurrence = ET.Element(t('Recurrence'))
 
             fi.write("rrule: "+str(rrule)+"\n\n")
-
-            ##
-            # Assume absolute types
-
 
             freq = rrule['FREQ'][0]
 

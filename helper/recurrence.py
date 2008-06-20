@@ -1,4 +1,9 @@
-def byday2rel_month(byday)l:
+from xml.etree import ElementTree as ET
+from helper.timeconv import *
+from namespaces import *
+import re
+
+def byday2rel_month(byday):
     """Convert a BYDAY recurrence rule to Exchange rules.
     returns equivalent (DaysOfWeek, DayOfWeekIndex) Exchange rules
     """
@@ -22,4 +27,17 @@ def byday2rel_month(byday)l:
     weekindex_e = ET.Element(t('DayOfWeekIndex'))
     weekindex_e.text = weekindex
 
-    return (dow, weekindex_e)
+    return (dow_e, weekindex_e)
+
+
+def xsdt2ex_month(xsdt):
+    """Convert a xs:dateTime to a month name for Exchange"""
+
+    months = ["", "January", "February", "March", "April", "May",
+              "June", "July", "August", "September", "October",
+              "November", "December"]
+    dt = xsdt2datetime(xsdt)
+    month_e = ET.Element(t('Month'))
+    month_e.text = months[dt.month]
+
+    return month_e

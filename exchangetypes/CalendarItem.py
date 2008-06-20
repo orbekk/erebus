@@ -10,6 +10,7 @@ from icalendar import Calendar as ICal
 from datetime import datetime
 from helper.icalconv import *
 from string import join
+from helper.recurrence import *
 import re
 import copy
 
@@ -114,31 +115,45 @@ class CalendarItem(ExchangeItem):
 
             freq = rrule['FREQ'][0]
 
-            if freq == 'MONTHLY' and rrule.has_key('BYDAY'):
+
+            if freq == 'YEARLY':
+                if rrule.has_key('byday') and rrule.has_key('bymonth'):
+                    reqpattern = ET.Element(t('RelativeYearlyRecurrence'))
+
+                    dow_e, weekindex_e = byday2rel_month(rrule['byday'][0])
+                    month_e = xsdt2ex_month(self.get('t:Start'))
+
+                    reqpattern.append(interval_e)
+                    reqpattern.append(dow_e)
+                    reqpattern.append(weekindex_e)
+                    reqpattern.append(month_e)
+
+                    recurrence.append(reqpattern)
+
+                else:
+                    reqpattern = ET.Element(t('AbsoluteYearlyRecurrence'))
+
+                    dtstart = xsdt2datetime(self.get('t:Start'))
+
+                    monthday = dtstart.day
+                    monthday_e = ET.Element(t('DayOfMonth'))
+                    monthday_e.text = str(monthday)
+
+                    month_e = xsdt2ex_month(self.get('t:Start'))
+                    
+                    reqpattern.append(interval_e)
+                    reqpattern.append(monthday_e)
+                    reqpattern.append(month_e)
+
+                    recurrence.append(reqpattern)
+
+            elif freq == 'MONTHLY' and rrule.has_key('BYDAY'):
                 # When more than one day, it is impossible to do in
                 # Exchange (except if all days are in the same week)
                 day = rrule['byday'][0] # for day in rrule['byday']:
 
-                fi.write("day rule: " + day + "\n")
                 reqpattern = ET.Element(t('RelativeMonthlyRecurrence'))
-                m = re.match('([+-])?(\d)(\w+)$', day)
-                sign, wnum, wday = m.groups()
-                wnum = int(wnum)
-
-                # TODO: sign == -1 and wnum != 1 isn't possible on
-                # exchange. how do we handle that?
-                if sign == "-" and wnum == 1:
-                    weekindex = 'Last'
-                else:
-                    weekindex = ['First', 'Second', 'Third', 'Fourth'][wnum-1]
-
-                wday = weekday_ical2xml(wday)
-
-                dow_e = ET.Element(t('DaysOfWeek'))
-                dow_e.text = wday
-
-                weekindex_e = ET.Element(t('DayOfWeekIndex'))
-                weekindex_e.text = weekindex
+                dow_e, weekindex_e = byday2rel_month(day)
 
                 reqpattern.append(interval_e)
                 reqpattern.append(dow_e)

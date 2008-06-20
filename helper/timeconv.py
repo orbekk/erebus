@@ -48,7 +48,7 @@ def xsdt2datetime(time):
     p = re.compile('(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(?:\.\d+)?(.*)$')
     m = p.match(time)
     if m == None:
-        raise Exception("Invalid date format")
+        raise ValueError("Invalid date format")
     m = m.groups()
 
     if (m[6] == "Z"):   tzinfo = UTC
@@ -72,7 +72,7 @@ def xsdt2datetime(time):
 def xs_date2datetime(str):
     m = p.match('(\d{4})-(\d\d)-(\d\d)(Z)?', str)
     if m == None:
-        raise Exception("Invalid date format")
+        raise ValueError("Invalid date format")
 
     if (m[4] == 'Z'): tzinfo = UTC
     else:             tzinfo = LocalTimezone()

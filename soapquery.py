@@ -5,6 +5,7 @@ from namespaces import *
 import httplib
 import base64
 import re
+import os
 from re import *
 
 # workaround for a python bug (ref. soaplib)
@@ -12,6 +13,25 @@ httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
 
 types    = "http://schemas.microsoft.com/exchange/services/2006/types"
 messages = "http://schemas.microsoft.com/exchange/services/2006/messages"
+
+class QueryFail(Exception):
+    def __init__(self, str, query=None, result=None):
+        self.msg = str
+        self.query = query
+        maybe_write(query, 'query')
+
+        self.result = result
+        maybe_write(result, 'result')
+
+    def maybe_write(str, name):
+        if str:
+            tmpnam = os.tmpnam()
+            f = open(tmpnam, 'w')
+            f.write(str)
+            msg += "\n [%s written to %s]" %(nam, self.tmpnam)
+            
+    def __str__(self):
+        return repr(self.msg)
 
 class SoapConn:
     def __init__(self,host,https=False,user=None,password=None,auth=None):
@@ -62,9 +82,9 @@ class SoapConn:
         data = res.read()
 
         if str(res.status) not in ['200', '202']:
-            f = open('/tmp/error.xml', 'w')
-            f.write(data)
-            raise Exception('Error: %s\n %s\n /tmp/error.xml' %(res.status, res.reason))
+            raise QueryFail('Error: %s\n %s\n /tmp/error.xml'%(res.status,
+                                                               res.reason),
+                            query=query, result=data)
 
         return data
 
@@ -74,7 +94,7 @@ def soapmethod(f):
         body = elementsearch(xml, "{http://schemas.xmlsoap.org/soap/envelope}Body")
 
         if body == None:
-            raise Exception("Could not find <soap:Body/> element")
+            raise ValueError("Could not find <soap:Body/> element")
 
         soap_action = body.getchildren()[0].tag
 

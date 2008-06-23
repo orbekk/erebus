@@ -91,6 +91,8 @@ class TestRecurrence(SoapTest):
         self.compareFields('AbsoluteYearlyRecurrence', ['DayOfMonth',
                            'Month'])
 
+    def testWeeklyRecurrence(self):
+        self.compareFields('WeeklyRecurrence', ['Interval', 'DaysOfWeek'])
 
     def create_recurring_item(self, itemtype):
 
@@ -120,6 +122,22 @@ class TestRecurrence(SoapTest):
                   <t:DayOfMonth>20</t:DayOfMonth>
                   <t:Month>February</t:Month>
                 </t:AbsoluteYearlyRecurrence>
+                <t:NoEndRecurrence>
+                  <t:StartDate>2008-06-23Z</t:StartDate>
+                </t:NoEndRecurrence>
+              </t:Recurrence>
+            </t:CalendarItem>
+            """)
+
+        elif itemtype == 'WeeklyRecurrence':
+            self.q.create_item("""
+            <t:CalendarItem>
+              <t:Subject>WeeklyRecurrence</t:Subject>
+              <t:Recurrence>
+                <t:WeeklyRecurrence>
+                  <t:Interval>2</t:Interval>
+                  <t:DaysOfWeek>Monday Tuesday</t:DaysOfWeek>
+                </t:WeeklyRecurrence>
                 <t:NoEndRecurrence>
                   <t:StartDate>2008-06-23Z</t:StartDate>
                 </t:NoEndRecurrence>

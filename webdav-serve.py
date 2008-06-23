@@ -119,7 +119,7 @@ class calendar:
                      auth=authorized)
         q = SoapQuery(c)
 
-        newItems = cal.get_new_xmlitems(uid_ignore, allItems=True)
+        newItems = cal.get_new_xmlitems(uid_ignore, all_items=True)
         oldItems = q.find_items('calendar')
         oldCal   = Calendar.from_xml(oldItems)
         

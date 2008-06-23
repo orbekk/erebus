@@ -333,14 +333,14 @@ class CalendarItem(ExchangeItem):
         return None
 
 
-    def get_new_exchangeitem(self, uid_ignore, allItems):
+    def get_new_exchangeitem(self, uid_ignore, all_items):
         """Return this item (as XML), but:
         
         - If the item is in uid_ignore, return None
         - If the item has an Exchange id, return None
         """
         
-        if allItems == False:
+        if all_items == False:
             if self.is_exchangeItem() or uid_ignore.has_key(self.uid):
                 return None
 

@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
 from xml.etree import ElementTree as ET
+from xml.parsers.expat import ExpatError
 from helper.etsearch import elementsearch
 from namespaces import *
 from exchangetypes import Calendar
@@ -7,6 +8,7 @@ import httplib
 import base64
 import re
 import os
+import sys
 from re import *
 
 # workaround for a python bug (ref. soaplib)
@@ -15,7 +17,7 @@ httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
 types    = "http://schemas.microsoft.com/exchange/services/2006/types"
 messages = "http://schemas.microsoft.com/exchange/services/2006/messages"
 
-class QueryFail(Exception):
+class QueryError(Exception):
     def __init__(self, str, query=None, result=None):
         self.msg = str
         self.query = query
@@ -83,7 +85,7 @@ class SoapConn:
         data = res.read()
 
         if str(res.status) not in ['200', '202']:
-            raise QueryFail('Error: %s\n %s\n /tmp/error.xml'%(res.status,
+            raise QueryError('Error: %s\n %s\n /tmp/error.xml'%(res.status,
                                                                res.reason),
                             query=query, result=data)
 
@@ -123,10 +125,16 @@ class SoapQuery:
         f = open('/tmp/lastquery.xml', 'a')
         f.write("\n\n\n"+query)
         f.close()
-        
-        xml = ET.XML(query)
+
+        try:
+            xml = ET.XML(query)
+        except ExpatError:
+            e = sys.exc_value
+            raise QueryError(str(e), query=query)
+            
         body = elementsearch(xml, "{http://schemas.xmlsoap.org/soap/envelope/}Body")
-        if body == None: raise Exception("Could not find soap:Body element")
+        if body == None:
+            raise QueryError("Could not find soap:Body element", query=query)
 
         soap_action = body.getchildren()[0].tag
         soap_action = re.sub('{', '', soap_action)
@@ -382,9 +390,8 @@ class SoapQuery:
         items = self.get_all_calendar_items()
         cal = Calendar.from_xml(items)
 
-        found_items = []
         for i in cal.calendar_items:
-            if i.get('t:Subject') == subject:
-                found_items.append(i)
+            if i.get('t:Subject') != subject:
+                cal.remove_calendaritem(i)
 
-        return found_items
+        return ET.tostring(cal.et)

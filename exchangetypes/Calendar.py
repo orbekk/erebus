@@ -66,10 +66,16 @@ class Calendar(ExchangeItem):
         self.et.append(item.et)
         self.calendar_items.append(item)
 
-    def get_new_xmlitems(self, uid_ignore={}, allItems=False):
+    def remove_calendaritem(self, item):
+        # Add parents to all elements:
+        elementsearch(self.et, None)
+        item.et.parent.remove(item.et)
+        return self.calendar_items.remove(item)
+
+    def get_new_xmlitems(self, uid_ignore={}, all_items=False):
         """Return all items not yet in Exchange"""
         
-        new_items = [i.get_new_exchangeitem(uid_ignore,allItems)
+        new_items = [i.get_new_exchangeitem(uid_ignore,all_items)
                     for i in self.calendar_items]
         xml = ""
 

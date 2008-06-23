@@ -21,31 +21,31 @@ class TestBasicOps(SoapTest):
     def testItemProps(self):
         dummy = None
 
-        items = self.q.get_all_calendar_items
+        items = self.q.get_all_calendar_items()
         cal = Calendar.from_xml(items)
 
         for i in cal.calendar_items:
             if i.get('t:Subject') == 'Dummy Item':
                 dummy = i
 
-        assertNotEqual(None, dummy)
-        assertEqual(dummy.get('t:Subject'), 'Dummy Item')
-        assertEqual(dummy.getItem('t:Subject').text, 'Dummy Item')
-        assertEqual(dummy.get('t:Body'), 'Dummy Body')
+        self.assertNotEqual(None, dummy)
+        self.assertEqual(dummy.get('t:Subject'), 'Dummy Item')
+        self.assertEqual(dummy.get_item('t:Subject').text, 'Dummy Item')
+        self.assertEqual(dummy.get('t:Body'), 'Dummy Body')
 
     def testDeleteItems(self):
         items = self.q.find_items('calendar')
         cal = Calendar.from_xml(items)
         ids = []
         for i in cal.calendar_items:
-            ids.append((item.get('t:ItemId:Id', item.get('t:ItemId:ChangeKey'))))
+            ids.append((i.get('t:ItemId:Id'), i.get('t:ItemId:ChangeKey')))
 
-        q.delete_items(ids)
+        self.q.delete_items(ids)
 
-        items = self.q.get_all_calendar_items
+        items = self.q.get_all_calendar_items()
         cal = Calendar.from_xml(items)
 
-        assertEqual(0, len(cal.calendar_items))
+        self.assertEqual(0, len(cal.calendar_items))
 
 def create_dummy_item(q):
     q.create_item("""

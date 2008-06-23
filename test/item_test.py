@@ -54,9 +54,9 @@ class TestBasicOps(SoapTest):
 
 
 class TestRecurrence(SoapTest):
-    def testRelativeYearlyRecurrence(self):
-        self.create_recurring_item()
-        item = self.q.find_items_with_subject('RelativeYearlyRecurrence')
+    def compareFields(self, rec_type, compare_items):
+        self.create_recurring_item(rec_type)
+        item = self.q.find_items_with_subject(rec_type)
 
         cal = Calendar.from_xml(item)
         citem = cal.calendar_items[0]
@@ -64,7 +64,7 @@ class TestRecurrence(SoapTest):
         f = open('/tmp/blaff', 'w')
         fi = open('/tmp/blaff.ics', 'w')
 
-        self.assertNotEqual(citem.get_item('t:RelativeYearlyRecurrence'), None)
+        self.assertNotEqual(citem.get_item('t:'+rec_type), None)
         
         i_id, i_chkey = (citem.get('t:ItemId:Id'), citem.get('t:ItemId:ChangeKey'))
 
@@ -78,26 +78,35 @@ class TestRecurrence(SoapTest):
 
         f.write(from_ical.tostring())
 
-        self.assertEqual(citem.get('t:DaysOfWeek'), iitem.get('t:DaysOfWeek'))
-        self.assertEqual(citem.get('t:DayOfWeekIndex'), iitem.get('t:DayOfWeekIndex'))
-        self.assertEqual(citem.get('t:Month'), iitem.get('t:Month'))
+        for item in compare_items:
+            self.assertEqual(citem.get(item), iitem.get(item))
 
-    def create_recurring_item(self):
-        self.q.create_item("""
-        <t:CalendarItem>
-          <t:Subject>RelativeYearlyRecurrence</t:Subject>
-          <t:Recurrence>
-            <t:RelativeYearlyRecurrence>
-              <t:DaysOfWeek>Tuesday</t:DaysOfWeek>
-              <t:DayOfWeekIndex>Second</t:DayOfWeekIndex>
-              <t:Month>August</t:Month>
-            </t:RelativeYearlyRecurrence>
-            <t:NoEndRecurrence>
-              <t:StartDate>2008-06-23Z</t:StartDate>
-            </t:NoEndRecurrence>
-          </t:Recurrence>
-        </t:CalendarItem>
-        """)
+        self.q.delete_items((i_id, i_chkey))
+    
+    def testRelativeYearlyRecurrence(self):
+        self.compareFields('RelativeYearlyRecurrence', ['DaysOfWeek',
+                           'DayfOfWeekIndex'])
+
+    def create_recurring_item(self, itemtype):
+
+        if itemtype == 'RelativeYearlyRecurrence':
+            self.q.create_item("""
+            <t:CalendarItem>
+              <t:Subject>RelativeYearlyRecurrence</t:Subject>
+              <t:Recurrence>
+                <t:RelativeYearlyRecurrence>
+                  <t:DaysOfWeek>Tuesday</t:DaysOfWeek>
+                  <t:DayOfWeekIndex>Second</t:DayOfWeekIndex>
+                  <t:Month>August</t:Month>
+                </t:RelativeYearlyRecurrence>
+                <t:NoEndRecurrence>
+                  <t:StartDate>2008-06-23Z</t:StartDate>
+                </t:NoEndRecurrence>
+              </t:Recurrence>
+            </t:CalendarItem>
+            """)
+        else:
+            raise ValueError, 'Invalid type'
 
 def suite():
     testclasses = [TestBasicOps, TestRecurrence]

@@ -271,36 +271,48 @@ class CalendarItem(ExchangeItem):
             else:
                 interval = '1'
 
-            if freq != 'YEARLY':
-                rrule['INTERVAL'] = interval
+            if rec_ptag == 'RelativeYearlyRecurrence':
+                rrule['freq'] = 'YEARLY'
+                dow = self.get('t:DaysOfWeek')
+                windex = self.get('t:DayOfWeekIndex')
+                month = self.get('t:Month')
 
-            # Check DaysOfWeek
-            byday_rules = []
-            dow = self.get('t:DaysOfWeek')
-            if dow:
-                ical_dow = [weekday_xml2ical(w) for w in dow.split()]
-
-                for w in ical_dow:
-                    byday_rules.append(w)
-
-#                 if freq == 'WEEKLY' and len(ical_dow) > 1:
-#                     freq = 'DAILY'
-
-            if self.get('t:DayOfWeekIndex') != None:
-                weekindex = self.get('t:DayOfWeekIndex')
-                if weekindex == 'Last':
-                    cal_idx = -1
-                else:
-                    wks = ['', 'First', 'Second', 'Third', 'Fourth']
-                    cal_idx = wks.index(weekindex)
-                byday_rules = ["%s%s" %(str(cal_idx), r) for r in byday_rules]
-
-            if self.get('t:DayOfMonth') != None:
-                dayofmonth = self.get('t:DayOfMonth')
-                rrule['BYMONTHDAY'] = dayofmonth
-
-            if byday_rules != []:
-                rrule['BYDAY'] = byday_rules
+                byday, bymonth = rel_year2bday(dow, windex, month)
+                rrule['byday'] = byday
+                rrule['bymonth'] = bymonth
+                rrule['interval'] = interval
+            else:
+                # TODO: make this more explicit (like above)
+                if freq != 'YEARLY':
+                    rrule['INTERVAL'] = interval
+    
+                # Check DaysOfWeek
+                byday_rules = []
+                dow = self.get('t:DaysOfWeek')
+                if dow:
+                    ical_dow = [weekday_xml2ical(w) for w in dow.split()]
+    
+                    for w in ical_dow:
+                        byday_rules.append(w)
+    
+    #                 if freq == 'WEEKLY' and len(ical_dow) > 1:
+    #                     freq = 'DAILY'
+    
+                if self.get('t:DayOfWeekIndex') != None:
+                    weekindex = self.get('t:DayOfWeekIndex')
+                    if weekindex == 'Last':
+                        cal_idx = -1
+                    else:
+                        wks = ['', 'First', 'Second', 'Third', 'Fourth']
+                        cal_idx = wks.index(weekindex)
+                    byday_rules = ["%s%s" %(str(cal_idx), r) for r in byday_rules]
+    
+                if self.get('t:DayOfMonth') != None:
+                    dayofmonth = self.get('t:DayOfMonth')
+                    rrule['BYMONTHDAY'] = dayofmonth
+    
+                if byday_rules != []:
+                    rrule['BYDAY'] = byday_rules
 
 
             range_type = no_namespace(rec_range.tag)

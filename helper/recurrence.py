@@ -37,7 +37,6 @@ def rrule2yearly_recpattern(rrule,interval_e):
         reqpattern.append(month_e)
 
     return reqpattern
-    
 
 def byday2rel_month(byday):
     """Convert a BYDAY recurrence rule to Exchange rules.
@@ -65,15 +64,39 @@ def byday2rel_month(byday):
 
     return (dow_e, weekindex_e)
 
+def rel_year2bday(dow, weekindex, month):
+    """Converts daysofweek, weekindex and month to iCalendar format.
+
+    rel_month2byday('Monday', 'First', 'January')
+        => (['1MO'], 1)
+
+    """
+    ical_dow = [weekday_xml2ical(w) for w in dow.split()]
+    
+    if weekindex == 'Last':
+        cal_idx = -1
+    else:
+        wks = ['', 'First', 'Second', 'Third', 'Fourth']
+        cal_idx = wks.index(weekindex)
+
+    byday_rules = ["%s%s" %(str(cal_idx), r) for r in ical_dow]
+
+    ical_month = ex_month2monthno(month)
+
+    return (byday_rules, ical_month)
+
+    
+ex_months = ["", "January", "February", "March", "April", "May",
+             "June", "July", "August", "September", "October",
+             "November", "December"]
 
 def xsdt2ex_month(xsdt):
     """Convert a xs:dateTime to a month name for Exchange"""
-
-    months = ["", "January", "February", "March", "April", "May",
-              "June", "July", "August", "September", "October",
-              "November", "December"]
     dt = xsdt2datetime(xsdt)
     month_e = ET.Element(t('Month'))
-    month_e.text = months[dt.month]
+    month_e.text = ex_months[dt.month]
 
     return month_e
+
+def ex_month2monthno(month):
+    return ex_months.index(month)

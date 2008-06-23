@@ -87,6 +87,11 @@ class TestRecurrence(SoapTest):
         self.compareFields('RelativeYearlyRecurrence', ['DaysOfWeek',
                            'DayfOfWeekIndex'])
 
+    def testAbsoluteYearlyRecurrence(self):
+        self.compareFields('AbsoluteYearlyRecurrence', ['DayOfMonth',
+                           'Month'])
+
+
     def create_recurring_item(self, itemtype):
 
         if itemtype == 'RelativeYearlyRecurrence':
@@ -105,6 +110,23 @@ class TestRecurrence(SoapTest):
               </t:Recurrence>
             </t:CalendarItem>
             """)
+            
+        elif itemtype == 'AbsoluteYearlyRecurrence':
+            self.q.create_item("""
+            <t:CalendarItem>
+              <t:Subject>AbsoluteYearlyRecurrence</t:Subject>
+              <t:Recurrence>
+                <t:AbsoluteYearlyRecurrence>
+                  <t:DayOfMonth>20</t:DayOfMonth>
+                  <t:Month>February</t:Month>
+                </t:AbsoluteYearlyRecurrence>
+                <t:NoEndRecurrence>
+                  <t:StartDate>2008-06-23Z</t:StartDate>
+                </t:NoEndRecurrence>
+              </t:Recurrence>
+            </t:CalendarItem>
+            """)
+            
         else:
             raise ValueError, 'Invalid type'
 

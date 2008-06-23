@@ -2,6 +2,7 @@
 from xml.etree import ElementTree as ET
 from helper.etsearch import elementsearch
 from namespaces import *
+from exchangetypes import Calendar
 import httplib
 import base64
 import re
@@ -375,3 +376,15 @@ class SoapQuery:
     def replace_attachment(self, itemid, name, new_content):
         self.delete_named_attachment(itemid, name)
         return self.create_attached_note(itemid, name, new_content)
+
+
+    def find_items_with_subject(self, subject):
+        items = self.get_all_calendar_items()
+        cal = Calendar.from_xml(items)
+
+        found_items = []
+        for i in cal.calendar_items:
+            if i.get('t:Subject') == subject:
+                found_items.append(i)
+
+        return found_items

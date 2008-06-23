@@ -33,13 +33,13 @@ def rrule2yearly_recpattern(rrule,interval_e,event_start):
     else:
         recpattern = ET.Element(t('AbsoluteYearlyRecurrence'))
 
-        dtstart = xsdt2datetime(self.get('t:Start'))
+        dtstart = xsdt2datetime(event_start)
 
         monthday = dtstart.day
         monthday_e = ET.Element(t('DayOfMonth'))
         monthday_e.text = str(monthday)
 
-        month_e = xsdt2ex_month(self.get('t:Start'))
+        month_e = xsdt2ex_month(event_start)
         
         recpattern.append(monthday_e)
         recpattern.append(month_e)

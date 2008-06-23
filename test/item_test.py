@@ -62,18 +62,24 @@ class TestRecurrence(SoapTest):
         citem = cal.calendar_items[0]
 
         f = open('/tmp/blaff', 'w')
+        fi = open('/tmp/blaff.ics', 'w')
 
         self.assertNotEqual(citem.get_item('t:RelativeYearlyRecurrence'), None)
         
         i_id, i_chkey = (citem.get('t:ItemId:Id'), citem.get('t:ItemId:ChangeKey'))
 
-        from_ical = Calendar.from_ical(cal.to_ical())
-        from_ical = Calendar.from_xml(from_ical.get_new_xmlitems(all_items=True))
+        # TODO: Something is wrong with the iCal representation, but
+        # when converted to a string and back again, it works
+        as_ical = cal.to_ical().as_string()
+        ics = ical.Calendar.from_string(as_ical)
+        from_ical = Calendar.from_ical(ics)
+        # from_ical = Calendar.from_xml(from_ical.get_new_xmlitems(all_items=True))
         iitem = from_ical.calendar_items[0]
 
-        f.write(iitem.tostring())
+        f.write(from_ical.tostring())
 
-        self.assertEqual(citem.get('t:DaysOfWeek'), iitem.get('t:DaysofWeek'))
+        self.assertEqual(citem.get('t:DaysOfWeek'), iitem.get('t:DaysOfWeek'))
+        self.assertEqual(citem.get('t:DayOfWeekIndex'), iitem.get('t:DayOfWeekIndex'))
         self.assertEqual(citem.get('t:Month'), iitem.get('t:Month'))
 
     def create_recurring_item(self):

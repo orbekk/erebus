@@ -117,28 +117,28 @@ class CalendarItem(ExchangeItem):
 
 
             if freq == 'YEARLY':
-                reqpattern = rrule2yearly_recpattern(rrule, interval_e)
-                recurrence.append(reqpattern)
+                recpattern = rrule2yearly_recpattern(rrule, interval_e, self.get('t:Start'))
+                recurrence.append(recpattern)
 
             elif freq == 'MONTHLY' and rrule.has_key('BYDAY'):
                 # When more than one day, it is impossible to do in
                 # Exchange (except if all days are in the same week)
                 day = rrule['byday'][0] # for day in rrule['byday']:
 
-                reqpattern = ET.Element(t('RelativeMonthlyRecurrence'))
+                recpattern = ET.Element(t('RelativeMonthlyRecurrence'))
                 dow_e, weekindex_e = byday2rel_month(day)
 
-                reqpattern.append(dow_e)
-                reqpattern.append(weekindex_e)
+                recpattern.append(dow_e)
+                recpattern.append(weekindex_e)
 
-                recurrence.append(reqpattern)
+                recurrence.append(recpattern)
 
                 
             elif freq == 'WEEKLY' or \
                (freq == 'DAILY' and rrule.has_key('BYDAY')):
                                     
                 has_recurrence = True
-                reqpattern = ET.Element(t('WeeklyRecurrence'))
+                recpattern = ET.Element(t('WeeklyRecurrence'))
 
                 daysofweek = ET.Element(t('DaysOfWeek'))
                 
@@ -156,14 +156,14 @@ class CalendarItem(ExchangeItem):
                     wkday = dt2xml_weekday(tt)
                     daysofweek.text = wkday
 
-                reqpattern.append(interval_e)
-                reqpattern.append(daysofweek)
+                recpattern.append(interval_e)
+                recpattern.append(daysofweek)
 
-                recurrence.append(reqpattern)
+                recurrence.append(recpattern)
 
             elif freq == 'MONTHLY':
-                reqpattern = ET.Element(t('AbsoluteMonthlyRecurrence'))
-                reqpattern.append(interval_e)
+                recpattern = ET.Element(t('AbsoluteMonthlyRecurrence'))
+                recpattern.append(interval_e)
 
                 if rrule.has_key('BYMONTHDAY'):
                     mday = str(rrule['BYMONTHDAY'][0])
@@ -174,14 +174,14 @@ class CalendarItem(ExchangeItem):
                 dayofmonth = ET.Element(t('DayOfMonth'))
                 dayofmonth.text = mday
                 
-                reqpattern.append(dayofmonth)
-                recurrence.append(reqpattern)
+                recpattern.append(dayofmonth)
+                recurrence.append(recpattern)
                 
             elif freq == 'DAILY':
-                reqpattern = ET.Element(t('DailyRecurrence'))
-                reqpattern.append(interval_e)
+                recpattern = ET.Element(t('DailyRecurrence'))
+                recpattern.append(interval_e)
 
-                recurrence.append(reqpattern)
+                recurrence.append(recpattern)
 
             startdate = ET.Element(t('StartDate')) # User start date
             startdate.text = xs_dateTime2xs_date(self.get('t:Start'))

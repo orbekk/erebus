@@ -18,17 +18,17 @@ class QueryFail(Exception):
     def __init__(self, str, query=None, result=None):
         self.msg = str
         self.query = query
-        maybe_write(query, 'query')
+        self.maybe_write(query, 'query')
 
         self.result = result
-        maybe_write(result, 'result')
+        self.maybe_write(result, 'result')
 
-    def maybe_write(str, name):
+    def maybe_write(self, str, name):
         if str:
-            tmpnam = os.tmpnam()
+            tmpnam = os.tmpnam() + '.xml'
             f = open(tmpnam, 'w')
             f.write(str)
-            msg += "\n [%s written to %s]" %(nam, self.tmpnam)
+            self.msg += "\n [%s written to %s]" %(name, tmpnam)
             
     def __str__(self):
         return repr(self.msg)

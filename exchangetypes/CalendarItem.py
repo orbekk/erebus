@@ -117,34 +117,8 @@ class CalendarItem(ExchangeItem):
 
 
             if freq == 'YEARLY':
-                if rrule.has_key('byday') and rrule.has_key('bymonth'):
-                    reqpattern = ET.Element(t('RelativeYearlyRecurrence'))
-
-                    dow_e, weekindex_e = byday2rel_month(rrule['byday'][0])
-                    month_e = xsdt2ex_month(self.get('t:Start'))
-
-                    reqpattern.append(interval_e)
-                    reqpattern.append(dow_e)
-                    reqpattern.append(weekindex_e)
-                    reqpattern.append(month_e)
-
-                    recurrence.append(reqpattern)
-
-                else:
-                    reqpattern = ET.Element(t('AbsoluteYearlyRecurrence'))
-
-                    dtstart = xsdt2datetime(self.get('t:Start'))
-
-                    monthday = dtstart.day
-                    monthday_e = ET.Element(t('DayOfMonth'))
-                    monthday_e.text = str(monthday)
-
-                    month_e = xsdt2ex_month(self.get('t:Start'))
-                    
-                    reqpattern.append(monthday_e)
-                    reqpattern.append(month_e)
-
-                    recurrence.append(reqpattern)
+                reqpattern = rrule2yearly_recpattern(rrule, interval_e)
+                recurrence.append(reqpattern)
 
             elif freq == 'MONTHLY' and rrule.has_key('BYDAY'):
                 # When more than one day, it is impossible to do in

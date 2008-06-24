@@ -124,7 +124,7 @@ def vtimezone2ex_timezone(vtz):
     if len(vtz.walk('standard')) > 0:
         standard = vtz.walk('standard')[0]
         # standard offset in hours
-        standard_offset = standard['tzoffsetto'].td.seconds % 3600
+        standard_offset = standard['tzoffsetto'].td.seconds / 3600
     else:
         ValueError, "STANDARD time must be specified in a VTIMEZONE"
 
@@ -132,7 +132,7 @@ def vtimezone2ex_timezone(vtz):
     if len(vtz.walk('daylight')) > 0:
         daylight = vtz.walk('daylight')[0]
         # daylight offset in hours
-        daylight_offset = daylight['tzoffsetto'].td.seconds % 3600
+        daylight_offset = daylight['tzoffsetto'].td.seconds / 3600
     else:
         # TODO: return just standard, and make Calendar(/Item)
         # understand it

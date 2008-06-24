@@ -2,6 +2,7 @@ from xml.etree import ElementTree as ET
 from helper.etsearch import elementsearch
 from helper.timeconv import *
 from helper.id import identity
+from helper.recurrence import *
 from namespaces import *
 from Queue import Queue
 from icalendar import Event
@@ -58,6 +59,10 @@ class Calendar(ExchangeItem):
 
     def _from_ical(self, ical):
         super(Calendar, self)._from_ical(ical)
+
+        self.tzones = {}
+        for item in ical.walk('VTIMEZONE'):
+            self.tzones[item['tzid']] = vtimezone2ex_timezone(item)
 
         for item in ical.walk('VEVENT'):
             self.add_calendaritem(CalendarItem.from_ical(item))

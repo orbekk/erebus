@@ -138,3 +138,7 @@ def dt2xml_weekday(dt):
           'Saturday', 'Sunday']
 
     return ar[dt.weekday()]
+
+    
+    
+    

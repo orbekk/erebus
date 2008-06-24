@@ -24,22 +24,25 @@ def datetime2xsdt(time):
     if time.tzinfo == UTC:
         tzinfo = "Z"
     else:
-        tzinfo = time.tzinfo
-        if not tzinfo: tzinfo = LocalTimezone()
-
-        delta = tzinfo.utcoffset(time)
-
-        if delta.days < 0:
-            # timedelta = wierd format
-            sign = '-'
-            s = delta.seconds - 86400
-        else:
-            sign = '+'
-            s = delta.seconds
-
-        h = s / 3600
-        m = s % 3600
-        tzinfo = "%s%02d:%02d" %(sign, h, m)
+        ## In case of a local timezone, we will add MeetingTimeZone,
+        ## so just treat it as a local xs:time
+        tzinfo = ""
+        # tzinfo = time.tzinfo
+        # if not tzinfo: tzinfo = LocalTimezone()
+        # 
+        # delta = tzinfo.utcoffset(time)
+        # 
+        # if delta.days < 0:
+        #     # timedelta = wierd format
+        #     sign = '-'
+        #     s = delta.seconds - 86400
+        # else:
+        #     sign = '+'
+        #     s = delta.seconds
+        # 
+        # h = s / 3600
+        # m = s % 3600
+        # tzinfo = "%s%02d:%02d" %(sign, h, m)
 
     format = "%04d-%02d-%02dT%02d:%02d:%02d%s"
     dt = format %(time.year, time.month, time.day, time.hour, time.minute,

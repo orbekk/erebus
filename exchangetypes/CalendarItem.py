@@ -19,15 +19,16 @@ from exchangetypes.ExchangeItem import ExchangeItem
 class CalendarItem(ExchangeItem):
 
     @staticmethod
-    def from_ical(ical):
-        item = CalendarItem(ET.Element(t('CalendarItem')))
+    def from_ical(ical, calendar=None):
+        item = CalendarItem(ET.Element(t('CalendarItem')), calendar)
         item._from_ical(ical)
         return item
 
-    def __init__(self, et):
+    def __init__(self, et, calendar=None):
         ExchangeItem.__init__(self,et)
         self.get_attrs()
         self.icalClass = Event
+        self.calendar = calendar
         
         self.trans_xml2ical = \
         [  # See ExchangeItem.to_ical
@@ -89,6 +90,13 @@ class CalendarItem(ExchangeItem):
 
         super(CalendarItem, self)._from_ical(ical)
 
+        # Append the timezone if it exists
+        if ical['dtstart'].params.has_key('TZID') and self.calendar:
+            tzid = ical['dtstart'].params['TZID']
+            if self.calendar.tzones.has_key(tzid):
+                self.et.append(self.calendar.tzones[tzid])
+            
+
         if self.get('t:Body') != None:
             self.set('t:Body:BodyType', 'Text')
 
@@ -128,6 +136,7 @@ class CalendarItem(ExchangeItem):
                 recpattern = ET.Element(t('RelativeMonthlyRecurrence'))
                 dow_e, weekindex_e = byday2rel_month(day)
 
+                recpattern.append(interval_e)
                 recpattern.append(dow_e)
                 recpattern.append(weekindex_e)
 

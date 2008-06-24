@@ -115,6 +115,12 @@ def ex_month2monthno(month):
 
 
 
+def to_start_element(dt):
+    e = ET.Element(t('Time'))
+    e.text = "%02d:%02d:%02d" %(dt.hour, dt.minute, dt.second)
+    return e
+
+
 def vtimezone2ex_timezone(vtz):
     """Convert an iCalendar timezone to TimeZoneType"""
     f = open('/tmp/debug.txt', 'a')
@@ -142,16 +148,22 @@ def vtimezone2ex_timezone(vtz):
     base_offset_e = ET.SubElement(tz_e, t('BaseOffset'))
     base_offset_e.text = 'PT0H'
 
+    # Standard time
     standard_e = ET.SubElement(tz_e, t('Standard'))
     offset_e = ET.SubElement(standard_e, t('Offset'))
     offset_e.text = "PT%dH" % standard_offset
     standard_e.append(rrule2yearly_recpattern(standard['rrule'],1))
-    
-    standard_e = ET.SubElement(tz_e, t('Daylight'))
-    offset_e = ET.SubElement(standard_e, t('Offset'))
+    standard_time_e = to_start_element(standard['dtstart'].dt)
+    standard_e.append(standard_time_e)
+
+    # Daylight saving time
+    daylight_e = ET.SubElement(tz_e, t('Daylight'))
+    offset_e = ET.SubElement(daylight_e, t('Offset'))
     offset_e.text = "PT%dH" % daylight_offset
-    standard_e.append(rrule2yearly_recpattern(daylight['rrule'],1))
-    
+    daylight_e.append(rrule2yearly_recpattern(daylight['rrule'],1))
+    daylight_time_e = to_start_element(daylight['dtstart'].dt)
+    daylight_e.append(daylight_time_e)
+
     f.write('\n\n')
 
     f.write(ET.tostring(tz_e))

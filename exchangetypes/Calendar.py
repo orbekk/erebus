@@ -65,7 +65,7 @@ class Calendar(ExchangeItem):
             self.tzones[item['tzid']] = vtimezone2ex_timezone(item)
 
         for item in ical.walk('VEVENT'):
-            self.add_calendaritem(CalendarItem.from_ical(item))
+            self.add_calendaritem(CalendarItem.from_ical(item, self))
 
     def add_calendaritem(self, item):
         self.et.append(item.et)

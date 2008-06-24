@@ -6,8 +6,15 @@ def ical2xsdt(t):
     """
     Conversion from iCalendar time to xs:dateTime
     """
-    ical_time = t.ical()
-    dt = vDatetime.from_ical(ical_time)
+    # It seems a bit random what type we get here. TODO: Why?
+    if type(t) == list:
+        t = t[0]
+    
+    if type(t) != datetime:
+        ical_time = t.ical()
+        dt = vDatetime.from_ical(ical_time)
+    else:
+        dt = t
     return datetime2xsdt(dt)
 
 def datetime2xsdt(time):
@@ -70,11 +77,12 @@ def xsdt2datetime(time):
 
 
 def xs_date2datetime(str):
-    m = p.match('(\d{4})-(\d\d)-(\d\d)(Z)?', str)
+    m = re.match('(\d{4})-(\d\d)-(\d\d)(Z)?', str)
     if m == None:
         raise ValueError("Invalid date format")
+    m = m.groups()
 
-    if (m[4] == 'Z'): tzinfo = UTC
+    if (m[3] == 'Z'): tzinfo = UTC
     else:             tzinfo = LocalTimezone()
 
     return datetime(int(m[0]), int(m[1]), int(m[2]), tzinfo=tzinfo)

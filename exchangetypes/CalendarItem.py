@@ -197,7 +197,7 @@ class CalendarItem(ExchangeItem):
 
             elif rrule.has_key('until'):
                 reqrange = ET.Element(t('EndDateRecurrence'))
-
+                
                 enddate = ical2xsdt(rrule['until'])
                 enddate = xs_dateTime2xs_date
                 enddate_e = ET.Element(t('EndDate'))
@@ -317,11 +317,11 @@ class CalendarItem(ExchangeItem):
 
             range_type = no_namespace(rec_range.tag)
             if range_type == 'NumberedRecurrence':
-                count = rec_range.find(t('NumberOfOccurences')).text
+                count = rec_range.find(t('NumberOfOccurrences')).text
                 rrule['COUNT'] = count
             elif range_type == 'EndDateRecurrence':
                 enddate = rec_range.find(t('EndDate'))
-                rrule['UNTIL'] = xs_date2datetime(enddate)
+                rrule['UNTIL'] = xs_date2datetime(enddate.text)
             else:
                 # NoEndRecurrence is the default in iCalendar
                 pass

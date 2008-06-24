@@ -62,8 +62,7 @@ class TestRecurrence(SoapTest):
         citem = cal.calendar_items[0]
 
         f = open('/tmp/blaff', 'w')
-        fi = open('/tmp/blaff.ics', 'w')
-
+        fi = open('/tmp/blaff.ics', 'a')
         self.assertNotEqual(citem.get_item('t:'+rec_type), None)
         
         i_id, i_chkey = (citem.get('t:ItemId:Id'), citem.get('t:ItemId:ChangeKey'))
@@ -94,6 +93,9 @@ class TestRecurrence(SoapTest):
     def testWeeklyRecurrence(self):
         self.compareFields('WeeklyRecurrence', ['Interval', 'DaysOfWeek'])
 
+    def testDailyRecurrence(self):
+        self.compareFields('DailyRecurrence', ['Interval'])
+
     def create_recurring_item(self, itemtype):
 
         if itemtype == 'RelativeYearlyRecurrence':
@@ -122,9 +124,10 @@ class TestRecurrence(SoapTest):
                   <t:DayOfMonth>20</t:DayOfMonth>
                   <t:Month>February</t:Month>
                 </t:AbsoluteYearlyRecurrence>
-                <t:NoEndRecurrence>
+                <t:EndDateRecurrence>
                   <t:StartDate>2008-06-23Z</t:StartDate>
-                </t:NoEndRecurrence>
+                  <t:EndDate>2010-12-24Z</t:EndDate>
+                </t:EndDateRecurrence>
               </t:Recurrence>
             </t:CalendarItem>
             """)
@@ -138,6 +141,22 @@ class TestRecurrence(SoapTest):
                   <t:Interval>2</t:Interval>
                   <t:DaysOfWeek>Monday Tuesday</t:DaysOfWeek>
                 </t:WeeklyRecurrence>
+                <t:NumberedRecurrence>
+                  <t:StartDate>2008-06-23Z</t:StartDate>
+                  <t:NumberOfOccurrences>300</t:NumberOfOccurrences>
+                </t:NumberedRecurrence>
+              </t:Recurrence>
+            </t:CalendarItem>
+            """)
+
+        elif itemtype == 'DailyRecurrence':
+            self.q.create_item("""
+            <t:CalendarItem>
+              <t:Subject>DailyRecurrence</t:Subject>
+              <t:Recurrence>
+                <t:DailyRecurrence>
+                  <t:Interval>2</t:Interval>
+                </t:DailyRecurrence>
                 <t:NoEndRecurrence>
                   <t:StartDate>2008-06-23Z</t:StartDate>
                 </t:NoEndRecurrence>

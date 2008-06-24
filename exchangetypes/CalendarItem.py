@@ -90,13 +90,6 @@ class CalendarItem(ExchangeItem):
 
         super(CalendarItem, self)._from_ical(ical)
 
-        # Append the timezone if it exists
-        if ical['dtstart'].params.has_key('TZID') and self.calendar:
-            tzid = ical['dtstart'].params['TZID']
-            if self.calendar.tzones.has_key(tzid):
-                self.et.append(self.calendar.tzones[tzid])
-            
-
         if self.get('t:Body') != None:
             self.set('t:Body:BodyType', 'Text')
 
@@ -231,6 +224,13 @@ class CalendarItem(ExchangeItem):
             if recurrence != None:
                 self.et.append(recurrence)
 
+        # Append the timezone if it exists
+        if ical['dtstart'].params.has_key('TZID') and self.calendar:
+            tzid = ical['dtstart'].params['TZID']
+            if self.calendar.tzones.has_key(tzid):
+                self.et.append(self.calendar.tzones[tzid])
+            
+
         fi.write("Exchange item:\n%s\n\n" % ET.tostring(self.et))
             
         # debug
@@ -290,6 +290,11 @@ class CalendarItem(ExchangeItem):
                 rrule['byday'] = byday
                 rrule['bymonth'] = bymonth
                 rrule['interval'] = interval
+
+            elif rec_ptag == 'DailyRecurrence':
+                rrule['freq'] = 'DAILY'
+                rrule['interval'] = interval
+
             else:
                 # TODO: make this more explicit (like above)
                 if freq != 'YEARLY':

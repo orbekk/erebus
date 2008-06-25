@@ -14,13 +14,6 @@ class XMLObject(object):
         self.et = et
         self.__make_children()
 
-    def accept(self, visitor):
-        method = getattr(visitor, "visit%s" % self.__class__.__name__)
-        if method:
-            return method(self)
-        else:
-            raise MissingVisitor("visit%s" % obj.__class__.__name__)
-
     def __make_children(self):
         children = self.children
 

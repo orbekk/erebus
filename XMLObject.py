@@ -1,5 +1,8 @@
 from xml.etree import ElementTree as ET
 from helper.etsearch import *
+from namespaces import *
+
+import re
 
 class MissingVisitor(Exception):
     def __init__(self, visitor):
@@ -101,6 +104,17 @@ class XMLObject(object):
                     e.attrib[att] = val
         
         return None
+
+    def search_all (self, tag, et=None):
+        if et == None: et = self.et
+        items = elementsearch(et, tag, True)
+        return items
+
+    def search(self, tag, et=None):
+        if et == None: et = self.et
+        item = elementsearch(et, tag)
+        return item
+
 
     def __str__(self):
         return ET.tostring(self.et)

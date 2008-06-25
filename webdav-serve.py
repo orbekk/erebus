@@ -47,7 +47,6 @@ class calendar:
             try:
                 c = SoapConn("http://mail1.ansatt.hig.no:80",False,
                              auth=authorized)
-
                 q = SoapQuery(c)
                 its = q.get_all_calendar_items()
                 cal = Calendar.from_xml(its)
@@ -57,7 +56,6 @@ class calendar:
                 return
             log(pp.pformat(cal.tostring()))
             res = cal.to_ical().as_string()
-
             # web.py doesn't add Content-Length header when setting
             # Content-Type manually
             web.header('Content-Length', len(res))
@@ -108,7 +106,7 @@ class calendar:
             return
         
         web.header('DAV', dav_header)
-        # log('=== PUT ===')
+        log('=== PUT ===')
         # log('INPUT DATA')
         # log(web.data())
 
@@ -122,7 +120,8 @@ class calendar:
         newItems = cal.get_new_xmlitems(uid_ignore, all_items=True)
         oldItems = q.find_items('calendar')
         oldCal   = Calendar.from_xml(oldItems)
-        
+
+        log(newItems)
         if newItems: q.create_item(newItems)
 
         delete = [(i.get('t:ItemId:Id'), i.get('t:ItemId:ChangeKey'))

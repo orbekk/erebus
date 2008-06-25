@@ -1,7 +1,9 @@
 from xml.etree import ElementTree as ET
 from helper.timeconv import *
 from namespaces import *
+import datetime
 import re
+
 
 def rrule2yearly_recpattern(rrule,interval_e,event_start=None):
     """Convert a YEARLY iCalendar recurrence to Exchange's
@@ -169,3 +171,24 @@ def vtimezone2ex_timezone(vtz):
     f.write(ET.tostring(tz_e))
 
     return tz_e
+
+def xs_duration2timedelta(dur):
+    m = re.search('T(\d+H)(\d+M)(\d+S)', dur)
+
+    if m == None:
+        return datetime.timedelta(0)
+    else:
+        tf = m.groups()
+        secs = 0
+        if tf[0]: secs += tf[0] * 3600
+        if tf[1]: secs += tf[1] *   60
+        if tf[2]: secs += tf[2]
+        
+        return datetime.timedelta(secs)
+
+def ex_timezone2vtimezone(ex_tz):
+    """Convert TimeZoneType to VTIMEZONE"""
+    of_e = ex_tz.find(t('BaseOffset'))
+    base_offset = xs_duration2timedelta(of_e)
+    # std_recur = - recursion :<
+    return None

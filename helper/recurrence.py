@@ -8,6 +8,13 @@ def daily_recpattern2rrule(recurrence, rules):
     rules['freq'] = 'DAILY'
     rules['interval'] = recurrence.get('t:Interval')
 
+def weekly_recpattern2rrule(recurrence, rules):
+    dow = recurrence.get('t:DaysOfWeek').split()
+    rules['interval'] = recurrence.get('t:Interval')
+
+    rules['freq'] = 'DAILY'
+    byday_rules = [weekday_xml2ical(w) for w in dow]
+    rules['byday'] = byday_rules
 
 def rrule2yearly_recpattern(rrule,interval_e,event_start=None):
     """Convert a YEARLY iCalendar recurrence to Exchange's

@@ -64,6 +64,7 @@ class GenerateICalVisitor(CalendarVisitor):
 
         if rec_type == 'DailyRecurrence':
             daily_recpattern2rrule(rec, rrule)
-            print rrule
+        if rec_type == 'WeeklyRecurrence':
+            weekly_recpattern2rrule(rec, rrule)
 
         return rrule

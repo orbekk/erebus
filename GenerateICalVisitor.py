@@ -6,6 +6,8 @@ from helper.timeconv import *
 from helper.icalconv import *
 from helper.recurrence import *
 
+import datetime
+import icalendar as ical
 from icalendar import Calendar as ICal
 from icalendar import Event
 
@@ -89,3 +91,30 @@ class GenerateICalVisitor(CalendarVisitor):
 
 
         return rrule
+
+    def visitTimeZone(self, tz):
+
+        base_offset = xs_duration2timedelta(tz.get('t:BaseOffset'))
+        recurrences = self.accept(tz, 'recurrence')
+
+        print "got base_offset", base_offset
+
+        tz = ical.Timezone()
+         
+        if len(recurrences) == 0:
+            std = ical.cal.Component()
+            std.name = 'STANDARD'
+            std.add('tzoffsetfrom', datetime.timedelta(0))
+            std.add('tzoffsetto', base_offset)
+            tz.add_component(std)
+
+            print tz.as_string()
+
+            #std.add
+        elif len(recurrences) == 1:
+            pass
+        elif len(recurrences) == 2:
+            pass
+
+        return 
+           

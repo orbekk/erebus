@@ -76,4 +76,16 @@ class GenerateICalVisitor(CalendarVisitor):
             raise ValueError("unknown recurrence pattern: %s" % rec_type)
     
 
+        range_type = no_namespace(rec_range.tag)
+        if range_type == 'NumberedRecurrence':
+            count = rec.get('t:NumberOfOccurrences')
+            rrule['COUNT'] = count
+        elif range_type == 'EndDateRecurrence':
+            enddate = rec.get('t:EndDate')
+            rrule['UNTIL'] = xs_date2datetime(enddate)
+        else:
+            # NoEndRecurrence is the default in iCalendar
+            pass
+
+
         return rrule

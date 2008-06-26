@@ -223,20 +223,6 @@ def vtimezone2ex_timezone(vtz):
 
     return tz_e
 
-def xs_duration2timedelta(dur):
-    m = re.search('T(\d+H)(\d+M)(\d+S)', dur)
-
-    if m == None:
-        return datetime.timedelta(0)
-    else:
-        tf = m.groups()
-        secs = 0
-        if tf[0]: secs += tf[0] * 3600
-        if tf[1]: secs += tf[1] *   60
-        if tf[2]: secs += tf[2]
-        
-        return datetime.timedelta(secs)
-
 def ex_timezone2vtimezone(ex_tz):
     """Convert TimeZoneType to VTIMEZONE"""
     of_e = ex_tz.find(t('BaseOffset'))

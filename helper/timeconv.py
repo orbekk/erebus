@@ -1,6 +1,6 @@
 import re
-from icalendar import UTC, LocalTimezone, FixedOffset, vDatetime
-from datetime import datetime
+from icalendar import UTC, LocalTimezone, FixedOffset, vDatetime, vDDDTypes
+from datetime import datetime, timedelta
 
 def ical2xsdt(t):
     """
@@ -141,6 +141,22 @@ def dt2xml_weekday(dt):
           'Saturday', 'Sunday']
 
     return ar[dt.weekday()]
+
+def xs_duration2timedelta(dur):
+    d = vDDDTypes.from_ical(dur)
+    return d
+#     m = re.search('T(\d+H)(\d+M)(\d+S)', dur)
+
+#     if m == None:
+#         return timedelta(0)
+#     else:
+#         tf = m.groups()
+#         secs = 0
+#         if tf[0]: secs += tf[0] * 3600
+#         if tf[1]: secs += tf[1] *   60
+#         if tf[2]: secs += tf[2]
+        
+#         return timedelta(secs)
 
     
     

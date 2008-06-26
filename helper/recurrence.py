@@ -4,6 +4,10 @@ from namespaces import *
 import datetime
 import re
 
+def daily_recpattern2rrule(recurrence, rules):
+    rules['freq'] = 'DAILY'
+    rules['interval'] = recurrence.get('t:Interval')
+
 
 def rrule2yearly_recpattern(rrule,interval_e,event_start=None):
     """Convert a YEARLY iCalendar recurrence to Exchange's

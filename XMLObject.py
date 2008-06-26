@@ -21,7 +21,13 @@ class XMLObject(object):
         children = self.children
 
         for attr, xml_name, attr_class in children:
-            items = self.et.findall(xml_name)
+            items = elementsearch(self.et, xml_name, all=True, depth=1)
+
+#             print "%s search(%s), %d items" %(self.et.tag, xml_name, len(items))
+#             if len(items) == 0:
+#                 for i in self.et:
+#                     print "-", i.tag
+            
 
             setattr(self, attr, [])
             itemlist = getattr(self, attr)

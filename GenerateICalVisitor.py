@@ -4,6 +4,7 @@ from xml.etree import *
 from helper.id import *
 from helper.timeconv import *
 from helper.icalconv import *
+from helper.recurrence import *
 
 from icalendar import Calendar as ICal
 from icalendar import Event
@@ -40,7 +41,29 @@ class GenerateICalVisitor(CalendarVisitor):
         conv('t:DateTimeCreated', 'dtstamp', xsdt2datetime)
         conv('t:Body', 'description', identity)
 
+        rrule = self.accept(ci, 'recurrence')
+        if len(rrule) > 0:
+            rrule = rrule[0]
+        if rrule != None:
+            e.add('rrule', rrule)
+
         if ci.get('t:Body') != None:
             self.set('t:Body:BodyType', 'Text')
 
         return e
+
+    def visitRecurrence(self, rec):
+        children = rec.et.getchildren()
+        rec_pattern = children[0]
+        rec_range = children[1]
+        
+        rrule = {}
+        rec_type = no_namespace(rec_pattern.tag)
+
+        print rec_type
+
+        if rec_type == 'DailyRecurrence':
+            daily_recpattern2rrule(rec, rrule)
+            print rrule
+
+        return rrule

@@ -12,7 +12,7 @@ class Calendar(XMLObject):
     def __init__(self, et):
         # Make our own root and collect all the CalendarItems
         r = ET.Element(t('Items'))
-        items = elementsearch(et, t('CalendarItem'), all=True)
+        items = elementsearch(et, t('CalendarItem'), all=True, depth=6)
         for i in items:
             r.append(i)
             

@@ -41,11 +41,11 @@ class GenerateICalVisitor(CalendarVisitor):
         conv('t:DateTimeCreated', 'dtstamp', xsdt2datetime)
         conv('t:Body', 'description', identity)
 
-        rrule = self.accept(ci, 'recurrence')
-        if len(rrule) > 0:
-            rrule = rrule[0]
+        rrule = self.accept1(ci, 'recurrence')
         if rrule != None:
             e.add('rrule', rrule)
+
+        tz = self.accept1(ci, 'timezone')
 
         if ci.get('t:Body') != None:
             self.set('t:Body:BodyType', 'Text')

@@ -10,8 +10,13 @@ class Calendar(XMLObject):
         ]
     
     def __init__(self, et):
-        items = elementsearch(et, t('CalendarItem')).parent
-        XMLObject.__init__(self, items)
+        # Make our own root and collect all the CalendarItems
+        r = ET.Element(t('Items'))
+        items = elementsearch(et, t('CalendarItem'), all=True)
+        for i in items:
+            r.append(i)
+            
+        XMLObject.__init__(self, r)
         #self._make_children('calendaritems', t('CalendarItem'), CalendarItem)
 
     def add_calendaritem(self, item):

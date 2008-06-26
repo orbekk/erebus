@@ -60,11 +60,20 @@ class GenerateICalVisitor(CalendarVisitor):
         rrule = {}
         rec_type = no_namespace(rec_pattern.tag)
 
-        print rec_type
-
-        if rec_type == 'DailyRecurrence':
+        if  rec_type == 'DailyRecurrence':
             daily_recpattern2rrule(rec, rrule)
-        if rec_type == 'WeeklyRecurrence':
+        elif rec_type == 'WeeklyRecurrence':
             weekly_recpattern2rrule(rec, rrule)
+        elif rec_type == 'RelativeMonthlyRecurrence':
+            rel_monthly_recpattern2rrule(rec, rrule)
+        elif rec_type == 'AbsoluteMonthlyRecurrence':
+            abs_monthly_recpattern2rrule(rec, rrule)
+        elif rec_type == 'RelativeYearlyRecurrence':
+            rel_yearly_recpattern2rrule(rec, rrule)
+        elif rec_type == 'AbsoluteYearlyRecurrence':
+            abs_yearly_recpattern2rrule(rec, rrule)
+        else:
+            raise ValueError("unknown recurrence pattern: %s" % rec_type)
+    
 
         return rrule

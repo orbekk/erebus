@@ -16,6 +16,46 @@ def weekly_recpattern2rrule(recurrence, rules):
     byday_rules = [weekday_xml2ical(w) for w in dow]
     rules['byday'] = byday_rules
 
+def rel_monthly_recpattern2rrule(recurrence, rules):
+    rules['interval'] = recurrence.get('t:Interval')
+
+    dow = recurrence.get('t:DaysOfWeek').split()
+    dow = [weekday_xml2ical(w) for w in dow]
+
+    dow_index = recurrence.get('t:DayOfWeekIndex')
+    if dow_index == 'Last':
+        cal_idx = -1
+    else:
+        wks = ['', 'First', 'Second', 'Third', 'Fourth']
+        cal_idx = wks.index(dow_index)
+
+    byday_rules = ["%s%s" %(str(cal_idx), wd) for wd in dow]
+
+    rules['freq'] = 'MONTHLY'
+    rules['BYDAY'] = byday_rules
+
+def abs_monthly_recpattern2rrule(recurrence, rules):
+    rules['interval'] = recurrence.get('t:Interval')
+    rules['freq'] = 'MONTHLY'
+    rules['bymonthday'] = recurrence.get('t:DayOfMonth')
+
+def rel_yearly_recpattern2rrule(recurrence, rules):
+    rules['freq'] = 'YEARLY'
+    dow = recurrence.get('t:DaysOfWeek')
+    windex = recurrence.get('t:DayOfWeekIndex')
+    month = recurrence.get('t:Month')
+
+    byday, bymonth = rel_year2bday(dow, windex, month)
+    rules['byday'] = byday
+    rules['bymonth'] = bymonth
+    rules['interval'] = 1 # Fixed by Exchange
+
+def abs_yearly_recpattern2rrule(recurrence, rules):
+    rules['freq'] = 'YEARLY'
+    rules['bymonthday'] = recurrence.get('t:DayOfMonth')
+    rules['bymonth'] = ex_month2monthno(recurrence.get('t:Month'))
+    rules['interval'] = 1 # Fixed by Exchange
+
 def rrule2yearly_recpattern(rrule,interval_e,event_start=None):
     """Convert a YEARLY iCalendar recurrence to Exchange's
     RecurrencePattern

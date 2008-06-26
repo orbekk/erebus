@@ -24,15 +24,14 @@ class GenerateICalVisitor(CalendarVisitor):
     def visitCalendarItem(self, ci):
         e = Event()
 
-        def conv(ical_e, xml_e, f):
+        def conv(xml_e, ical_e, f):
             xml_v = ci.get(xml_e)
             if not xml_v: return
-            print "xml:", xml_v
             ical_v = f(xml_v)
             if not ical_v: return
 
             e.add(ical_e, ical_v)
-                
+
         conv('t:Subject', 'summary', identity)
         conv('t:Start', 'dtstart', xsdt2datetime)
         conv('t:End', 'dtend', xsdt2datetime)

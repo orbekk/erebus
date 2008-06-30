@@ -24,7 +24,7 @@ def xml2cnode(xml):
     r.content = xml.text
 
     for k,v in xml.attrib.iteritems():
-        r.attrs[k] = v
+        r.attr[k] = v
 
     for c in xml.getchildren():
         e = xml2cnode(c)

@@ -12,7 +12,7 @@ class CNodeVisitor(object):
     def visit(self,obj,*args,**kws):
         method_name = "visit%s" % obj.name
 
-        if hasattr(self, method_name):
+        if obj.name and hasattr(self, method_name):
             method = getattr(self, method_name)
             return method(obj,*args,**kws)
         else:

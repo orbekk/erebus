@@ -3,10 +3,15 @@ from Queue import Queue
 class CNode(object):
     """Holds a node in the Calendar (xml or ical)"""
 
-    def __init__(self,name="",content=None,attrs={}):
+    def __init__(self,name="",content=None,attr=None):
         self.name = name
         self.content = content
-        self.attrs = attrs
+
+        if attr:
+            self.attr = attr
+        else:
+            self.attr = {}
+            
         self.children = []
 
     def add_child(self,child):
@@ -17,7 +22,7 @@ class CNode(object):
 
     def __str__(self):
         return "{%s [%s]: %s %s}" %(self.name,
-                                    str(self.attrs),
+                                    str(self.attr),
                                     str(self.content),
                                     [str(c) for c in self.children])
 

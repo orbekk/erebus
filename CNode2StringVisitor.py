@@ -11,7 +11,7 @@ class CNode2StringVisitor(CNodeVisitor):
         self.str += '    ' * indent + '{'+o.name+'}' + '\n'
         self.str += '    ' * indent + '  '+str(o.content)+ '\n'
 
-        for k,v in o.attrs.iteritems():
+        for k,v in o.attr.iteritems():
             self.str += '    ' * indent + " - %s: %s\n" %(k,v)
 
         [self.visit(c,indent=indent+1) for c in o.children]

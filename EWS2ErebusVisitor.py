@@ -44,6 +44,11 @@ class EWS2ErebusVisitor(CNodeVisitor):
 
             ci.attr[att] = new
 
+        print eci.search('Recurrence')
+        rec = self.accept1(eci, 'Recurrence')
+        if rec: ci.add_child(rec)
+        print rec
+        
         conv('Subject', 'summary', identity)
         conv('Start', 'start', xsdt2datetime)
         conv('End', 'end', xsdt2datetime)
@@ -53,3 +58,13 @@ class EWS2ErebusVisitor(CNodeVisitor):
         conv('Body', 'description', identity)
 
         self.events.add_child(ci)
+
+    def visit_any(self,eci):
+        """Copy the entire tree from here"""
+        ci = CNode(name=eci.name)
+
+        for c in eci.children:
+            ci.add_child(self.visit(c))
+
+        return ci
+        

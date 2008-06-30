@@ -62,9 +62,11 @@ class EWS2ErebusVisitor(CNodeVisitor):
     def visit_any(self,eci):
         """Copy the entire tree from here"""
         ci = CNode(name=eci.name)
+        ci.content = eci.content
 
         for c in eci.children:
             ci.add_child(self.visit(c))
 
         return ci
-        
+
+

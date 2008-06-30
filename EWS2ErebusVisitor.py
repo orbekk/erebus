@@ -53,16 +53,3 @@ class EWS2ErebusVisitor(CNodeVisitor):
         conv('Body', 'description', identity)
 
         self.events.add_child(ci)
-
-
-#     def visit_any(self, o, indent=0):
-#         self.str += '    ' * indent + '{'+o.name+'}' + '\n'
-#         self.str += '    ' * indent + '  '+str(o.content)+ '\n'
-
-#         for k,v in o.attrs.iteritems():
-#             self.str += '    ' * indent + " - %s: %s\n" %(k,v)
-
-#         [self.visit(c,indent=indent+1) for c in o.children]
-
-#         return self.str
-

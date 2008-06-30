@@ -21,14 +21,15 @@ class CNodeVisitor(object):
             else:
                 raise MissingVisitor("visit%s" % method_name)
 
-    def accept(self,obj,attr):
+    def accept(self,obj,name,*args,**kws):
         """Call this to visit children with name 'attr'"""
-        return [self.visit(o) for o in getattr(obj, attr)]
+        objs = obj.search(name, all=True)
+        return [self.visit(o,*args,**kws) for o in objs]
 
-    def accept1(self,obj,attr):
+    def accept1(self,obj,name,*args,**kws):
         """Call this to visit the first child with name 'attr'"""
-        its = getattr(obj, attr)
-        if len(its) > 0:
-            self.visit(its[0])
+        child = obj.search(name)
+        if child:
+            return self.visit(child,*args,**kws)
         else:
             return None

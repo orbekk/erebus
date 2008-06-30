@@ -1,0 +1,24 @@
+Description of the Calendar Tree in Erebus
+==========================================
+
+The Calendar is a tree of CNodes, corresponding to the following
+structure:
+
+- calendar
+  - timezone
+    - name
+    - id
+    - recurrence
+    - range
+  - event
+    - ...
+    - tzid
+
+The structure is inspired by the structure in Exchange Web Services
+and iCalendar. Timezones are stored outside of the events, like
+iCalendar, but the representation is more like EWS (because it's a
+*lot* simpler than iCalendar's).
+
+See the conversion visitors (especially EWS2ErebusVisitor) for more
+details.
+

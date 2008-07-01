@@ -34,6 +34,10 @@ class EWS2ErebusVisitor(CNodeVisitor):
         return sha1(s).hexdigest()
 
     def add_tz(self,tz):
+        """Add a timezone element.
+
+        Return the corresponding tzid (sha1 sum of the actual content)
+        """
         tzid = CNode(name='tzid', content=self.__gen_id(tz))
         tz.add_child(tzid)
 
@@ -48,7 +52,9 @@ class EWS2ErebusVisitor(CNodeVisitor):
         return tzid.content
 
     def visit_start(self):
-        [self.visit(ci) for ci in self.ews_calendaritems]
+        for eci in self.ews_calendaritems:
+            ci = self.visit(eci)
+            self.events.add_child(ci)
 
         return self.calendar
 
@@ -79,7 +85,7 @@ class EWS2ErebusVisitor(CNodeVisitor):
         conv('DateTimeCreated', 'timestamp', xsdt2datetime)
         conv('Body', 'description', identity)
 
-        self.events.add_child(ci)
+        return ci
 
     def visit_any(self,eci):
         """Copy the entire tree from here"""

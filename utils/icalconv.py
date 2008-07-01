@@ -5,6 +5,8 @@ from cnodegen import *
 from CNode import *
 from ICS2ErebusVisitor import *
 import sys
+
+sys.path.append('../')
     
 if len(sys.argv) != 2:
     print 'Usage: python %s <ical file>' % sys.argv[0]

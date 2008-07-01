@@ -8,7 +8,7 @@ def ical2cnode(ical):
     r = CNode(name=ical.name)
 
     for k,v in ical.iteritems():
-        r.attrs[k] = v
+        r.attr[k] = v
 
     for child in ical.walk():
         if child == ical: continue

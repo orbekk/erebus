@@ -5,6 +5,16 @@ from helper.timeconv import *
 from helper.icalconv import *
 from hashlib import sha1
 
+class ToLowerCaseVisitor(CNodeVisitor):
+    def visit_any(self, o):
+        o.name = "_"+o.name.lower()
+        new_attr = {}
+        for k,v in o.attr.iteritems():
+            new_attr[k.lower()] = v
+        o.attr = new_attr
+        
+        [self.visit(c) for c in o.children]
+
 class ICS2ErebusVisitor(CNodeVisitor):
 
     def __init__(self,cnode):
@@ -15,12 +25,13 @@ class ICS2ErebusVisitor(CNodeVisitor):
 
         self.calendar.add_child(self.timezones)
         self.calendar.add_child(self.events)
-        
+
+        ToLowerCaseVisitor().visit(cnode)
         self.ics = cnode
 
     def visit_start(self):
-        timezones = self.accept(self.ics, 'VTIMEZONE')
-        events = self.accept(self.ics, 'VEVENT')
+        timezones = self.accept(self.ics, '_vtimezone')
+        events = self.accept(self.ics, '_vevent')
 
         for e in timezones:
             self.timezones.add_child(e)
@@ -29,20 +40,24 @@ class ICS2ErebusVisitor(CNodeVisitor):
 
         return self.calendar
 
-    def visitVTIMEZONE(self,ics):
+    def visit_vtimezone(self,ics):
         tz = CNode(name='timezone')
-        print "i has it"
         
         #         if freq == 'YEARLY':
         #             recpattern = rrule2yearly_recpattern(rrule, interval_e, self.get('t:Start'))
         #             recurrence.append(recpattern)
         return tz
 
-    def visitVEVENT(self,ics):
+    def visit_vevent(self,ics):
         event = CNode(name='event')
+        print ics.attr
+
+        def vDDD2dt(vd): return vd.dt
 
         def conv(icaln, ebus, f):
+
             if not ics.attr.has_key(icaln): return
+            print ics.attr[icaln]
             ics_e = ics.attr[icaln]
             if not ics_e: return
             new = f(ics_e)
@@ -51,6 +66,11 @@ class ICS2ErebusVisitor(CNodeVisitor):
             event.attr[ebus] = new
             
         conv('summary', 'summary', identity)
-        conv('dtstart', 'start', identity)
+        conv('dtstart', 'start', vDDD2dt)
+        conv('dtend', 'end', vDDD2dt)
+        conv('class', 'class', identity)
+        conv('location', 'location', identity)
+        conv('dtstamp', 'timestamp', vDDD2dt)
+        conv('description', 'description', identity)
 
         return event

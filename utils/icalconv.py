@@ -1,12 +1,13 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
+
+import sys
+sys.path.extend(['.', '../'])
+
 from icalendar import Calendar as ICal
 from CNode2StringVisitor import *
 from cnodegen import *
 from CNode import *
 from ICS2ErebusVisitor import *
-import sys
-
-sys.path.append('../')
     
 if len(sys.argv) != 2:
     print 'Usage: python %s <ical file>' % sys.argv[0]

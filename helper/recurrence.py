@@ -1,8 +1,126 @@
 from xml.etree import ElementTree as ET
 from helper.timeconv import *
 from namespaces import *
+from CNode import *
 import datetime
 import re
+
+def rrule2recurrence(rrule, starttime):
+    freq = rrule['freq'][0]
+    
+    if rrule.has_key('INTERVAL'):
+        interval = rrule['INTERVAL'][0]
+    else:
+        interval = 1
+
+    interval_e = CNode(name='Interval', content=interval)
+    recurrence_e = CNode(name='Recurrence')
+
+    if freq == 'YEARLY':
+        recpattern_e = rrule2yearly_recpattern(rrule, interval_e, starttime)
+        recurrence_e.add_child(recpattern_e)
+        
+    elif freq == 'MONTHLY':
+        if  rrule.has_key('BYDAY'):
+            # When more than one day, it is impossible to do in
+            # Exchange (except if all days are in the same week)
+            day = rrule['byday'][0]
+
+            recpattern_e = CNode(name='RelativeMonthlyRecurrence')
+            dow_e, weekindex_e = byday2rel_month(day)
+
+            recpattern_e.add_child(interval_e)
+            recpattern_e.add_child(dow_e)
+            recpattern_e.add_child(weekindex_e)
+
+            recurrence_e.add_child(recpattern_e)
+        else:
+            recpattern_e = CNode(name='AbsoluteMonthlyRecurrence')
+
+            if rrule.has_key('BYMONTHDAY'):
+                mday = str(rrule['BYMONTHDAY'][0])
+            else:
+                mday = str(starttime.day)
+
+            dayofmonth = CNode(name='DayOfMonth',content=mday)
+
+            recpattern_e.add_child(dayofmonth)
+            recurrence_e.add_child(recpattern_e)
+
+    elif freq == 'WEEKLY' or \
+         (freq == 'DAILY' and rrule.has_key('BYDAY')):
+
+        recpattern_e = CNode(name='WeeklyRecurrence')
+        daysofweek_e = CNode(name='DaysOfWeek')
+
+        if rrule.has_key('WKST') or rrule.has_key('BYDAY'):
+            if rrule.has_key('WKST'): # TODO: really?
+                ical_days = rrule['WKST']
+            else:
+                ical_days = rrule['BYDAY']
+
+            days = [weekday_ical2xml(w) for w in ical_days]
+            daysofweek_e.content = " ".join(days)
+
+        else:
+            wkday = dt2xml_weekday(starttime)
+            daysofweek_e.content = wkday
+
+        recpattern_e.add_child(interval_e)
+        recpattern_e.add_child(daysofweek_e)
+
+        recurrence_e.add_child(recpattern_e)
+
+
+    elif freq == 'DAILY':
+        recpattern_e = CNode(name='DailyRecurrence')
+        recpattern_e.add_child(interval_e)
+        
+        recurrence_e.add_child(recpattern_e)
+
+    return recurrence_e
+
+def rrule2yearly_recpattern(rrule,interval_e,event_start=None):
+    """Convert a YEARLY iCalendar recurrence to Erebus
+    RecurrencePattern
+
+    rrule: the iCalendar recurrence rule
+    interval_e: the interval element
+    """
+    if rrule.has_key('byday') and rrule.has_key('bymonth'):
+        recpattern = CNode(name='RelativeYearlyRecurrence')
+
+        dow_e, weekindex_e = byday2rel_month(rrule['byday'][0])
+
+        if rrule['bymonth']:
+            m = int(rrule['bymonth'][0])
+            month = ex_months[m]
+        elif event_start:
+            month = xsdt2ex_month(event_start)
+        else:
+            ValueError, "neither BYMONTH or event_start is available"
+
+        month_e = ET.Element(t('Month'))
+        month_e.text = month
+
+        recpattern.add_child(dow_e)
+        recpattern.add_child(weekindex_e)
+        recpattern.add_child(month_e)
+
+    else:
+        recpattern = CNode(name='AbsoluteYearlyRecurrence')
+
+        dtstart = event_start
+
+        monthday = dtstart.day
+        monthday_e = CNode(name='DayOfMonth', content=str(monthday))
+
+        month_e = dt2ex_month(event_start)
+        
+        recpattern.add_child(monthday_e)
+        recpattern.add_child(month_e)
+
+    return recpattern
 
 def daily_recpattern2rrule(recurrence, rules):
     rules['freq'] = 'DAILY'
@@ -56,58 +174,10 @@ def abs_yearly_recpattern2rrule(recurrence, rules):
     rules['bymonth'] = ex_month2monthno(recurrence.get('t:Month'))
     rules['interval'] = 1 # Fixed by Exchange
 
-def rrule2yearly_recpattern(rrule,interval_e,event_start=None):
-    """Convert a YEARLY iCalendar recurrence to Exchange's
-    RecurrencePattern
-
-    rrule: the iCalendar recurrence rule
-    interval_e: the interval element
-    """
-    if rrule.has_key('byday') and rrule.has_key('bymonth'):
-        recpattern = ET.Element(t('RelativeYearlyRecurrence'))
-
-        dow_e, weekindex_e = byday2rel_month(rrule['byday'][0])
-
-        if rrule['bymonth']:
-            m = int(rrule['bymonth'][0])
-            month = ex_months[m]
-        elif event_start:
-            month = xsdt2ex_month(event_start)
-        else:
-            ValueError, "neither BYMONTH or event_start is available"
-
-        month_e = ET.Element(t('Month'))
-        month_e.text = month
-
-        # recpattern.append(interval_e) # Exchange doesn't support
-        # this in yearly recurrences
-        recpattern.append(dow_e)
-        recpattern.append(weekindex_e)
-        recpattern.append(month_e)
-
-    else:
-        recpattern = ET.Element(t('AbsoluteYearlyRecurrence'))
-
-        dtstart = xsdt2datetime(event_start)
-
-        monthday = dtstart.day
-        monthday_e = ET.Element(t('DayOfMonth'))
-        monthday_e.text = str(monthday)
-
-        month_e = xsdt2ex_month(event_start)
-        
-        recpattern.append(monthday_e)
-        recpattern.append(month_e)
-
-    f = open('/tmp/blaffre', 'w')
-    f.write(ET.tostring(recpattern))
-    return recpattern
-
 def byday2rel_month(byday):
     """Convert a BYDAY recurrence rule to Exchange rules.
     returns equivalent (DaysOfWeek, DayOfWeekIndex) Exchange rules
     """
-    recpattern = ET.Element(t('RelativeMonthlyRecurrence'))
     m = re.match('([+-])?(\d)(\w+)$', byday)
     sign, wnum, wday = m.groups()
     wnum = int(wnum)
@@ -121,11 +191,8 @@ def byday2rel_month(byday):
 
     wday = weekday_ical2xml(wday)
 
-    dow_e = ET.Element(t('DaysOfWeek'))
-    dow_e.text = wday
-
-    weekindex_e = ET.Element(t('DayOfWeekIndex'))
-    weekindex_e.text = weekindex
+    dow_e = CNode(name='DaysOfWeek',content=wday)
+    weekindex_e = CNode(name='DayOfWeekIndex',content=weekindex)
 
     return (dow_e, weekindex_e)
 
@@ -155,12 +222,9 @@ ex_months = ["", "January", "February", "March", "April", "May",
              "June", "July", "August", "September", "October",
              "November", "December"]
 
-def xsdt2ex_month(xsdt):
+def dt2ex_month(dt):
     """Convert a xs:dateTime to a month name for Exchange"""
-    dt = xsdt2datetime(xsdt)
-    month_e = ET.Element(t('Month'))
-    month_e.text = ex_months[dt.month]
-
+    month_e = CNode(name='Month', content=ex_months[dt.month])
     return month_e
 
 def ex_month2monthno(month):

@@ -3,6 +3,7 @@ from CNode import *
 from helper.id import identity
 from helper.timeconv import *
 from helper.icalconv import *
+from helper.recurrence import *
 from hashlib import sha1
 
 class ToLowerCaseVisitor(CNodeVisitor):
@@ -50,12 +51,10 @@ class ICS2ErebusVisitor(CNodeVisitor):
 
     def visit_vevent(self,ics):
         event = CNode(name='event')
-        print ics.attr
 
         def conv(icaln, ebus, f):
 
             if not ics.attr.has_key(icaln): return
-            print ics.attr[icaln]
             ics_e = ics.attr[icaln]
             if not ics_e: return
             new = f(ics_e)
@@ -70,5 +69,9 @@ class ICS2ErebusVisitor(CNodeVisitor):
         conv('location', 'location', identity)
         conv('dtstamp', 'timestamp', vDDD2dt)
         conv('description', 'description', identity)
+
+        if ics.attr.has_key('rrule'):
+            rec = rrule2recurrence(ics.attr['rrule'], event.attr['start'])
+            if rec: event.add_child(rec)
 
         return event

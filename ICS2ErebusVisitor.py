@@ -52,8 +52,6 @@ class ICS2ErebusVisitor(CNodeVisitor):
         event = CNode(name='event')
         print ics.attr
 
-        def vDDD2dt(vd): return vd.dt
-
         def conv(icaln, ebus, f):
 
             if not ics.attr.has_key(icaln): return

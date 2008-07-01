@@ -123,3 +123,6 @@ def sensitivity2class(s):
     if cs.has_key(s): return cs[s]
     else:             return None
 
+def vDDD2dt(vd):
+    return vd.dt
+

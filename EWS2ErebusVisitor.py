@@ -58,7 +58,7 @@ class EWS2ErebusVisitor(CNodeVisitor):
 
         return self.calendar
 
-    def visitCalendarItem(self,eci):
+    def visit_CalendarItem(self,eci):
         ci = CNode(name='event')
 
         def conv(ews, att, f):
@@ -89,7 +89,12 @@ class EWS2ErebusVisitor(CNodeVisitor):
 
     def visit_any(self,eci):
         """Copy the entire tree from here"""
-        ci = CNode(name=eci.name)
+        if eci.name == 'MeetingTimeZone':
+            new_name = 'TimeZone'
+        else:
+            new_name = eci.name
+
+        ci = CNode(name=new_name)
         ci.content = eci.content
 
         for c in eci.children:

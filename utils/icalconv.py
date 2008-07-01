@@ -19,5 +19,6 @@ c = ICal.from_string(cont)
 cnode = ical2cnode(c)
 
 visitor = ICS2ErebusVisitor(cnode)
+print CNode2StringVisitor().visit(visitor.ics)
 ecal = visitor.visit_start()
 print CNode2StringVisitor().visit(ecal)

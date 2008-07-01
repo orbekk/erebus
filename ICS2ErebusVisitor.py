@@ -8,7 +8,7 @@ from hashlib import sha1
 
 class ToLowerCaseVisitor(CNodeVisitor):
     def visit_any(self, o):
-        o.name = "_"+o.name.lower()
+        o.name = o.name.lower()
         new_attr = {}
         for k,v in o.attr.iteritems():
             new_attr[k.lower()] = v
@@ -31,8 +31,8 @@ class ICS2ErebusVisitor(CNodeVisitor):
         self.ics = cnode
 
     def visit_start(self):
-        timezones = self.accept(self.ics, '_vtimezone')
-        events = self.accept(self.ics, '_vevent')
+        timezones = self.accept(self.ics, 'vtimezone')
+        events = self.accept(self.ics, 'vevent')
 
         for e in timezones:
             self.timezones.add_child(e)

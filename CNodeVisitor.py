@@ -10,7 +10,7 @@ class MissingVisitor(Exception):
 
 class CNodeVisitor(object):
     def visit(self,obj,*args,**kws):
-        method_name = "visit%s" % obj.name
+        method_name = "visit_%s" % obj.name
 
         if obj.name and hasattr(self, method_name):
             method = getattr(self, method_name)
@@ -19,7 +19,7 @@ class CNodeVisitor(object):
             if hasattr(self, 'visit_any'):
                 return self.visit_any(obj,*args,**kws)
             else:
-                raise MissingVisitor("visit%s" % method_name)
+                raise MissingVisitor("visit_%s" % method_name)
 
     def accept(self,obj,name,*args,**kws):
         """Call this to visit children with name 'attr'"""

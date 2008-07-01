@@ -4,6 +4,7 @@ from namespaces import *
 from helper.id import identity
 from helper.timeconv import *
 from helper.icalconv import *
+from hashlib import sha1
 
 class StripNamespaceVisitor(CNodeVisitor):
     def visit_any(self, o):
@@ -28,6 +29,24 @@ class EWS2ErebusVisitor(CNodeVisitor):
         for item in cnode.search('CalendarItem',all=True,keep_depth=True):
             self.ews_calendaritems.append(item)
 
+    def __gen_id(self,tz):
+        s = str(tz)
+        return sha1(s).hexdigest()
+
+    def add_tz(self,tz):
+        tzid = CNode(name='tzid', content=self.__gen_id(tz))
+        tz.add_child(tzid)
+
+        old = None
+        for t in self.timezones.children:
+            if tzid.content == t.search('tzid').content:
+                old = t
+
+        if not old:
+            self.timezones.add_child(tz)
+
+        return tzid.content
+
     def visit_start(self):
         [self.visit(ci) for ci in self.ews_calendaritems]
 
@@ -44,10 +63,13 @@ class EWS2ErebusVisitor(CNodeVisitor):
 
             ci.attr[att] = new
 
-        print eci.search('Recurrence')
         rec = self.accept1(eci, 'Recurrence')
         if rec: ci.add_child(rec)
-        print rec
+
+        tz = self.accept1(eci, 'MeetingTimeZone')
+        if tz:
+            tzid = self.add_tz(tz)
+            ci.add_child(CNode(name='tzid',content=tzid))
         
         conv('Subject', 'summary', identity)
         conv('Start', 'start', xsdt2datetime)

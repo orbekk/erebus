@@ -1,7 +1,8 @@
 import sqlite3
+from CNode import *
+from hashlib import sha1
 
 db = 'erebus.db'
-
 
 def getExchangeId(ical_uid):
     conn = sqlite3.connect(db)
@@ -125,4 +126,10 @@ def sensitivity2class(s):
 
 def vDDD2dt(vd):
     return vd.dt
+
+
+def gen_tz_id(tz):
+    """Generate a SHA1 sum of the timezone"""
+    s = str(tz)
+    return sha1(s).hexdigest()
 

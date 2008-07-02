@@ -29,16 +29,12 @@ class EWS2ErebusVisitor(CNodeVisitor):
         for item in cnode.search('CalendarItem',all=True,keep_depth=True):
             self.ews_calendaritems.append(item)
 
-    def __gen_id(self,tz):
-        s = str(tz)
-        return sha1(s).hexdigest()
-
     def add_tz(self,tz):
         """Add a timezone element.
 
         Return the corresponding tzid (sha1 sum of the actual content)
         """
-        tzid = CNode(name='tzid', content=self.__gen_id(tz))
+        tzid = CNode(name='tzid', content=gen_tz_id(tz))
         tz.add_child(tzid)
 
         old = None

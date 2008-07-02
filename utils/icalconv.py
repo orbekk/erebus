@@ -20,5 +20,5 @@ cnode = ical2cnode(c)
 
 visitor = ICS2ErebusVisitor(cnode)
 print ToStringVisitor().visit(visitor.ics)
-ecal = visitor.visit_start()
+ecal = visitor.run()
 print ToStringVisitor().visit(ecal)

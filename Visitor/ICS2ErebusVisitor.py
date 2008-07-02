@@ -30,7 +30,7 @@ class ICS2ErebusVisitor(CNodeVisitor):
         ToLowerCaseVisitor().visit(cnode)
         self.ics = cnode
 
-    def visit_start(self):
+    def run(self):
         timezones = self.accept(self.ics, 'vtimezone')
         events = self.accept(self.ics, 'vevent')
 

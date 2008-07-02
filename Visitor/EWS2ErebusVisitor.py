@@ -47,7 +47,7 @@ class EWS2ErebusVisitor(CNodeVisitor):
 
         return tzid.content
 
-    def visit_start(self):
+    def run(self):
         for eci in self.ews_calendaritems:
             ci = self.visit(eci)
             self.events.add_child(ci)

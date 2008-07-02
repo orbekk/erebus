@@ -100,8 +100,7 @@ def rrule2yearly_recpattern(rrule,interval_e,event_start=None):
         else:
             ValueError, "neither BYMONTH or event_start is available"
 
-        month_e = ET.Element(t('Month'))
-        month_e.text = month
+        month_e = CNode(name='Month', content=month)
 
         recpattern.add_child(dow_e)
         recpattern.add_child(weekindex_e)

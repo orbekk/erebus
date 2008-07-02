@@ -41,12 +41,47 @@ class ICS2ErebusVisitor(CNodeVisitor):
 
         return self.calendar
 
+    def __convert_timezone(self,ics):
+
+        if ics.name == 'standard':
+            tz_e = CNode(name='Standard')
+        elif ics.name == 'daylight':
+            tz_e = CNode(name='Daylight')
+        else:
+            raise ValueError("Unknown timezone type: %s", ics.name)
+
+        offset = utcoffset2vDDD(ics.attr['tzoffsetto'])
+        offset_e = CNode(name='Offset',content=offset)
+        tz_e.add_child(offset_e)
+
+        rrule = ics.attr['rrule']
+        start = ics.attr['dtstart']
+        if rrule:
+            rec = rrule2recurrence(rrule, start)
+            tz_e.add_child(rec)
+
+        time = start.dt
+        timestr = "%.2d:%.2d:%.2d" %(time.hour, time.minute, time.second)
+        time_e = CNode(name='Time',content=timestr)
+
+        tz_e.add_child(time_e)
+
+        return tz_e
+
     def visit_vtimezone(self,ics):
-        tz = CNode(name='timezone')
-        
-        #         if freq == 'YEARLY':
-        #             recpattern = rrule2yearly_recpattern(rrule, interval_e, self.get('t:Start'))
-        #             recurrence.append(recpattern)
+        tz = CNode(name='TimeZone')
+
+        baseoffset_e = CNode(name='BaseOffset',content='PT0M')
+        if len(ics.children) == 1:
+            # Just add a base offset
+            std_e = ics.children[0]
+            # TODO: fix this
+        else:
+            tz_s = self.__convert_timezone(ics.search('standard'))
+            tz.add_child(tz_s)
+            tz_d = self.__convert_timezone(ics.search('daylight'))
+            tz.add_child(tz_d)
+
         return tz
 
     def visit_vevent(self,ics):

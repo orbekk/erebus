@@ -1,4 +1,4 @@
-from CNodeVisitor import *
+from Visitor.CNodeVisitor import *
 from CNode import *
 from helper.id import identity
 from helper.timeconv import *

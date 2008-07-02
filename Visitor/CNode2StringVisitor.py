@@ -1,4 +1,4 @@
-from CNodeVisitor import *
+from Visitor.CNodeVisitor import *
 from CNode import *
 
 class CNode2StringVisitor(CNodeVisitor):

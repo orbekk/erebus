@@ -84,6 +84,12 @@ class ICS2ErebusVisitor(CNodeVisitor):
             tz_d = self.__convert_timezone(ics.search('daylight'))
             tz.add_child(tz_d)
 
+        tzid = gen_tz_id(tz)
+        tzid_e = CNode(name='tzid',content=tzid)
+        tz.add_child(tzid_e)
+        
+        self.timezone_ids[ics.attr['tzid']] = tzid
+
         return tz
 
     def visit_vevent(self,ics):
@@ -110,5 +116,11 @@ class ICS2ErebusVisitor(CNodeVisitor):
         if ics.attr.has_key('rrule'):
             rec = rrule2recurrence(ics.attr['rrule'], event.attr['start'])
             if rec: event.add_child(rec)
+
+        if ics.attr['dtstart'].params.has_key('tzid'):
+            i_tzid = ics.attr['dtstart'].params['tzid']
+            tz = self.timezone_ids[i_tzid]
+            tz_e = CNode(name='tzid',content=tz)
+            event.add_child(tz_e)
 
         return event

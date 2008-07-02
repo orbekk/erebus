@@ -4,8 +4,8 @@ import sys
 sys.path.extend(['.', '../'])
 
 from icalendar import Calendar as ICal
-from Visitor.CNode2StringVisitor import *
-from cnodegen import *
+from Visitor.ToStringVisitor import *
+from ctreegen import *
 from CNode import *
 from Visitor.ICS2ErebusVisitor import *
     
@@ -19,6 +19,6 @@ c = ICal.from_string(cont)
 cnode = ical2cnode(c)
 
 visitor = ICS2ErebusVisitor(cnode)
-print CNode2StringVisitor().visit(visitor.ics)
+print ToStringVisitor().visit(visitor.ics)
 ecal = visitor.visit_start()
-print CNode2StringVisitor().visit(ecal)
+print ToStringVisitor().visit(ecal)

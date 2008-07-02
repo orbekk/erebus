@@ -1,7 +1,7 @@
 from icalendar import Calendar as ICal
 from icalendar.cal import Component
 from CNode import *
-from Visitor.CNode2StringVisitor import *
+from Visitor.ToStringVisitor import *
 import sys
 
 def ical2cnode(ical):

@@ -1,7 +1,7 @@
 from Visitor.CNodeVisitor import *
 from CNode import *
 
-class CNode2StringVisitor(CNodeVisitor):
+class ToStringVisitor(CNodeVisitor):
 
     def __init__(self):
         self.str = ""

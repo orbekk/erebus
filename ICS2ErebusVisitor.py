@@ -58,7 +58,7 @@ class ICS2ErebusVisitor(CNodeVisitor):
         start = ics.attr['dtstart']
         if rrule:
             rec = rrule2recurrence(rrule, start)
-            tz_e.add_child(rec)
+            tz_e.add_child(rec.children[0])
 
         time = start.dt
         timestr = "%.2d:%.2d:%.2d" %(time.hour, time.minute, time.second)
@@ -72,6 +72,8 @@ class ICS2ErebusVisitor(CNodeVisitor):
         tz = CNode(name='TimeZone')
 
         baseoffset_e = CNode(name='BaseOffset',content='PT0M')
+        tz.add_child(baseoffset_e)
+
         if len(ics.children) == 1:
             # Just add a base offset
             std_e = ics.children[0]

@@ -18,7 +18,11 @@ class Erebus2EWSVisitor(CNodeVisitor):
         return self.items
 
     def visit_timezones(self, cnode):
-        pass
+        self.timezones = {}
+
+        for tz in self.accept(cnode, 'TimeZone'):
+            tzid = tz.search('tzid').content
+            self.timezones[tzid] = tz
 
     def visit_events(self, cnode):
         item_es = self.accept(cnode, 'event')
@@ -52,11 +56,20 @@ class Erebus2EWSVisitor(CNodeVisitor):
         rec = self.accept1(cnode, 'Recurrence')
         item.add_child(rec)
 
+        tzid = cnode.search('tzid')
+        if tzid: tzid = tzid.content
+        tz_e = self.timezones[tzid]
+        tz_e = self.visit(tz_e)
+        item.add_child(tz_e)
+
         return item
 
     def visit_any(self,eci):
         """Copy the entire tree from here"""
-        new_name = eci.name
+        if eci.name == 'TimeZone':
+            new_name = 'MeetingTimeZone'
+        else:
+            new_name = eci.name
 
         ci = CNode(name=new_name)
         ci.content = eci.content

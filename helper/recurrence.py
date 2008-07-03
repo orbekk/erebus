@@ -123,23 +123,23 @@ def rrule2yearly_recpattern(rrule,interval_e,event_start=None):
 
 def daily_recpattern2rrule(recurrence, rules):
     rules['freq'] = 'DAILY'
-    rules['interval'] = recurrence.get('t:Interval')
+    rules['interval'] = recurrence.search('Interval').content
 
 def weekly_recpattern2rrule(recurrence, rules):
-    dow = recurrence.get('t:DaysOfWeek').split()
-    rules['interval'] = recurrence.get('t:Interval')
+    dow = recurrence.search('DaysOfWeek').content.split()
+    rules['interval'] = recurrence.search('Interval').content
 
     rules['freq'] = 'DAILY'
     byday_rules = [weekday_xml2ical(w) for w in dow]
     rules['byday'] = byday_rules
 
 def rel_monthly_recpattern2rrule(recurrence, rules):
-    rules['interval'] = recurrence.get('t:Interval')
+    rules['interval'] = recurrence.search('Interval').content
 
-    dow = recurrence.get('t:DaysOfWeek').split()
+    dow = recurrence.search('DaysOfWeek').content.split()
     dow = [weekday_xml2ical(w) for w in dow]
 
-    dow_index = recurrence.get('t:DayOfWeekIndex')
+    dow_index = recurrence.search('DayOfWeekIndex').content
     if dow_index == 'Last':
         cal_idx = -1
     else:
@@ -152,15 +152,15 @@ def rel_monthly_recpattern2rrule(recurrence, rules):
     rules['BYDAY'] = byday_rules
 
 def abs_monthly_recpattern2rrule(recurrence, rules):
-    rules['interval'] = recurrence.get('t:Interval')
+    rules['interval'] = recurrence.search('Interval').content
     rules['freq'] = 'MONTHLY'
-    rules['bymonthday'] = recurrence.get('t:DayOfMonth')
+    rules['bymonthday'] = recurrence.search('DayOfMonth').content
 
 def rel_yearly_recpattern2rrule(recurrence, rules):
     rules['freq'] = 'YEARLY'
-    dow = recurrence.get('t:DaysOfWeek')
-    windex = recurrence.get('t:DayOfWeekIndex')
-    month = recurrence.get('t:Month')
+    dow = recurrence.search('DaysOfWeek').content
+    windex = recurrence.search('DayOfWeekIndex').content
+    month = recurrence.search('Month').content
 
     byday, bymonth = rel_year2bday(dow, windex, month)
     rules['byday'] = byday
@@ -169,8 +169,8 @@ def rel_yearly_recpattern2rrule(recurrence, rules):
 
 def abs_yearly_recpattern2rrule(recurrence, rules):
     rules['freq'] = 'YEARLY'
-    rules['bymonthday'] = recurrence.get('t:DayOfMonth')
-    rules['bymonth'] = ex_month2monthno(recurrence.get('t:Month'))
+    rules['bymonthday'] = recurrence.search('DayOfMonth').content
+    rules['bymonth'] = ex_month2monthno(recurrence.search('Month').content)
     rules['interval'] = 1 # Fixed by Exchange
 
 def byday2rel_month(byday):

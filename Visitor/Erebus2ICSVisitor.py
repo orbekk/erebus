@@ -4,6 +4,7 @@ from namespaces import *
 from helper.id import identity
 from helper.icalconv import *
 from helper.timeconv import *
+from helper.recurrence import *
 
 class Erebus2ICSVisitor(CNodeVisitor):
 
@@ -40,4 +41,37 @@ class Erebus2ICSVisitor(CNodeVisitor):
         conv('timestamp', 'dtstamp', dt2vDDD)
         conv('description', 'description', identity)
 
+        rec = cnode.search('Recurrence')
+        if rec:
+            rrule = self.visit(rec)
+            e.attr['rrule'] = rrule.attr['rrule']
+
         return e
+
+    def visit_Recurrence(self,rec_node):
+        rec = CNode('recurrence')
+
+        rec_pattern = rec_node.children[0]
+        # rec_range = cnode.children[1] # not implemented
+
+        rrule = {}
+        rec_type = rec_pattern.name
+
+        if  rec_type == 'DailyRecurrence':
+            daily_recpattern2rrule(rec_node, rrule)
+        elif rec_type == 'WeeklyRecurrence':
+            weekly_recpattern2rrule(rec_node, rrule)
+        elif rec_type == 'RelativeMonthlyRecurrence':
+            rel_monthly_recpattern2rrule(rec_node, rrule)
+        elif rec_type == 'AbsoluteMonthlyRecurrence':
+            abs_monthly_recpattern2rrule(rec_node, rrule)
+        elif rec_type == 'RelativeYearlyRecurrence':
+            rel_yearly_recpattern2rrule(rec_node, rrule)
+        elif rec_type == 'AbsoluteYearlyRecurrence':
+            abs_yearly_recpattern2rrule(rec_node, rrule)
+        else:
+            raise ValueError("unknown recurrence pattern: %s" % rec_type)
+    
+        rec.attr['rrule'] = rrule
+
+        return rec

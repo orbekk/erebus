@@ -1,3 +1,4 @@
+from xml.etree import ElementTree as ET
 from icalendar import Calendar as ICal
 from icalendar.cal import Component
 from CNode import *
@@ -29,5 +30,20 @@ def xml2cnode(xml):
     for c in xml.getchildren():
         e = xml2cnode(c)
         r.add_child(e)
+
+    return r
+
+def cnode2xml(cnode):
+    r = ET.Element(cnode.name)
+
+    for k,v in cnode.attr.iteritems():
+        r.set(k,v)
+
+    for c in cnode.children:
+        ch = cnode2xml(c)
+        r.append(ch)
+
+    if cnode.content:
+        r.text = cnode.content
 
     return r

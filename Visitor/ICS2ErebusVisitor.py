@@ -115,7 +115,10 @@ class ICS2ErebusVisitor(CNodeVisitor):
 
         if ics.attr.has_key('rrule'):
             rec = rrule2recurrence(ics.attr['rrule'], event.attr['start'])
-            if rec: event.add_child(rec)
+            if rec:
+                event.add_child(rec)
+                rec_range = rrule2range(ics.attr['rrule'], event.attr['start'])
+                rec.add_child(rec_range)
 
         if ics.attr['dtstart'].params.has_key('tzid'):
             i_tzid = ics.attr['dtstart'].params['tzid']

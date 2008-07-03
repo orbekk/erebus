@@ -81,6 +81,12 @@ class EWS2ErebusVisitor(CNodeVisitor):
         conv('DateTimeCreated', 'timestamp', xsdt2datetime)
         conv('Body', 'description', identity)
 
+        itemid = eci.search('ItemId')
+        if itemid:
+            itemid_e = CNode('exchange_id')
+            itemid_e.attr['id'] = itemid.attr['Id']
+            itemid_e.attr['changekey'] = itemid.attr['ChangeKey']
+
         return ci
 
     def visit_any(self,eci):

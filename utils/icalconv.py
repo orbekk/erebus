@@ -5,7 +5,7 @@ sys.path.extend(['.', '../'])
 
 from icalendar import Calendar as ICal
 from Visitor.ToStringVisitor import *
-from ctreegen import *
+from erebusconv import *
 from CNode import *
 from Visitor.ICS2ErebusVisitor import *
     

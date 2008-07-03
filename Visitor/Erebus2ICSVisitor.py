@@ -32,7 +32,7 @@ class Erebus2ICSVisitor(CNodeVisitor):
             #if not new: return
 
             e.attr[icaln] = new
-            
+
         conv('summary', 'summary', identity)
         conv('start', 'dtstart', dt2vDDD)
         conv('end', 'dtend', dt2vDDD)
@@ -41,6 +41,12 @@ class Erebus2ICSVisitor(CNodeVisitor):
         conv('timestamp', 'dtstamp', dt2vDDD)
         conv('description', 'description', identity)
 
+        # get uid (if exchange type)
+        itemid = cnode.search('exchange_id')
+        if itemid:
+            e.attr['uid'] = "%s.%s@hig.no" %(itemid.attr['itemid'],
+                                             itemid.attr['changekey'])
+            
         rec = cnode.search('Recurrence')
         if rec:
             rrule = self.visit(rec)

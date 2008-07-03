@@ -5,9 +5,11 @@ sys.path.extend(['.', '../'])
 
 from icalendar import Calendar as ICal
 from Visitor.ToStringVisitor import *
+from Visitor.ICS2ErebusVisitor import *
+from Visitor.Erebus2ICSVisitor import *
 from erebusconv import *
 from CNode import *
-from Visitor.ICS2ErebusVisitor import *
+
     
 if len(sys.argv) != 2:
     print 'Usage: python %s <ical file>' % sys.argv[0]
@@ -20,5 +22,9 @@ cnode = ical2cnode(c)
 
 visitor = ICS2ErebusVisitor(cnode)
 print ToStringVisitor().visit(visitor.ics)
+print "======================================================================"
 ecal = visitor.run()
 print ToStringVisitor().visit(ecal)
+print "======================================================================"
+new_ical = Erebus2ICSVisitor(ecal).run()
+print ToStringVisitor().visit(new_ical)

@@ -5,6 +5,21 @@ from helper.id import identity
 from helper.icalconv import *
 from helper.timeconv import *
 
+class AddNamespaceVisitor(CNodeVisitor):
+    def __init__(self,cnode,namespace):
+        self.namespace = namespace
+        self.cnode = cnode
+
+    def run(self):
+        self.visit(self.cnode)
+
+    def visit_any(self,cnode):
+        if not cnode.name.startswith("{"):
+            cnode.name = with_ns(self.namespace, cnode.name)
+
+        [self.visit(c) for c in cnode.children]
+
+
 class Erebus2EWSVisitor(CNodeVisitor):
 
     def __init__(self,cnode):
@@ -14,6 +29,8 @@ class Erebus2EWSVisitor(CNodeVisitor):
     def run(self):
         self.accept(self.ebus, 'timezones')
         self.accept(self.ebus, 'events')
+
+        AddNamespaceVisitor(self.items,types).run()
 
         return self.items
 

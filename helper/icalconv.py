@@ -1,3 +1,4 @@
+from icalendar import *
 import sqlite3
 from CNode import *
 from hashlib import sha1
@@ -127,6 +128,8 @@ def sensitivity2class(s):
 def vDDD2dt(vd):
     return vd.dt
 
+def dt2vDDD(dt):
+    return vDDDTypes(dt)
 
 def gen_tz_id(tz):
     """Generate a SHA1 sum of the timezone"""

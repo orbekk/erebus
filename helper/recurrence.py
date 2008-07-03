@@ -80,6 +80,35 @@ def rrule2recurrence(rrule, starttime):
 
     return recurrence_e
 
+def rrule2range(rrule, starttime):
+    """Convert a rrule to a RecurrenceRange tree"""
+
+    startdate_e = CNode('StartDate',content=datetime2xsdt(starttime))
+    
+    if rrule.has_key('count'):
+        recrange = CNode('NumberedRecurrence')
+        count_e = CNode('NumberOfOccurences', content=rrule['count'])
+
+        recrange.add_child(startdate_e)
+        recrange.add_child(count_e)
+
+    elif rrule.has_key('until'):
+        recrange = CNode('EndDateRecurrence')
+
+        enddate = ical2xsdt(rrule['until'])
+        enddate = xs_dateTime2xs_date(enddate)
+        enddate_e = CNode('EndDate',content=enddate)
+
+        recrange.add_child(startdate_e)
+        recrange.add_child(enddate_e)
+
+    else:
+        recrange = CNode('NoEndRecurrence')
+        recrange.add_child(startdate_e)
+
+    return recrange
+
+
 def rrule2yearly_recpattern(rrule,interval_e,event_start=None):
     """Convert a YEARLY iCalendar recurrence to Erebus
     RecurrencePattern

@@ -40,6 +40,7 @@ class Erebus2EWSVisitor(CNodeVisitor):
         for tz in self.accept(cnode, 'TimeZone'):
             tzid = tz.search('tzid').content
             self.timezones[tzid] = tz
+            tz.delete_child('tzid')
 
     def visit_events(self, cnode):
         item_es = self.accept(cnode, 'event')

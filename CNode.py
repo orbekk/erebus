@@ -26,6 +26,16 @@ class CNode(object):
                                     str(self.content),
                                     [str(c) for c in self.children])
 
+    def delete_child(self,name):
+        """Delete the first child with name `name'
+
+        returns True if a child was deleted"""
+        for i,c in zip(range(len(self.children)), self.children):
+            if c.name == name:
+                self.children.pop(i)
+                return True
+
+        return False
 
     def search(self,name,all=False,depth=None,keep_depth=False):
         """Breadth-first search for one or more elements

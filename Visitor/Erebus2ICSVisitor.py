@@ -52,7 +52,7 @@ class Erebus2ICSVisitor(CNodeVisitor):
         rec = CNode('recurrence')
 
         rec_pattern = rec_node.children[0]
-        # rec_range = cnode.children[1] # not implemented
+        rec_range = rec_node.children[1]
 
         rrule = {}
         rec_type = rec_pattern.name
@@ -71,6 +71,19 @@ class Erebus2ICSVisitor(CNodeVisitor):
             abs_yearly_recpattern2rrule(rec_node, rrule)
         else:
             raise ValueError("unknown recurrence pattern: %s" % rec_type)
+
+        range_type = rec_range.content
+        if range_type == 'NumberedRecurrence':
+            count = rec_range.search('NumberOfOccurrences').content
+            rrule['COUNT'] = count
+        elif range_type == 'EndDateRecurrence':
+            enddate = rec_range.search('EndDate').content
+            rrule['UNTIL'] = xs_date2datetime(enddate)
+        else:
+            # NoEndRecurrence is the default in iCalendar
+            pass
+                
+
     
         rec.attr['rrule'] = rrule
 

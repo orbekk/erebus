@@ -12,9 +12,13 @@ class Erebus2EWSVisitor(CNodeVisitor):
         self.items = CNode(name='Items')
 
     def run(self):
+        self.accept(self.ebus, 'timezones')
         self.accept(self.ebus, 'events')
 
         return self.items
+
+    def visit_timezones(self, cnode):
+        pass
 
     def visit_events(self, cnode):
         item_es = self.accept(cnode, 'event')
@@ -41,4 +45,23 @@ class Erebus2EWSVisitor(CNodeVisitor):
         conv('end', 'End', ical2xsdt)
         conv('location', 'Location', identity)
 
+        body_e = item.search('Body')
+        if body_e:
+            body_e.attr['BodyType'] = 'Text'
+
+        rec = self.accept1(cnode, 'Recurrence')
+        item.add_child(rec)
+
         return item
+
+    def visit_any(self,eci):
+        """Copy the entire tree from here"""
+        new_name = eci.name
+
+        ci = CNode(name=new_name)
+        ci.content = eci.content
+
+        for c in eci.children:
+            ci.add_child(self.visit(c))
+
+        return ci

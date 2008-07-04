@@ -3,7 +3,6 @@ from xml.etree import ElementTree as ET
 from xml.parsers.expat import ExpatError
 from helper.etsearch import elementsearch
 from namespaces import *
-from exchangetypes import Calendar
 import httplib
 import base64
 import re

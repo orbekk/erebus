@@ -50,7 +50,10 @@ def datetime2xsdt(time):
 
     return dt
 
-def xsdt2datetime(time):
+def xsdt2local_dt(time):
+    return xsdt2datetime(time, localtime=True)
+
+def xsdt2datetime(time, localtime=False):
     """
     Conversion from xs:dateTime to python's datetime
     """
@@ -61,8 +64,12 @@ def xsdt2datetime(time):
         raise ValueError("Invalid date format")
     m = m.groups()
 
-    if (m[6] == "Z"):   tzinfo = UTC
-    elif (m[6] == ""):  tzinfo = LocalTimezone()
+    if localtime:
+        tzinfo = None
+    elif (m[6] == "Z"):
+        tzinfo = UTC
+    elif (m[6] == ""):
+        tzinfo = LocalTimezone()
     else:
         p = re.compile('([+-])(\d\d):?(.*)$')
         tz = p.search(m[6]).groups()

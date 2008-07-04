@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Visitor.CNodeVisitor import *
 from CNode import *
 from namespaces import *
@@ -86,6 +87,7 @@ class EWS2ErebusVisitor(CNodeVisitor):
             itemid_e = CNode('exchange_id')
             itemid_e.attr['id'] = itemid.attr['Id']
             itemid_e.attr['changekey'] = itemid.attr['ChangeKey']
+            ci.add_child(itemid_e)
 
         return ci
 

@@ -10,8 +10,12 @@ class ToStringVisitor(CNodeVisitor):
     def visit_any(self, o, indent=0):
         self.str += '    ' * indent + '{'+o.name+'}' + '\n'
         cont = o.content
+
+        # usj og fysj
         if type(cont) != str and type(cont) != unicode:
             cont = str(cont)
+        if type(cont) == str:
+            cont = unicode(cont,'utf8')
         
         self.str += u'    ' * indent + u'  '+cont+ u'\n'
 

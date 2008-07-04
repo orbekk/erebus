@@ -23,6 +23,7 @@ def ical2cnode(ical):
 
 def cnode2ical(cnode):
     comp = Component()
+    comp.name = cnode.name
 
     for k,v in cnode.attr.iteritems():
         comp.add(k,v)

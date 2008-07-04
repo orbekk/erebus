@@ -11,6 +11,12 @@ from icalendar.cal import types_factory
 from icalendar.parser import Parameters
 
 def ical2cnode(ical):
+    """Convert an ical calendar to a tree of cnodes
+
+    ical: icalendar.Calendar
+    return CNode
+    """
+    
     r = CNode(name=ical.name)
 
     for k,v in ical.iteritems():
@@ -26,10 +32,20 @@ def ical2cnode(ical):
     return r
 
 def cnode2ical(cnode):
+    """Convert a tree of cnodes to an ical calendar
+
+    cnode: typically from Erebus2ICSVisitor
+    return: icalendar.Calendar
+    """
     comp = Component()
     comp.name = cnode.name
 
     for k,v in cnode.attr.iteritems():
+        # If an attribute is a CNode, say n, we must add all the
+        # attributes of n as parameters to the iCalendar element. We
+        # first encode the value to the corresponding iCalendar value
+        # (with types_factory, like icalendar.Component does
+        # internally), and then add the parameters.
         if v.__class__ == CNode:
             target_class = types_factory.for_property(k)
             val = target_class(v.content)
@@ -47,6 +63,12 @@ def cnode2ical(cnode):
     return comp
 
 def xml2cnode(xml):
+    """Convert an arbitrary xml structure to a tree of cnodes
+
+    xml: xml.etree.ElementTree.Element type
+    return: CNode
+    """
+    
     r = CNode(name=xml.tag)
     r.content = xml.text
 
@@ -60,6 +82,12 @@ def xml2cnode(xml):
     return r
 
 def cnode2xml(cnode):
+    """Convert a tree of cnodes to XML
+
+    cnode: typically from Erebus2EWSVisitor
+    return: xml.etree.ElementTree
+    """
+    
     r = ET.Element(cnode.name)
 
     for k,v in cnode.attr.iteritems():

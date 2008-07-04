@@ -88,12 +88,25 @@ class Erebus2ICSVisitor(CNodeVisitor):
             e.attr[icaln] = new
 
         conv('summary', 'summary', identity)
-        conv('start', 'dtstart', identity)
-        conv('end', 'dtend', identity)
         conv('class', 'class', identity)
         conv('location', 'location', identity)
-        conv('timestamp', 'dtstamp', identity)
         conv('description', 'description', identity)
+
+        tzid = cnode.search('tzid')
+        if not tzid:
+            # just copy
+            timeconv = identity
+        else:
+            def timeconv(dt):
+                c = CNode('exchange_value', content=dt)
+                c.attr['tzid'] = tzid.content
+                return c
+            
+        conv('timestamp', 'dtstamp', timeconv)
+        conv('start', 'dtstart', timeconv)
+        conv('end', 'dtend', timeconv)
+
+
 
         # get uid (if exchange type)
         itemid = cnode.search('exchange_id')

@@ -15,9 +15,12 @@ structure:
     - tzid
 
 The structure is inspired by the structure in Exchange Web Services
-and iCalendar. Timezones are stored outside of the events, like
-iCalendar, but the representation is more like EWS (because it's a
-*lot* simpler than iCalendar's).
+and iCalendar. In general, iCalendar conventions are kept. However,
+the timezones are in EWS format (because that's a *lot* simpler).
+
+When the timezones get imported, their ids (if they exist) are thrown
+away, and they get a sha1 sum as the new id. This approach is not
+perfect, but it greatly simplifies equivalence testing of timezones.
 
 See the conversion visitors (especially EWS2ErebusVisitor) for more
 details.

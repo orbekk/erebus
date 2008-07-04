@@ -5,6 +5,7 @@ from helper.id import identity
 from helper.icalconv import *
 from helper.timeconv import *
 from helper.recurrence import *
+from datetime import datetime, timedelta
 
 class Erebus2ICSVisitor(CNodeVisitor):
 
@@ -17,10 +18,63 @@ class Erebus2ICSVisitor(CNodeVisitor):
         self.cal.attr['prodid'] = '-//Erebus//hig.no//'
         self.cal.attr['version'] = '2.0'
 
+        for tz in self.accept(self.ebus, 'TimeZone'):
+            self.cal.add_child(tz)
+
         for e in self.accept(self.ebus, 'event'):
             self.cal.add_child(e)
 
         return self.cal
+
+    def __convert_timezone(self,e_tz,name,base_offset):
+
+        tz_e = CNode(name)
+        offset_str = e_tz.search('Offset').content
+        offset = (- vDDDTypes.from_ical(offset_str)) + base_offset
+        tz_e.attr['tzoffsetto'] = offset
+
+        _time = xs_time2time(e_tz.search('Time').content)
+        dt = datetime(1970, 1, 1, _time.hour, _time.minute, _time.second)
+        tz_e.attr['dtstart'] = dt
+
+        return tz_e
+
+
+    def visit_TimeZone(self,cnode):
+        standard = cnode.search('Standard')
+        daylight = cnode.search('Daylight')
+
+        tz_e = CNode('timezone')
+        tz_e.attr['tzid'] = cnode.search('tzid').content
+
+        base_offset_str = cnode.search('BaseOffset').content
+        # convert to vDDDTypes and negate
+        base_offset = (- vDDDTypes.from_ical(base_offset_str))
+        
+        if not standard and not daylight:
+            # Make a timezone with the base offset only
+            std_e = CNode('standard')
+            std_e.attr['tzoffsetfrom'] = vDDDTypes.from_ical('PT0M')
+            std_e.attr['tzoffsetto'] = base_offset
+            std_e.attr['dtstart'] = datetime(1970,01,01)
+            tz_e.add_child(std_e)
+
+        if standard:
+            std_e = self.__convert_timezone(standard,'standard',base_offset)
+            tz_e.add_child(std_e)
+
+        if daylight:
+            dayl_e = self.__convert_timezone(daylight,'daylight',base_offset)
+            tz_e.add_child(dayl_e)
+
+            # Set offsetfrom
+            std_e.attr['tzoffsetfrom'] = dayl_e.attr['tzoffsetto']
+            dayl_e.attr['tzoffsetfrom'] = std_e.attr['tzoffsetto']
+        else:
+            std_e.attr['tzoffsetfrom'] = vDDDTypes.from_ical('PT0M')
+
+        return tz_e
+
 
     def visit_event(self,cnode):
         e = CNode('vevent')

@@ -34,11 +34,11 @@ class Erebus2ICSVisitor(CNodeVisitor):
             e.attr[icaln] = new
 
         conv('summary', 'summary', identity)
-        conv('start', 'dtstart', dt2vDDD)
-        conv('end', 'dtend', dt2vDDD)
+        conv('start', 'dtstart', identity)
+        conv('end', 'dtend', identity)
         conv('class', 'class', identity)
         conv('location', 'location', identity)
-        conv('timestamp', 'dtstamp', dt2vDDD)
+        conv('timestamp', 'dtstamp', identity)
         conv('description', 'description', identity)
 
         # get uid (if exchange type)

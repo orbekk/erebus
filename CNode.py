@@ -1,7 +1,7 @@
 from Queue import Queue
 
 class CNode(object):
-    """Holds a node in the Calendar (xml or ical)"""
+    """Holds a node in our Calendar"""
 
     def __init__(self,name="",content=None,attr=None):
         self.name = name
@@ -14,11 +14,13 @@ class CNode(object):
             
         self.children = []
 
+
     def add_child(self,child):
         if not self.children.__contains__(child):
             self.children.append(child)
 
         child.parent = self
+
 
     def __str__(self):
         return "{%s [%s]: %s %s}" %(self.name,
@@ -26,16 +28,19 @@ class CNode(object):
                                     str(self.content),
                                     [str(c) for c in self.children])
 
+
     def delete_child(self,name):
         """Delete the first child with name `name'
 
-        returns True if a child was deleted"""
+        returns True if a child was deleted
+        """
         for i,c in zip(range(len(self.children)), self.children):
             if c.name == name:
                 self.children.pop(i)
                 return True
 
         return False
+
 
     def search(self,name,all=False,depth=None,keep_depth=False):
         """Breadth-first search for one or more elements

@@ -89,8 +89,6 @@ class Erebus2ICSVisitor(CNodeVisitor):
             # NoEndRecurrence is the default in iCalendar
             pass
                 
-
-    
         rec.attr['rrule'] = rrule
 
         return rec

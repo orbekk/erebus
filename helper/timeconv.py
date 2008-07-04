@@ -1,6 +1,6 @@
 import re
 from icalendar import UTC, LocalTimezone, FixedOffset, vDatetime, vDDDTypes
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 def ical2xsdt(t):
     """
@@ -171,4 +171,15 @@ def utcoffset2vDDD(utcoffset):
     return vd.ical()
     
     
+def xs_time2time(xstime):
+    arr = xstime.split(':')
 
+    hh = int(arr[0])
+    mm = int(arr[1])
+    if len(arr) == 3:
+        ss = int(arr[2])
+    else:
+        ss = 0
+
+    return time(hh,mm,ss)
+    

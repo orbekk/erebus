@@ -12,6 +12,7 @@ class Erebus2ICSVisitor(CNodeVisitor):
     def __init__(self,cnode):
         self.ebus = cnode
 
+
     def run(self):
         self.cal = CNode('vcalendar')
         
@@ -25,6 +26,7 @@ class Erebus2ICSVisitor(CNodeVisitor):
             self.cal.add_child(e)
 
         return self.cal
+
 
     def __convert_timezone(self,e_tz,name,base_offset):
 
@@ -48,11 +50,12 @@ class Erebus2ICSVisitor(CNodeVisitor):
         tz_e.attr['tzid'] = cnode.search('tzid').content
 
         base_offset_str = cnode.search('BaseOffset').content
-        # convert to vDDDTypes and negate
+        # Exchange does some wacky negation of its timezones
         base_offset = (- vDDDTypes.from_ical(base_offset_str))
         
         if not standard and not daylight:
-            # Make a timezone with the base offset only
+            # Make a timezone with the base offset only (required by
+            # the rfc)
             std_e = CNode('standard')
             std_e.attr['tzoffsetfrom'] = vDDDTypes.from_ical('PT0M')
             std_e.attr['tzoffsetto'] = base_offset
@@ -67,7 +70,7 @@ class Erebus2ICSVisitor(CNodeVisitor):
             dayl_e = self.__convert_timezone(daylight,'daylight',base_offset)
             tz_e.add_child(dayl_e)
 
-            # Set offsetfrom
+            # Set offsetfrom both ways
             std_e.attr['tzoffsetfrom'] = dayl_e.attr['tzoffsetto']
             dayl_e.attr['tzoffsetfrom'] = std_e.attr['tzoffsetto']
         else:
@@ -98,6 +101,7 @@ class Erebus2ICSVisitor(CNodeVisitor):
             timeconv = identity
         else:
             def timeconv(dt):
+                # (See erebusconv.py)
                 c = CNode('exchange_value', content=dt)
                 c.attr['tzid'] = tzid.content
                 return c
@@ -120,6 +124,7 @@ class Erebus2ICSVisitor(CNodeVisitor):
             e.attr['rrule'] = rrule.attr['rrule']
 
         return e
+
 
     def visit_Recurrence(self,rec_node):
         rec = CNode('recurrence')

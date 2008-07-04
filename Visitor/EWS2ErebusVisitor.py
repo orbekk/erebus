@@ -73,13 +73,18 @@ class EWS2ErebusVisitor(CNodeVisitor):
         if tz:
             tzid = self.add_tz(tz)
             ci.add_child(CNode(name='tzid',content=tzid))
+
+            # Use localtime if tz is defined:
+            timeconv = xsdt2local_dt
+        else:
+            timeconv = xsdt2datetime
         
         conv('Subject', 'summary', identity)
-        conv('Start', 'start', xsdt2datetime)
-        conv('End', 'end', xsdt2datetime)
+        conv('Start', 'start', timeconv)
+        conv('End', 'end', timeconv)
         conv('Sensitivity', 'class', sensitivity2class)
         conv('Location', 'location', identity)
-        conv('DateTimeCreated', 'timestamp', xsdt2datetime)
+        conv('DateTimeCreated', 'timestamp', timeconv)
         conv('Body', 'description', identity)
 
         itemid = eci.search('ItemId')

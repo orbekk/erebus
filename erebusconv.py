@@ -38,7 +38,7 @@ def cnode2ical(cnode):
     return: icalendar.Calendar
     """
     comp = Component()
-    comp.name = cnode.name
+    comp.name = cnode.name.upper()
 
     for k,v in cnode.attr.iteritems():
         # If an attribute is a CNode, say n, we must add all the

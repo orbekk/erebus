@@ -1,5 +1,6 @@
 from xml.etree import ElementTree as ET
-from icalendar import Calendar as ICal
+from icalendar import Calendar, Event
+from icalendar.cal import Component
 from icalendar.cal import Component
 from CNode import *
 from Visitor.ToStringVisitor import *
@@ -19,6 +20,17 @@ def ical2cnode(ical):
             r.add_child(cnode)
 
     return r
+
+def cnode2ical(cnode):
+    comp = Component()
+
+    for k,v in cnode.attr.iteritems():
+        comp.add(k,v)
+
+    for c in cnode.children:
+        comp.add_component(cnode2ical(c))
+
+    return comp
 
 def xml2cnode(xml):
     r = CNode(name=xml.tag)

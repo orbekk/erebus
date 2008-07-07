@@ -61,7 +61,7 @@ class Erebus2ICSVisitor(CNodeVisitor):
         standard = cnode.search('Standard')
         daylight = cnode.search('Daylight')
 
-        tz_e = CNode('timezone')
+        tz_e = CNode('vtimezone')
         tz_e.attr['tzid'] = cnode.search('tzid').content
 
         base_offset_str = cnode.search('BaseOffset').content

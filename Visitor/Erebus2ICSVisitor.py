@@ -7,6 +7,8 @@ from helper.timeconv import *
 from helper.recurrence import *
 from datetime import datetime, timedelta
 
+from Visitor.ToStringVisitor import *
+
 class Erebus2ICSVisitor(CNodeVisitor):
 
     def __init__(self,cnode):
@@ -27,6 +29,12 @@ class Erebus2ICSVisitor(CNodeVisitor):
 
         return self.cal
 
+    def __pack_recurrence(self,rec_element):
+        rec = CNode('Recurrence')
+        rec.add_child(rec_element)
+        rec.add_child(CNode('NoEndRecurrence'))
+
+        return rec
 
     def __convert_timezone(self,e_tz,name,base_offset):
 
@@ -38,6 +46,13 @@ class Erebus2ICSVisitor(CNodeVisitor):
         _time = xs_time2time(e_tz.search('Time').content)
         dt = datetime(1970, 1, 1, _time.hour, _time.minute, _time.second)
         tz_e.attr['dtstart'] = dt
+
+        rec = e_tz.children[1]
+        if "Recurrence" in rec.name:
+            rec = self.visit(self.__pack_recurrence(rec))
+            tz_e.attr['rrule'] = rec.attr['rrule']
+        else:
+            raise ValueError("Did not find recurrence element in timezone")
 
         return tz_e
 
@@ -57,7 +72,7 @@ class Erebus2ICSVisitor(CNodeVisitor):
             # Make a timezone with the base offset only (required by
             # the rfc)
             std_e = CNode('standard')
-            std_e.attr['tzoffsetfrom'] = vDDDTypes.from_ical('PT0M')
+            std_e.attr['tzoffsetfrom'] = base_offset
             std_e.attr['tzoffsetto'] = base_offset
             std_e.attr['dtstart'] = datetime(1970,01,01)
             tz_e.add_child(std_e)

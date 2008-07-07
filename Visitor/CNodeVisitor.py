@@ -3,10 +3,10 @@ from CNode import *
 
 class MissingVisitor(Exception):
     def __init__(self, visitor):
-        self.msg = str
+        self.msg = visitor
 
     def __str__(self):
-        return "Visitor %s missing" % self.visitor
+        return "Visitor %s missing\n" % self.msg
 
 class CNodeVisitor(object):
     def visit(self,obj,*args,**kws):

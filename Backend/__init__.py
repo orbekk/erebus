@@ -1,1 +1,1 @@
-from Backend.Backend import *
+from Backend import *

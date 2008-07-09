@@ -2,13 +2,16 @@
 import web
 from string import join
 from localpw import *
-from exchangetypes import *
-from soapquery import *
 from web_auth import *
 import xml.etree.ElementTree as ET
 import icalendar
 import pprint
 import sys
+
+from Backend.ExchangeBackend import *
+from Visitor.Erebus2ICSVisitor import *
+from Visitor.ICS2ErebusVisitor import *
+from erebusconv import *
 pp = pprint.PrettyPrinter()
 
 web.webapi.internalerror = web.debugerror
@@ -46,21 +49,19 @@ class calendar:
 
         if url == "exchange.ics":
             try:
-                c = SoapConn("http://mail1.ansatt.hig.no:80",False,
-                             auth=authorized)
-                q = SoapQuery(c)
-                its = q.get_all_calendar_items()
-                cal = Calendar.from_xml(its)
+                b = ExchangeBackend(host=host,https=False,user=username,
+                                    password=password)
+                its = b.get_all_items()
+                ics = Erebus2ICSVisitor(its).run()
+                ics = cnode2ical(ics).as_string()
             except:
                 log("error: %s" % pp.pformat(sys.exc_info()))
                 auth_fail()
                 return
-            log(pp.pformat(cal.tostring()))
-            res = cal.to_ical().as_string()
             # web.py doesn't add Content-Length header when setting
             # Content-Type manually
-            web.header('Content-Length', len(res))
-            print res
+            web.header('Content-Length', len(ics))
+            print ics
 
         else:
             web.notfound()
@@ -112,24 +113,17 @@ class calendar:
         # log(web.data())
 
         ical = icalendar.Calendar.from_string(web.data())
-        cal = Calendar.from_ical(ical)
+        ics = ical2cnode(ical)
+        erebus = ICS2ErebusVisitor(ics).run()
 
-        c = SoapConn("http://mail1.ansatt.hig.no:80",False,
-                     auth=authorized)
-        q = SoapQuery(c)
+        b = ExchangeBackend(host=host,https=False,user=username,
+                            password=password)
 
-        newItems = cal.get_new_xmlitems(uid_ignore, all_items=True)
-        oldItems = q.find_items('calendar')
-        oldCal   = Calendar.from_xml(oldItems)
-
-        log(newItems)
-        if newItems: q.create_item(newItems)
-
-        delete = [(i.get('t:ItemId:Id'), i.get('t:ItemId:ChangeKey'))
-                  for i in oldCal.calendar_items]
-
-        if len(delete) > 0:
-            q.delete_items(delete)
+        old_items = b.get_all_item_ids()
+        b.create_item(erebus)
+        
+        if old_items.search('event'):
+            b.delete_item(old_items)
 
         print "ok"
 

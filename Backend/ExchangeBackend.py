@@ -3,6 +3,8 @@ from Backend import Backend
 from Visitor.EWS2ErebusVisitor import *
 from Visitor.Erebus2EWSVisitor import *
 
+from Visitor.ToStringVisitor import *
+
 from xml.etree import ElementTree as ET
 from erebusconv import xml2cnode, cnode2xml
 
@@ -66,3 +68,11 @@ class ExchangeBackend(Backend):
 
     def delete_all_items(self):
         self.delete_item(self.get_all_item_ids())
+
+
+    def create_item(self, item):
+        ewsitem = Erebus2EWSVisitor(item).run()
+        print ToStringVisitor(with_types=True).visit(ewsitem)
+        xml = cnode2xml(ewsitem)
+        self.query.create_items(ET.tostring(xml))
+

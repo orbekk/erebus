@@ -51,7 +51,7 @@ class ICS2ErebusVisitor(CNodeVisitor):
         else:
             raise ValueError("Unknown timezone type: %s", ics.name)
 
-        offset = - utcoffset2vDDD(ics.attr['tzoffsetto'])
+        offset = utcoffset2vDDD(ics.attr['tzoffsetto'], negate=True)
         offset_e = CNode(name='Offset',content=offset)
         tz_e.add_child(offset_e)
 

@@ -166,8 +166,10 @@ def xs_duration2timedelta(dur):
         
 #         return timedelta(secs)
 
-def utcoffset2vDDD(utcoffset):
+def utcoffset2vDDD(utcoffset, negate=False):
     td = utcoffset.td
+    if negate:
+        td = -td
     vd = vDDDTypes(td)
     return vd.ical()
     

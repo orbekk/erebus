@@ -75,13 +75,15 @@ class Erebus2EWSVisitor(CNodeVisitor):
             body_e.attr['BodyType'] = 'Text'
 
         rec = self.accept1(cnode, 'Recurrence')
-        item.add_child(rec)
+        if rec:
+            item.add_child(rec)
 
         tzid = cnode.search('tzid')
-        if tzid: tzid = tzid.content
-        tz_e = self.timezones[tzid]
-        tz_e = self.visit(tz_e)
-        item.add_child(tz_e)
+        if tzid:
+            tzid = tzid.content
+            tz_e = self.timezones[tzid]
+            tz_e = self.visit(tz_e)
+            item.add_child(tz_e)
 
         return item
 

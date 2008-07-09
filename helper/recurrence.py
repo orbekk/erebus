@@ -84,7 +84,9 @@ def rrule2recurrence(rrule, starttime):
 def rrule2range(rrule, starttime):
     """Convert a rrule to a RecurrenceRange tree"""
 
-    startdate_e = CNode('StartDate',content=datetime2xsdt(starttime))
+    startdate = datetime2xsdt(starttime)
+    startdate = xs_dateTime2xs_date(startdate)
+    startdate_e = CNode('StartDate',content=startdate)
     
     if rrule.has_key('count'):
         recrange = CNode('NumberedRecurrence')

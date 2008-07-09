@@ -9,6 +9,7 @@ import pprint
 import sys
 
 from Backend.ExchangeBackend import *
+from Visitor.ToStringVisitor import *
 from Visitor.Erebus2ICSVisitor import *
 from Visitor.ICS2ErebusVisitor import *
 from erebusconv import *
@@ -120,6 +121,11 @@ class calendar:
                             password=password)
 
         old_items = b.get_all_item_ids()
+
+        ics = icalendar.Calendar.from_string(web.data())
+        cnode = ical2cnode(ics)
+        erebus = ICS2ErebusVisitor(cnode).run()
+        log(ToStringVisitor().visit(erebus))
         b.create_item(erebus)
         
         if old_items.search('event'):

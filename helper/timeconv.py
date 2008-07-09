@@ -170,8 +170,14 @@ def utcoffset2vDDD(utcoffset, negate=False):
     td = utcoffset.td
     if negate:
         td = -td
-    vd = vDDDTypes(td)
-    return vd.ical()
+
+    # This is a workaround for a bug in the iCalendar package. See
+    # http://codespeak.net/pipermail/icalendar-dev/2008-May/000099.html
+    # for information
+    if td < timedelta(0):
+        return '-' + vDDDTypes(-td).ical()
+    else:
+        return vDDDTypes(td).ical()
     
     
 def xs_time2time(xstime):

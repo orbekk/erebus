@@ -93,7 +93,11 @@ class Erebus2EWSVisitor(CNodeVisitor):
             new_name = eci.name
 
         ci = CNode(name=new_name)
-        ci.content = str(eci.content)
+
+        if eci.content != None:
+            ci.content = str(eci.content)
+        else:
+            ci.content = None
 
         for c in eci.children:
             ci.add_child(self.visit(c))

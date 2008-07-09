@@ -62,15 +62,17 @@ class ExchangeBackend(Backend):
             chkey = e.attr['changekey']
             itemids.append((itemid,chkey))
                 
-
-        self.query.delete_items(itemids)
+        if len(itemids) > 0:
+            self.query.delete_items(itemids)
         
 
     def delete_all_items(self):
         self.delete_item(self.get_all_item_ids())
 
-
     def create_item(self, item):
+        if not item.search('event'):
+            return
+
         ewsitem = Erebus2EWSVisitor(item).run()
         print ToStringVisitor(with_types=True).visit(ewsitem)
         xml = cnode2xml(ewsitem)

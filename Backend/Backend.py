@@ -20,6 +20,10 @@ class Backend(object):
         """Get all available items"""
         self.__not_implemented('get_all_items')
 
+    def get_all_item_ids(self):
+        """Get all item ids"""
+        self.__not_implemented('get_all_item_ids')
+
     def update_item(self,id,item):
         """Update item properties"""
         self.__not_implemented('update_item')
@@ -27,6 +31,10 @@ class Backend(object):
     def delete_item(self,id):
         """Delete an item with a specific ID"""
         self.__not_implemented('delete_item')
+
+    def delete_all_items(self):
+        """Delete all items in the calendar"""
+        self.__not_implemented('delete_all_items')
 
     def create_item(self,item):
         """Create an item with properties from item"""

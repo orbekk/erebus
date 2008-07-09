@@ -208,16 +208,14 @@ class SoapQuery:
 </DeleteItem>
 """ %(delete_type, send_cancellations, ids))
 
-    def create_item(self,calendar_items,send_invitations="SendToNone"):
+    def create_items(self,calendar_items,send_invitations="SendToNone"):
         """
         send_cancellations: {*SendToNone*, SendOnlyToAll, SendToAllAndSaveCopy}
         """
 
         return self.msquery("""
 <CreateItem SendMeetingInvitations="%s">
-  <Items>
     %s
-  </Items>      
 </CreateItem>
 """%(send_invitations,
      calendar_items))

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from icalendar import *
 from CNode import *
 from hashlib import sha1

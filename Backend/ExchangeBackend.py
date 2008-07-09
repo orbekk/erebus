@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Backend import Backend
 from Visitor.EWS2ErebusVisitor import *
 from Visitor.Erebus2EWSVisitor import *

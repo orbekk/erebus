@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # -*- coding: utf8 -*-
 from xml.etree import ElementTree as ET
 from xml.parsers.expat import ExpatError

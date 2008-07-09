@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 def with_ns(t, s):
     return "{%s}%s" %(t,s)
 

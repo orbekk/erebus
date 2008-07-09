@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import web
 from string import join
 from localpw import *

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from xml.etree import *
 from soapquery import *
 from exchangetypes import *

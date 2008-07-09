@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Queue import Queue
 
 def elementsearch(et, name, all=False, depth=0):

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Visitor.CNodeVisitor import *
 from CNode import *
 from namespaces import *

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import web
 import pprint
 pp = pprint.PrettyPrinter()

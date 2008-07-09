@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 from icalendar import UTC, LocalTimezone, FixedOffset, vDatetime, vDDDTypes
 from datetime import datetime, timedelta, time

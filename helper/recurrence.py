@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from xml.etree import ElementTree as ET
 from helper.timeconv import *
 from namespaces import *

@@ -31,6 +31,8 @@ class Erebus2EWSVisitor(CNodeVisitor):
         self.accept(self.ebus, 'timezones')
         self.accept(self.ebus, 'events')
 
+        # Add namespaces
+        self.items.name = m(self.items.name)
         AddNamespaceVisitor(self.items,types).run()
 
         return self.items
@@ -91,7 +93,7 @@ class Erebus2EWSVisitor(CNodeVisitor):
             new_name = eci.name
 
         ci = CNode(name=new_name)
-        ci.content = eci.content
+        ci.content = str(eci.content)
 
         for c in eci.children:
             ci.add_child(self.visit(c))

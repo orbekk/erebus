@@ -11,6 +11,16 @@ from erebusconv import xml2cnode, cnode2xml
 from soapquery import *
 
 class ExchangeBackend(Backend):
+    proplist = ['item:Subject',
+                'calendar:Start',
+                'calendar:End',
+                'item:Sensitivity',
+                'item:DateTimeCreated',
+                'item:Body',
+                'calendar:Location',
+                'calendar:MeetingTimeZone',
+                'calendar:Recurrence']
+    
     def __init__(self,host,user=None,password=None,https=False,auth=None):
         """Initialises the backend
 
@@ -39,7 +49,7 @@ class ExchangeBackend(Backend):
         return EWS2ErebusVisitor(ctree).run()
 
     def get_all_items(self):
-        items = self.query.get_all_calendar_items()
+        items = self.query.get_all_calendar_items(extra_props=self.proplist)
         ctree = self.__conv(items)
         
         return EWS2ErebusVisitor(ctree).run()

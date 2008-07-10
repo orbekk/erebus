@@ -257,7 +257,7 @@ class SoapQuery:
 """ %(shape,props,ids))
 
 
-    def get_all_calendar_items(self):
+    def get_all_calendar_items(self,extra_props=None):
         """
         Return all items with all needed properties
         """
@@ -266,7 +266,11 @@ class SoapQuery:
         item_ids = [(i.attrib['Id'], i.attrib['ChangeKey']) for i in id_elems]
         if len(item_ids) == 0: return "<Items></Items>"
 
-        return self.get_item(item_ids, extra_props=['item:Body'])
+        if extra_props:
+            return self.get_item(item_ids, shape="IdOnly",
+                                 extra_props=extra_props)
+        else:
+            return self.get_item(item_ids, extra_props=['item:Body'])
 
 
     def get_attachment(self, ids):

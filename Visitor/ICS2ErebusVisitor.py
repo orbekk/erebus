@@ -86,6 +86,9 @@ class ICS2ErebusVisitor(CNodeVisitor):
             tz.add_child(tz_d)
 
         tzid = gen_tz_id(tz)
+
+        tz.attr['TimeZoneName'] = tzid
+        
         tzid_e = CNode(name='tzid',content=tzid)
         tz.add_child(tzid_e)
         

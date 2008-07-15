@@ -96,6 +96,9 @@ class Erebus2EWSVisitor(CNodeVisitor):
 
         ci = CNode(name=new_name)
 
+        for k,v in eci.attr.iteritems():
+            ci.attr[k] = v
+
         if eci.content != None:
             ci.content = str(eci.content)
         else:

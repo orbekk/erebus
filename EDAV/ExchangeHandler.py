@@ -34,6 +34,32 @@ class ExchangeHandler(dav_interface):
 
         raise DAV_NotFound, 'Could not find %s' % uri
 
+    def _get_dav_resourcetype(self,uri):
+        path = self.uri2local(uri)
+
+        self._log("getting resourcetype for '%s'" % path)
+
+        if path == '/' or path == '/calendar':
+            return COLLECTION
+        elif path == '/info' or path == '/calendar/exchange.ics':
+            return OBJECT
+        else:
+            raise DAV_NotFound
+
+    def get_childs(self,uri):
+        path = self.uri2local(uri)
+
+        filelist = []
+
+        if path == '/':
+            filelist.append(self.local2uri('/'))
+            filelist.append(self.local2uri('calendar'))
+            filelist.append(self.local2uri('info'))
+        elif path == '/calendar':
+            filelist.append(self.local2uri('/calendar/exchange.ics'))
+
+        return filelist
+
     def get_data(self,uri):
         path = self.uri2local(uri)
 
@@ -58,6 +84,14 @@ class ExchangeHandler(dav_interface):
             return ics
 
         raise DAV_NotFound
+
+    def put(self,uri,data_content_type=None):
+        path = self.uci2local(uri)
+
+        if path == '/calendar/exchange.ics':
+            pass
+
+        return DAV_Forbidden
 
 
     def uri2local(self,uri):

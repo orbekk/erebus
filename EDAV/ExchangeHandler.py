@@ -49,13 +49,15 @@ class ExchangeHandler(dav_interface):
     def get_childs(self,uri):
         path = self.uri2local(uri)
 
+        self._log("getting children of '%s'" % path)
+
         filelist = []
 
         if path == '/':
             filelist.append(self.local2uri('/'))
             filelist.append(self.local2uri('calendar'))
             filelist.append(self.local2uri('info'))
-        elif path == '/calendar':
+        elif path == '/calendar/':
             filelist.append(self.local2uri('/calendar/exchange.ics'))
 
         return filelist

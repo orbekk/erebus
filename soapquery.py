@@ -18,9 +18,10 @@ types    = "http://schemas.microsoft.com/exchange/services/2006/types"
 messages = "http://schemas.microsoft.com/exchange/services/2006/messages"
 
 class QueryError(Exception):
-    def __init__(self, str, query=None, result=None):
+    def __init__(self, str, query=None, result=None, status=None):
         self.msg = str
         self.query = query
+        self.status = status
         self.maybe_write(query, 'query')
 
         self.result = result
@@ -85,9 +86,9 @@ class SoapConn:
         data = res.read()
 
         if str(res.status) not in ['200', '202']:
-            raise QueryError('Error: %s\n %s\n /tmp/error.xml'%(res.status,
-                                                               res.reason),
-                            query=query, result=data)
+            raise QueryError('Error: %s\n %s %s\n'%(res.status,
+                                                    res.reason),
+                            query=query, result=data, status=res.status)
 
         return data
 

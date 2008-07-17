@@ -8,8 +8,7 @@ Dependencies
 - Python 2.4
 - iCalendar, http://codespeak.net/icalendar/
 
-To use soapquery-test.py, add a file named localpw.py, containing:
+To use pydav-serve.py, add a file named localpw.py, containing:
 
-host     = <your exchange 2007 server>
-username = <your username>
-password = <your password>
+host     = "exchange.server.domain"
+

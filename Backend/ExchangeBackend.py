@@ -84,7 +84,5 @@ class ExchangeBackend(Backend):
             return
 
         ewsitem = Erebus2EWSVisitor(item).run()
-        print ToStringVisitor(with_types=True).visit(ewsitem)
         xml = cnode2xml(ewsitem)
-        self.query.create_items(ET.tostring(xml))
-
+        return self.query.create_items(ET.tostring(xml))

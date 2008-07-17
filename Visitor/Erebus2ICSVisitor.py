@@ -6,7 +6,7 @@ from helper.id import identity
 from helper.icalconv import *
 from helper.timeconv import *
 from helper.recurrence import *
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 from Visitor.ToStringVisitor import *
 
@@ -125,8 +125,6 @@ class Erebus2ICSVisitor(CNodeVisitor):
         conv('timestamp', 'dtstamp', timeconv)
         conv('start', 'dtstart', timeconv)
         conv('end', 'dtend', timeconv)
-
-
 
         # get uid (if exchange type)
         itemid = cnode.search('exchange_id')

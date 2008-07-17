@@ -5,6 +5,7 @@ from namespaces import *
 from helper.id import identity
 from helper.icalconv import *
 from helper.timeconv import *
+import datetime
 
 class AddNamespaceVisitor(CNodeVisitor):
     def __init__(self,cnode,namespace):
@@ -68,6 +69,11 @@ class Erebus2EWSVisitor(CNodeVisitor):
         conv('description', 'Body', identity)
         conv('start', 'Start', ical2xsdt)
         conv('end', 'End', ical2xsdt)
+
+        if type(cnode.attr['start']) == datetime.date:
+            allday = CNode(name='IsAllDayEvent',content='True')
+            item.add(allday)
+
         conv('location', 'Location', identity)
 
         body_e = item.search('Body')

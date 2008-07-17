@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 from icalendar import UTC, LocalTimezone, FixedOffset, vDatetime, vDDDTypes
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
 
 def ical2xsdt(t):
     """
@@ -10,12 +10,17 @@ def ical2xsdt(t):
     # It seems a bit random what type we get here. TODO: Why?
     if type(t) == list:
         t = t[0]
+
+    if type(t) == date:
+        dt = datetime(t.year, t.month, t.day)
     
-    if type(t) != datetime:
+    elif type(t) != datetime:
         ical_time = t.ical()
         dt = vDatetime.from_ical(ical_time)
+        
     else:
         dt = t
+
     return datetime2xsdt(dt)
 
 def datetime2xsdt(time):

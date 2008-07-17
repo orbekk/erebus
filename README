@@ -18,10 +18,9 @@ Dependencies
 
 Usage
 -----
+To use pydav-serve.py, add a file named localpw.py, containing:
 
-You need to create the file 'localpw.py', containing:
-
-host     = <your exchange 2007 server>
+host     = "exchange.server.domain"
 username = <your username>
 password = <your password>
 

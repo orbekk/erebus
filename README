@@ -1,15 +1,33 @@
 Erebus
 ======
 
-This is the Erebus Exchange CalDAV Connector.
+This is the Erebus Exchange CalDAV Connector. 
+
+Current status
+--------------
+
+- Basic WebDAV support with a Microsoft Exchange 2007 SP1 server
+  supported (GET/PUT).
+- Still some problems with timezone conversion between iCalendar and
+  Exchange.
 
 Dependencies
 ------------
 - Python 2.4
 - iCalendar, http://codespeak.net/icalendar/
 
-To use soapquery-test.py, add a file named localpw.py, containing:
+Usage
+-----
+
+You need to create the file 'localpw.py', containing:
 
 host     = <your exchange 2007 server>
 username = <your username>
 password = <your password>
+
+username and password aren't strictly necessary, but you need them to
+run some of the scripts in utils/.
+
+Run the webdav server with
+
+$ python pydav-serve.py

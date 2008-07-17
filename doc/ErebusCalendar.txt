@@ -23,5 +23,7 @@ away, and they get a sha1 sum as the new id. This approach is not
 perfect, but it greatly simplifies equivalence testing of timezones.
 
 See the conversion visitors (especially EWS2ErebusVisitor) for more
-details.
+details. 
+
+Try `utils/icalconv.py <some iCalendar file>' to see an example tre.
 

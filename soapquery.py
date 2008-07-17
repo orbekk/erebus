@@ -86,7 +86,7 @@ class SoapConn:
         data = res.read()
 
         if str(res.status) not in ['200', '202']:
-            raise QueryError('Error: %s\n %s %s\n'%(res.status,
+            raise QueryError('Error: %s\n %s\n'%(res.status,
                                                     res.reason),
                             query=query, result=data, status=res.status)
 

@@ -3,7 +3,7 @@ from DAV.errors import *
 from DAV.constants import COLLECTION, OBJECT
 
 from Backend.ExchangeBackend import *
-from Visitor.Erebus2ICSVisitor import *
+from Visitor import *
 from erebusconv import *
 
 from localpw import *
@@ -11,6 +11,7 @@ from localpw import *
 import sys
 import os
 import urlparse
+import icalendar
 
 class ExchangeHandler(dav_interface):
     def __init__(self,uri,verbose=False):
@@ -66,7 +67,7 @@ class ExchangeHandler(dav_interface):
         path = self.uri2local(uri)
 
         if path == '/info':
-            return str(self.handler.headers['Authorization'])
+            return str(dir(self.handler)) 
 
         if path == '/calendar/exchange.ics':
             # Get auth string from handler
@@ -87,11 +88,34 @@ class ExchangeHandler(dav_interface):
 
         raise DAV_NotFound
 
-    def put(self,uri,data_content_type=None):
-        path = self.uci2local(uri)
+    def put(self,uri,data,content_type=None):
+        path = self.uri2local(uri)
 
         if path == '/calendar/exchange.ics':
-            pass
+            auth = ('Authorization', self.handler.headers['Authorization'])
+            self._log('Uploading items')
+
+            try:
+                # Flush old items and upload new calendar                
+                b = ExchangeBackend(host=host,https=False,auth=auth)
+                old_itemids = b.get_all_item_ids()
+
+                ical = icalendar.Calendar.from_string(data)
+                ics = ical2cnode(ical)
+                new_items = ICS2ErebusVisitor(ics).run()
+                
+                b.create_item(new_items)
+
+                if old_itemids.search('event'):
+                    # At least one old item
+                    b.delete_item(old_itemids)
+
+                return "Sucessfully uploaded calendar"
+
+            except QueryError, e:
+                if e.status == 401:
+                    self.handler.send_autherror(401,"Authorization Required")
+                    return
 
         return DAV_Forbidden
 

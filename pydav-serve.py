@@ -4,6 +4,8 @@ import sys
 import getopt, sys, os
 import BaseHTTPServer
 
+sys.path.append('pywebdav')
+
 try:
     import DAV
 except ImportError:

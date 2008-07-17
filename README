@@ -30,3 +30,7 @@ run some of the scripts in utils/.
 Run the webdav server with
 
 $ python pydav-serve.py
+
+Access your calendar at
+
+http://localhost:8008/calendar/exchange.ics

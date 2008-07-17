@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
-import test.item_test
+import test.erebustest
 
 if __name__ == '__main__':
-    s = test.item_test.suite()
+    s = test.erebustest.suite()
     unittest.TextTestRunner(verbosity=2).run(s)

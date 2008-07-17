@@ -78,7 +78,15 @@ class EWS2ErebusVisitor(CNodeVisitor):
             timeconv = xsdt2local_dt
         else:
             timeconv = xsdt2datetime
-        
+
+        allday = eci.search('IsAllDayEvent')
+        if allday and allday.content == 'True':
+            def xsdt2date(str):
+                dt = timeconv(str)
+                return date(dt.day, dt.month, dt.year)
+                
+            timeconv = xsdt2date
+
         conv('Subject', 'summary', identity)
         conv('Start', 'start', timeconv)
         conv('End', 'end', timeconv)
@@ -86,6 +94,7 @@ class EWS2ErebusVisitor(CNodeVisitor):
         conv('Location', 'location', identity)
         conv('DateTimeCreated', 'timestamp', timeconv)
         conv('Body', 'description', identity)
+
 
         itemid = eci.search('ItemId')
         if itemid:

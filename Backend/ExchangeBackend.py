@@ -14,12 +14,13 @@ class ExchangeBackend(Backend):
     proplist = ['item:Subject',
                 'calendar:Start',
                 'calendar:End',
-                'item:Sensitivity',
-                'item:DateTimeCreated',
-                'item:Body',
+                'calendar:IsAllDayEvent',
                 'calendar:Location',
                 'calendar:MeetingTimeZone',
-                'calendar:Recurrence']
+                'calendar:Recurrence',
+                'item:Sensitivity',
+                'item:DateTimeCreated',
+                'item:Body']
     
     def __init__(self,host,user=None,password=None,https=False,auth=None):
         """Initialises the backend
@@ -85,4 +86,8 @@ class ExchangeBackend(Backend):
 
         ewsitem = Erebus2EWSVisitor(item).run()
         xml = cnode2xml(ewsitem)
+
+        print ToStringVisitor(with_types=True).visit(ewsitem)
+        print "Adding item\n\n%s" % ET.tostring(xml)
+
         return self.query.create_items(ET.tostring(xml))

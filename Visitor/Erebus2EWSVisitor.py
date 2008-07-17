@@ -64,15 +64,15 @@ class Erebus2EWSVisitor(CNodeVisitor):
             new_e = CNode(name=ews, content=new)
             item.add_child(new_e)
 
-        conv('summary', 'Subject', identity)
+        conv('summary', 'Subject', str)
         conv('class', 'Sensitivity', class2sensitivity)
         conv('description', 'Body', identity)
         conv('start', 'Start', ical2xsdt)
         conv('end', 'End', ical2xsdt)
 
         if type(cnode.attr['start']) == datetime.date:
-            allday = CNode(name='IsAllDayEvent',content='True')
-            item.add(allday)
+            allday = CNode(name='IsAllDayEvent',content='true')
+            item.add_child(allday)
 
         conv('location', 'Location', identity)
 

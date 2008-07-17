@@ -1,0 +1,17 @@
+/BufferingHTTPServer.py/1.2/Fri Jun 24 15:19:37 2005//
+/INI_Parse.py/1.1/Fri Nov  3 15:02:32 2006//
+/__init__.py/1.2/Fri Jun 24 15:19:37 2005//
+/constants.py/1.1.1.1/Tue Jun 17 18:41:17 2003//
+/davcmd.py/1.3/Mon Nov  5 18:15:59 2007//
+/davcopy.py/1.3/Wed Jul  2 22:36:36 2008//
+/davmove.py/1.2/Fri Jun 24 15:19:37 2005//
+/dbconn.py/1.1/Fri Nov  3 15:02:32 2006//
+/delete.py/1.2/Fri Jun 24 15:19:37 2005//
+/errors.py/1.2/Fri Jun 24 15:19:37 2005//
+/iface.py/1.2/Fri Jun 24 15:19:37 2005//
+/status.py/1.1.1.1/Tue Jun 17 18:41:21 2003//
+/AuthServer.py/1.3/Wed Jul 16 07:34:53 2008//
+/WebDAVServer.py/1.3/Wed Jul 16 12:23:49 2008//
+/utils.py/1.7/Wed Jul 16 12:23:49 2008//
+/propfind.py/1.7/Wed Jul 16 12:25:02 2008//
+D

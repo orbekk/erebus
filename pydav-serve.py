@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import sys
-sys.path.append('/home/orbekk/src/davserver/')
-sys.path.append('/home/orbekk/src/davserver/PyDAVServer')
 
 import getopt, sys, os
 import BaseHTTPServer
@@ -14,12 +12,11 @@ except ImportError:
 
 from DAV.utils import VERSION, AUTHOR
 
-from fileauth import DAVAuthHandler
-from mysqlauth import MySQLAuthHandler
+from PyDAVServer.fileauth import DAVAuthHandler
+from PyDAVServer.mysqlauth import MySQLAuthHandler
 from EDAV.ExchangeHandler import ExchangeHandler
 from EDAV.ErebusAuthHandler import ErebusAuthHandler
 
-from daemonize import startstop
 from DAV.INI_Parse import Configuration
 
 def runserver(

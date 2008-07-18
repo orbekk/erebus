@@ -80,16 +80,27 @@ class EWS2ErebusVisitor(CNodeVisitor):
             timeconv = xsdt2datetime
 
         allday = eci.search('IsAllDayEvent')
-        if allday and allday.content == 'True':
-            def xsdt2date(str):
-                dt = timeconv(str)
-                return date(dt.day, dt.month, dt.year)
-                
-            timeconv = xsdt2date
+        if allday and allday.content == 'true':
+            # Manual conversion of start and end
+            ews_start = eci.search('Start')
+            ews_end = eci.search('End')
+
+            n_startd = timeconv(ews_start.content)
+            new_start = date(n_startd.year, n_startd.month, n_startd.day + 1)
+            
+            if ews_end:
+                n_endd = timeconv(ews_start.content)
+            else:
+                n_endd = timeconv(ews_start.content)
+            new_end = date(n_endd.year, n_endd.month, n_endd.day + 2)
+
+            ci.attr['start'] = new_start
+            ci.attr['end'] = new_end
+        else:
+            conv('Start', 'start', timeconv)
+            conv('End', 'end', timeconv)
 
         conv('Subject', 'summary', identity)
-        conv('Start', 'start', timeconv)
-        conv('End', 'end', timeconv)
         conv('Sensitivity', 'class', sensitivity2class)
         conv('Location', 'location', identity)
         conv('DateTimeCreated', 'timestamp', timeconv)

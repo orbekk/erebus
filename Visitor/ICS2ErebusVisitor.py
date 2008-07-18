@@ -6,6 +6,7 @@ from helper.timeconv import *
 from helper.icalconv import *
 from helper.recurrence import *
 from hashlib import sha1
+import datetime
 
 class ToLowerCaseVisitor(CNodeVisitor):
     def visit_any(self, o):
@@ -124,7 +125,8 @@ class ICS2ErebusVisitor(CNodeVisitor):
                 rec_range = rrule2range(ics.attr['rrule'], event.attr['start'])
                 rec.add_child(rec_range)
 
-        if ics.attr['dtstart'].params.has_key('tzid'):
+        if type(ics.attr['dtstart']) != datetime.date and \
+               ics.attr['dtstart'].params.has_key('tzid'):
             i_tzid = ics.attr['dtstart'].params['tzid']
             tz = self.timezone_ids[i_tzid]
             tz_e = CNode(name='tzid',content=tz)

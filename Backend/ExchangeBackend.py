@@ -9,6 +9,8 @@ from xml.etree import ElementTree as ET
 from erebusconv import xml2cnode, cnode2xml
 
 from soapquery import *
+import os
+
 
 class ExchangeBackend(Backend):
     proplist = ['item:Subject',
@@ -52,6 +54,7 @@ class ExchangeBackend(Backend):
     def get_all_items(self):
         items = self.query.get_all_calendar_items(extra_props=self.proplist)
         ctree = self.__conv(items)
+        print ToStringVisitor().visit(ctree)
         
         return EWS2ErebusVisitor(ctree).run()
 
@@ -88,6 +91,10 @@ class ExchangeBackend(Backend):
         xml = cnode2xml(ewsitem)
 
         print ToStringVisitor(with_types=True).visit(ewsitem)
-        print "Adding item\n\n%s" % ET.tostring(xml)
+        tmpnam= os.tmpnam() + '.xml'
+        print "Writing query to " + tmpnam
+        f = open(tmpnam,'w')
+        f.write(ET.tostring(xml))
+        f.close()
 
         return self.query.create_items(ET.tostring(xml))

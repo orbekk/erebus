@@ -114,13 +114,17 @@ class Erebus2ICSVisitor(CNodeVisitor):
         tzid = cnode.search('tzid')
         if not tzid:
             # just copy
-            timeconv = identity
+            timeconv = maybe_date2ics
         else:
             def timeconv(dt):
                 # (See erebusconv.py)
-                c = CNode('exchange_value', content=dt)
-                c.attr['tzid'] = tzid.content
-                return c
+                maybe_cnode = maybe_date2ics(dt)
+                if type(maybe_cnode) == CNode:
+                    return maybe_cnode
+                else:
+                    c = CNode('with_attr', content=dt)
+                    c.attr['tzid'] = tzid.content
+                    return c
             
         conv('timestamp', 'dtstamp', timeconv)
         conv('start', 'dtstart', timeconv)

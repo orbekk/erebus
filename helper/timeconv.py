@@ -12,7 +12,7 @@ def ical2xsdt(t):
         t = t[0]
 
     if type(t) == date:
-        dt = datetime(t.year, t.month, t.day)
+        dt = datetime(t.year, t.month, t.day, tzinfo=UTC)
     
     elif type(t) != datetime:
         ical_time = t.ical()

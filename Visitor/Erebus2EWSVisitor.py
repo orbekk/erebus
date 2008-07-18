@@ -6,6 +6,7 @@ from helper.id import identity
 from helper.icalconv import *
 from helper.timeconv import *
 import datetime
+import icalendar
 
 class AddNamespaceVisitor(CNodeVisitor):
     def __init__(self,cnode,namespace):
@@ -64,15 +65,48 @@ class Erebus2EWSVisitor(CNodeVisitor):
             new_e = CNode(name=ews, content=new)
             item.add_child(new_e)
 
+        allday = type(cnode.attr['start']) == datetime.date
+
         conv('summary', 'Subject', str)
         conv('class', 'Sensitivity', class2sensitivity)
         conv('description', 'Body', identity)
-        conv('start', 'Start', ical2xsdt)
-        conv('end', 'End', ical2xsdt)
 
-        if type(cnode.attr['start']) == datetime.date:
+        if allday:
+            old_start = cnode.attr['start']
+            old_end = cnode.attr['end']
+
+            new_start = datetime.datetime(old_start.year,
+                                          old_start.month,
+                                          old_start.day - 1,
+                                          22,
+                                          tzinfo=icalendar.UTC)
+
+            new_end = datetime.datetime(old_end.year,
+                                        old_end.month,
+                                        old_end.day - 1,
+                                        22,
+                                        tzinfo=icalendar.UTC)
+
+            start_e = CNode('Start', content=ical2xsdt(new_start))
+            end_e = CNode('End', content=ical2xsdt(new_end))
+
+            item.add_child(start_e)
+            item.add_child(end_e)
+            
             allday = CNode(name='IsAllDayEvent',content='true')
             item.add_child(allday)
+
+        else:
+            conv('start', 'Start', ical2xsdt)
+            conv('end', 'End', ical2xsdt)
+
+            tzid = cnode.search('tzid')
+            if tzid:
+                tzid = tzid.content
+                tz_e = self.timezones[tzid]
+                tz_e = self.visit(tz_e)
+                item.add_child(tz_e)
+
 
         conv('location', 'Location', identity)
 
@@ -83,13 +117,6 @@ class Erebus2EWSVisitor(CNodeVisitor):
         rec = self.accept1(cnode, 'Recurrence')
         if rec:
             item.add_child(rec)
-
-        tzid = cnode.search('tzid')
-        if tzid:
-            tzid = tzid.content
-            tz_e = self.timezones[tzid]
-            tz_e = self.visit(tz_e)
-            item.add_child(tz_e)
 
         return item
 

@@ -90,9 +90,10 @@ class EWS2ErebusVisitor(CNodeVisitor):
             
             if ews_end:
                 n_endd = timeconv(ews_start.content)
+                new_end = date(n_endd.year, n_endd.month, n_endd.day + 1)
             else:
                 n_endd = timeconv(ews_start.content)
-            new_end = date(n_endd.year, n_endd.month, n_endd.day + 2)
+                new_end = date(n_endd.year, n_endd.month, n_endd.day + 2)
 
             ci.attr['start'] = new_start
             ci.attr['end'] = new_end

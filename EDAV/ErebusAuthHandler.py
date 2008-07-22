@@ -1,7 +1,7 @@
-from DAV.WebDAVServer import DAVRequestHandler
+from EDAV.CalDAVServer import CalDAVRequestHandler
 import sys
 
-class ErebusAuthHandler(DAVRequestHandler):
+class ErebusAuthHandler(CalDAVRequestHandler):
     """
     Always accepts, and stores the username and password so we can
     pass it to Exchange
@@ -9,7 +9,7 @@ class ErebusAuthHandler(DAVRequestHandler):
     def handle(self):
         """We need access to the handler in iface"""
         self.IFACE_CLASS.handler = self
-        DAVRequestHandler.handle(self)
+        CalDAVRequestHandler.handle(self)
 
     def _log(self,message):
         if self.verbose:
@@ -18,5 +18,5 @@ class ErebusAuthHandler(DAVRequestHandler):
     def get_userinfo(self,user,passwd,cmd):
         self.user = user
         self.passwd = passwd
-        self._log('Authenticated user: %s' % user)
+        self._log('Authenticated user: %s (%s)' % (user,self.headers['Authorization']))
         return 1

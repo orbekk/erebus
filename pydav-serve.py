@@ -106,6 +106,7 @@ if __name__ == '__main__':
         verbose = verbose
         port = port
         host = host
+        lockemulation = True
 
     class DummyConfig:
         DAV = DummyConfigDAV()

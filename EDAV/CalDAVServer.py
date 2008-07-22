@@ -22,19 +22,19 @@ import socket
 import string
 import posixpath
 import base64
-import AuthServer
+import DAV.AuthServer as AuthServer
 import urlparse
 import urllib
 import random
 
-from propfind import PROPFIND
-from delete import DELETE
-from davcopy import COPY
-from davmove import MOVE
+from DAV.propfind import PROPFIND
+from DAV.delete import DELETE
+from DAV.davcopy import COPY
+from DAV.davmove import MOVE
 
 from string import atoi,split
-from status import STATUS_CODES
-from errors import *
+from DAV.status import STATUS_CODES
+from DAV.errors import *
 
 class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
     """Simple CalDAV request handler with 
@@ -109,11 +109,11 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
             if self._config.DAV.verbose is True:
                 print >>sys.stderr, 'Activated LOCK,UNLOCK emulation for this connection (NOT known to work currently)'
 
-            self.send_header('Allow', 'GET, HEAD, COPY, MOVE, POST, PUT, PROPFIND, PROPPATCH, OPTIONS, MKCOL, DELETE, TRACE, LOCK, UNLOCK')
+            self.send_header('Allow', 'GET, HEAD, COPY, MOVE, POST, PUT, PROPFIND, PROPPATCH, OPTIONS, MKCOL, DELETE, TRACE, LOCK, UNLOCK, REPORT')
             self.send_header('DAV', '1,2, calendar-access')
 
         else:
-            self.send_header("Allow", "GET, HEAD, COPY, MOVE, POST, PUT, PROPFIND, PROPPATCH, OPTIONS, MKCOL, DELETE, TRACE")
+            self.send_header("Allow", "GET, HEAD, COPY, MOVE, POST, PUT, PROPFIND, PROPPATCH, OPTIONS, MKCOL, DELETE, TRACE, REPORT")
             self.send_header('DAV', '1, calendar-access') # is this allowed?
 
         self.send_header('MS-Author-Via', 'DAV') # this is for M$
@@ -146,7 +146,7 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
         if self.DAV._config.DAV.verbose is True:
             print >>sys.stderr, 'UNLOCKing resource %s' % self.headers
 
-        return self.send_status(status=204)
+        return self.send_status(204)
 
     def do_PROPFIND(self):
 
@@ -193,7 +193,14 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
     def do_REPORT(self):
         dc = self.IFACE_CLASS
 
-        return self.send_status(status=401)
+        # read the body
+        body = None
+        if self.headers.has_key('Content-Length'):
+            l = self.headers['Content-Length']
+            body = self.rfile.read(atoi(l))
+        self.write_infp(body)
+
+        return self.send_status(403)
 
     def do_GET(self):
         """Serve a GET request."""

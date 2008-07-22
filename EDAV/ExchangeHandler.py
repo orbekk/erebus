@@ -1,6 +1,6 @@
 from DAV.iface import *
 from DAV.errors import *
-from DAV.constants import COLLECTION, OBJECT
+from DAV.constants import COLLECTION, OBJECT, CALENDAR
 
 from Backend.ExchangeBackend import *
 from Visitor import *
@@ -40,8 +40,10 @@ class ExchangeHandler(dav_interface):
 
         self._log("getting resourcetype for '%s'" % path)
 
-        if path == '/' or path == '/calendar':
+        if path == '/':
             return COLLECTION
+        elif path == '/calendar/':
+            return CALENDAR        
         elif path == '/info' or path == '/calendar/exchange.ics':
             return OBJECT
         else:
@@ -58,8 +60,8 @@ class ExchangeHandler(dav_interface):
             filelist.append(self.local2uri('/'))
             filelist.append(self.local2uri('calendar'))
             filelist.append(self.local2uri('info'))
-        elif path == '/calendar/':
-            filelist.append(self.local2uri('/calendar/exchange.ics'))
+        #elif path == '/calendar/':
+            #filelist.append(self.local2uri('/calendar/exchange.ics'))
 
         return filelist
 

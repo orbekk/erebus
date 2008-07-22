@@ -176,10 +176,10 @@ class PROPFIND:
             res=self.mk_prop_response(self.__uri,gp,bp,doc)
             ms.appendChild(res)
         
-        for newuri in self.__dataclass.get_childs(self.__uri):
-            gp,bp=self.get_propvalues(newuri)
-            res=self.mk_prop_response(newuri,gp,bp,doc)
-            ms.appendChild(res)
+            for newuri in self.__dataclass.get_childs(self.__uri):
+                gp,bp=self.get_propvalues(newuri)
+                res=self.mk_prop_response(newuri,gp,bp,doc)
+                ms.appendChild(res)
 
         return doc.toxml(encoding="utf-8")
 

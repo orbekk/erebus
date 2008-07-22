@@ -60,8 +60,8 @@ class ExchangeHandler(dav_interface):
             filelist.append(self.local2uri('/'))
             filelist.append(self.local2uri('calendar'))
             filelist.append(self.local2uri('info'))
-        #elif path == '/calendar/':
-            #filelist.append(self.local2uri('/calendar/exchange.ics'))
+        elif path == '/calendar/':
+            filelist.append(self.local2uri('/calendar/exchange.ics'))
 
         return filelist
 

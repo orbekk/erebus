@@ -48,7 +48,8 @@ class PROPFIND:
     
     
     """
-
+    def _log(self, message):
+        print >>sys.stderr, '>> (PROPFIND) %s' % message
 
     def __init__(self,uri,dataclass,depth):
         self.request_type=None
@@ -253,8 +254,16 @@ class PROPFIND:
             for p,v in good_props[ns].items():
                 pe=doc.createElement(ns_prefix+str(p))
                 if p=="resourcetype":
+                    self._log(v)
                     if v=="1":
                         ve=doc.createElement("D:collection")
+                        pe.appendChild(ve)
+                    elif v=="2":
+                        # Calendar collection (XXX: do something smart instead)
+                        pe.setAttribute("xmlns:C", "urn:ietf:params:xml:ns:caldav")
+                        ve=doc.createElement("D:collection")
+                        pe.appendChild(ve)
+                        ve=doc.createElement("C:calendar")
                         pe.appendChild(ve)
                 else:
                     ve=doc.createTextNode(str(v))

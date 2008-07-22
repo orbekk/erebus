@@ -160,7 +160,7 @@ class DAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
         if self.DAV._config.DAV.verbose is True:
             print >>sys.stderr, 'UNLOCKing resource %s' % self.headers
 
-        return self.send_status(status=204)
+        return self.send_status(204)
 
     def do_PROPFIND(self):
 

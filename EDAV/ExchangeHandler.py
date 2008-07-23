@@ -1,4 +1,4 @@
-from DAV.iface import *
+from EDAV.caldav_iface import *
 from DAV.errors import *
 from DAV.constants import COLLECTION, OBJECT, CALENDAR
 
@@ -14,7 +14,7 @@ import os
 import urlparse
 import icalendar
 
-class ExchangeHandler(dav_interface):
+class ExchangeHandler(caldav_interface):
     def __init__(self,uri,verbose=False):
         self.baseuri = uri
         self.verbose = verbose

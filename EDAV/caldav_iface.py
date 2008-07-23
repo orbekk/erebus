@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 
 CalDAV interface class that extends DAV.dav_interface.
@@ -6,6 +7,8 @@ Subclasses must implement the query_calendar method
 
 TODO: add extra properties from the RFC here
 """
+
+from DAV.iface import *
 
 class caldav_interface(dav_interface):
 

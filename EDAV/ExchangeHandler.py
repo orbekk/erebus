@@ -8,6 +8,7 @@ from erebusconv import *
 
 from localpw import *
 
+from hashlib import sha1
 import sys
 import os
 import urlparse
@@ -49,6 +50,14 @@ class ExchangeHandler(dav_interface):
         else:
             raise DAV_NotFound
 
+    def _get_dav_getetag(self,uri):
+        # not good :-p
+        self._log('getting getetag for %s' % uri)
+        data = self.get_data(uri)
+        if data == None:
+            raise DAV_Forbidden
+        return sha1(data).hexdigest()
+
     def get_childs(self,uri):
         path = self.uri2local(uri)
 
@@ -71,7 +80,7 @@ class ExchangeHandler(dav_interface):
         if path == '/info':
             return str(dir(self.handler)) 
 
-        if path == '/calendar/exchange.ics':
+        if path == '/calendar/exchange.ics' or path == '/calendar/':
             # Get auth string from handler
             auth = ('Authorization', self.handler.headers['Authorization'])
 

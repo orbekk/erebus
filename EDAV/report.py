@@ -111,8 +111,8 @@ class REPORT(object):
             nsnum += 1
 
             for prop in plist:
-                p = doc.createElement(nsp+prop)
-                p.setAttribute('xmlns'+nsp, ns)
+                p = doc.createElement(nsp + ':' + prop)
+                p.setAttribute('xmlns:'+nsp, ns)
                 try:
                     # Add as good property
                     r = dc.get_prop(uri,ns,prop)
@@ -124,6 +124,7 @@ class REPORT(object):
                     #
                     # TODO: some error_codes may be really bad,
                     # perhaps we should abort sometimes?
+                    self._log(str(error_code))
                     bad_props.append(p)
 
         return good_props, bad_props

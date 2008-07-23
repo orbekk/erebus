@@ -1,6 +1,10 @@
+from DAV.errors import *
 import EDAV.utils as utils
+import DAV.utils
 import sys
 import xml.dom.minidom
+import urlparse
+import urllib
 impl = xml.dom.minidom.getDOMImplementation()
 
 class REPORT(object):
@@ -30,26 +34,67 @@ class REPORT(object):
         ms = doc.documentElement
         ms.setAttribute('xmlns:D', 'DAV:')
         ms.setAttribute('xmlns:C', 'urn:ietf:params:xml:ns:caldav')
+
+        # Make this regardless of depth
+        self.__mk_response(doc,ms,self.__uri)
+
+        if self.__depth == "1":
+            children = dc.get_childs(self.__uri)
+            for c_uri in children:
+                re = self.__mk_response(doc,ms,c_uri)
         
-        # HER!
-        return ":D"
+        return doc.toxml(encoding='utf-8')
+
+    def __mk_response_helper(self,doc,href,props,status_text):
+        """Add properties for __mk_response.
+
+        props is a list of elements to be added to base_elem
+        """
+        if len(props) > 0:
+            re = doc.createElement('D:response')
+            
+            # add href element
+            hr = doc.createElement('D:href')
+            t = doc.createTextNode(href)
+            hr.appendChild(t)
+            re.appendChild(hr)
+            
+            ps = doc.createElement('D:propstat')
+            for e in props:
+                ps.appendChild(e)
+            re.appendChild(ps)
+
+            status = doc.createTextNode(status_text)
+            re.appendChild(status)
+
+            return re
+        else:
+            return None
+        
     
-    def __mk_response(self,doc,uri):
+    def __mk_response(self,doc,base_element,uri):
         uri = self.__uri
 
-        re = doc.createElement('D:response')
-
-        # write href information
+        # get href info
         uparts=urlparse.urlparse(uri)
         fileloc=uparts[2]
-        href=doc.createElement('D:href')
-        huri=doc.createTextNode(uparts[0]+'://'+'/'.join(uparts[1:2]) + urllib.quote(fileloc))
-        href.appendChild(huri)
-        re.appendChild(href)
+        href = uparts[0]+'://'+'/'.join(uparts[1:2]) + urllib.quote(fileloc)
+        
+        good_props, bad_props = self.__mk_props(doc,uri)
 
-        ps = doc.createElement('D:propstat')
+        # TODO: Use DAV.utils stuff here
+        good_response = self.__mk_response_helper(doc,href,good_props,
+                                                  'HTTP/1.1 200 OK')
+        bad_response = self.__mk_response_helper(doc,href,bad_props,
+                                              DAV.utils.gen_estring(404))
 
-    def __mk_props(self,uri,doc):
+        if good_response:
+            base_element.appendChild(good_response)
+        if bad_response:
+            base_element.appendChild(bad_response)
+                
+
+    def __mk_props(self,doc,uri):
         """Extract properties for uri.
 
         Like PROPFIND.get_propvalues, we return (good_props, bad_props)
@@ -61,7 +106,7 @@ class REPORT(object):
         nsnum = 0
         dc = self.__dataclass
 
-        for ns,plist in self.proplist.iteritems():
+        for ns,plist in self.__props.iteritems():
             nsp = "ns" + str(nsnum)
             nsnum += 1
 

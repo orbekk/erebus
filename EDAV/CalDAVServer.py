@@ -406,6 +406,10 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
 
     def send_status(self,code=200,mediatype='text/xml;  charset="utf-8"', \
                                 msg=None,body=None):
+        # Do authorization required here
+        if code == 401:
+            self.send_autherror(code,'Authorization Required')
+            return
 
         if not msg: msg=STATUS_CODES[code]
         self.send_body(body,code,STATUS_CODES[code],msg,mediatype)

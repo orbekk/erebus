@@ -119,12 +119,12 @@ class REPORT(object):
                     t = doc.createTextNode(str(r))
                     p.appendChild(t)
                     good_props.append(p)
-                except DAV_Error, error_code:
+                except DAV_Error, (ec,dd):
                     # If fail, then add as bad property
                     #
                     # TODO: some error_codes may be really bad,
                     # perhaps we should abort sometimes?
-                    self._log(str(error_code))
+                    self._log('Recieved error: ' + str(ec))
                     bad_props.append(p)
 
         return good_props, bad_props

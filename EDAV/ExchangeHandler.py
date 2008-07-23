@@ -53,9 +53,13 @@ class ExchangeHandler(dav_interface):
     def _get_dav_getetag(self,uri):
         # not good :-p
         self._log('getting getetag for %s' % uri)
-        data = self.get_data(uri)
-        if data == None:
-            raise DAV_Forbidden
+        try:
+            data = self.get_data(uri)
+        except DAV_Error, (ec,dd):
+            if ec == 401:
+                raise DAV_Forbidden
+            raise
+        self._log('got here')
         return sha1(data).hexdigest()
 
     def get_childs(self,uri):
@@ -91,8 +95,10 @@ class ExchangeHandler(dav_interface):
                 ics = cnode2ical(ics).as_string()
             except QueryError, e:
                 if e.status == 401:
-                    self.handler.send_autherror(401,"Authorization Required")
-                    return
+                    self._log('Authorization failed with auth header %s' %
+                              self.handler.headers['Authorization'])
+                    print e
+                    raise DAV_Error, 401
                 raise e
 
             return ics

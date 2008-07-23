@@ -31,6 +31,7 @@ from DAV.propfind import PROPFIND
 from DAV.delete import DELETE
 from DAV.davcopy import COPY
 from DAV.davmove import MOVE
+from EDAV.report import REPORT
 
 from string import atoi,split
 from DAV.status import STATUS_CODES
@@ -198,9 +199,22 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
         if self.headers.has_key('Content-Length'):
             l = self.headers['Content-Length']
             body = self.rfile.read(atoi(l))
+
+        if self.headers.has_key('Depth'):
+            depth = self.headers['Depth']
+        else:
+            depth = "0"
+
+        uri=urlparse.urljoin(dc.baseuri,self.path)
+        uri=urllib.unquote(uri)
+
         self.write_infp(body)
 
-        return self.send_status(403)
+        rp = REPORT(uri,dc,depth,body)
+        response = rp.create_response()
+        
+        return self.send_body_chunks(response,'207','Multi-Status',
+                                     'Multiple responses')
 
     def do_GET(self):
         """Serve a GET request."""

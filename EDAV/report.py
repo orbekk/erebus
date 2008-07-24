@@ -120,12 +120,15 @@ class REPORT(object):
                     # Handle
                     caldav_ns = 'urn:ietf:params:xml:ns:caldav'
                     if ns == caldav_ns and prop == 'calendar-data':
-                        dc.query_calendar(uri,self.__filter,None)
-                
-                    r = dc.get_prop(uri,ns,prop)
-                    t = doc.createTextNode(str(r))
-                    p.appendChild(t)
-                    good_props.append(p)
+                        data = dc.query_calendar(uri,self.__filter,None)
+                        t = doc.createTextNode(unicode(data, 'utf-8'))
+                        p.appendChild(t)
+                        good_props.append(p)
+                    else:
+                        r = dc.get_prop(uri,ns,prop)
+                        t = doc.createTextNode(str(r))
+                        p.appendChild(t)
+                        good_props.append(p)
                 except DAV_Error, (ec,dd):
                     # If fail, then add as bad property
                     #

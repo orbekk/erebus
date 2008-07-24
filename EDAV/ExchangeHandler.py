@@ -23,6 +23,10 @@ class ExchangeHandler(caldav_interface):
         if self.verbose:
             print >>sys.stderr, '>> (DAVExchange) %s' % message
 
+    def query_calendar(self,uri,filter,calendar_data):
+        self._log('querying for calendar data')
+        return self.get_data(uri)
+
     def _get_dav_getcontenttype(self,uri):
         path = self.uri2local(uri)
 

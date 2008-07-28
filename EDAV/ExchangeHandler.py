@@ -77,8 +77,8 @@ class ExchangeHandler(caldav_interface):
             filelist.append(self.local2uri('/'))
             filelist.append(self.local2uri('calendar'))
             filelist.append(self.local2uri('info'))
-        elif path == '/calendar/':
-            filelist.append(self.local2uri('/calendar/exchange.ics'))
+#         elif path == '/calendar/':
+#             filelist.append(self.local2uri('/calendar/exchange.ics'))
 
         return filelist
 
@@ -88,7 +88,7 @@ class ExchangeHandler(caldav_interface):
         if path == '/info':
             return str(dir(self.handler)) 
 
-        if path == '/calendar/exchange.ics' or path == '/calendar/':
+        if path == '/calendar' or path == '/calendar/':
             # Get auth string from handler
             auth = ('Authorization', self.handler.headers['Authorization'])
 
@@ -112,9 +112,9 @@ class ExchangeHandler(caldav_interface):
     def put(self,uri,data,content_type=None):
         path = self.uri2local(uri)
 
-        if path == '/calendar/exchange.ics':
+        if path.startswith('/calendar/'):
             auth = ('Authorization', self.handler.headers['Authorization'])
-            self._log('Uploading items')
+            self._log('Uploading items, auth: %s' % str(auth))
 
             try:
                 # Flush old items and upload new calendar                
@@ -124,12 +124,13 @@ class ExchangeHandler(caldav_interface):
                 ical = icalendar.Calendar.from_string(data)
                 ics = ical2cnode(ical)
                 new_items = ICS2ErebusVisitor(ics).run()
+                self._log(new_items)
                 
                 b.create_item(new_items)
 
-                if old_itemids.search('event'):
-                    # At least one old item
-                    b.delete_item(old_itemids)
+                # if old_itemids.search('event'):
+                #     # At least one old item
+                #     b.delete_item(old_itemids)
 
                 return "Sucessfully uploaded calendar"
 

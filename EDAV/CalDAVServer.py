@@ -58,6 +58,10 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
     
     """
 
+    def __init__(self, *args, **kws):
+        self.extra_headers = {}
+        AuthServer.BufferedAuthRequestHandler.__init__(self, *args, **kws)
+
     server_version = "DAV/" + __version__
 
     ### utility functions
@@ -89,6 +93,7 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
         
         self.responses[207]=(msg,desc)
         self.send_response(code,message=msg)
+        self.__send_extra_headers()
         self.send_header("Content-type", ctype)
         self.send_header("Connection", "close")
         self.send_header("Transfer-Encoding", "chunked")
@@ -98,6 +103,10 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
         self._append("\r\n")
         self._append("0\r\n")
         self._append("\r\n")
+
+    def __send_extra_headers(self):
+        for k,v in self.extra_headers.iteritems():
+            self.send_header(k,v)
 
     ### HTTP METHODS called by the server
 
@@ -189,7 +198,7 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
                                     '<ns0:creationdate xmlns:n="DAV:" xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/" b:dt="dateTime.tz">')
 
         # Mozilla wants this
-        self.send_header('DAV', '1,2, calendar-access')
+        self.extra_headers['DAV'] = '1,2, calendar-access'
         
         self.send_body_chunks(DATA,'207','Multi-Status','Multiple responses')
 
@@ -216,7 +225,7 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
         response = rp.create_response()
 
         # Mozilla wants this
-        self.send_header('DAV', '1,2, calendar-access')
+        self.extra_headers['DAV'] = '1,2, calendar-access'
 
         return self.send_body_chunks(response,'207','Multi-Status',
                                      'Multiple responses')

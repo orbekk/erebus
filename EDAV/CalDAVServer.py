@@ -173,7 +173,6 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
         if body:    
             pf.read_propfind(body)
 
-
         try:
             DATA=pf.createResponse()
             DATA=DATA+"\n"
@@ -189,6 +188,9 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
             result = result.replace('<ns0:creationdate xmlns:ns0="DAV:">',
                                     '<ns0:creationdate xmlns:n="DAV:" xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/" b:dt="dateTime.tz">')
 
+        # Mozilla wants this
+        self.send_header('DAV', '1,2, calendar-access')
+        
         self.send_body_chunks(DATA,'207','Multi-Status','Multiple responses')
 
     def do_REPORT(self):
@@ -212,7 +214,10 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
 
         rp = REPORT(uri,dc,depth,body)
         response = rp.create_response()
-        
+
+        # Mozilla wants this
+        self.send_header('DAV', '1,2, calendar-access')
+
         return self.send_body_chunks(response,'207','Multi-Status',
                                      'Multiple responses')
 

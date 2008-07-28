@@ -62,15 +62,19 @@ class REPORT(object):
             re.appendChild(hr)
             
             ps = doc.createElement('D:propstat')
+            
             pp = doc.createElement('D:prop')
             for e in props:
                 pp.appendChild(e)
 
             ps.appendChild(pp)
-            re.appendChild(ps)
-
+            
             status = doc.createTextNode(status_text)
-            re.appendChild(status)
+            ss = doc.createElement('D:status')
+            ss.appendChild(status)
+
+            ps.appendChild(ss)
+            re.appendChild(ps)
 
             return re
         else:

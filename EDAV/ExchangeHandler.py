@@ -21,7 +21,7 @@ class ExchangeHandler(caldav_interface):
 
     def _log(self, message):
         if self.verbose:
-            print >>sys.stderr, '>> (DAVExchange) %s' % message
+            print >>sys.stderr, '>> (ExchangeHandler) %s' % message
 
     def query_calendar(self,uri,filter,calendar_data):
         self._log('querying for calendar data')
@@ -47,7 +47,7 @@ class ExchangeHandler(caldav_interface):
 
         if path == '/':
             return COLLECTION
-        elif path == '/calendar/':
+        elif path == '/calendar/' or path == '/calendar':
             return CALENDAR        
         elif path == '/info' or path == '/calendar/exchange.ics':
             return OBJECT
@@ -57,6 +57,11 @@ class ExchangeHandler(caldav_interface):
     def _get_dav_getetag(self,uri):
         # not good :-p
         self._log('getting getetag for %s' % uri)
+
+        path = self.uri2local(uri)
+        if not path.startswith('/calendar'):
+            raise DAV_NotFound
+        
         try:
             data = self.get_data(uri)
         except DAV_Error, (ec,dd):
@@ -75,10 +80,10 @@ class ExchangeHandler(caldav_interface):
 
         if path == '/':
             filelist.append(self.local2uri('/'))
-            filelist.append(self.local2uri('calendar'))
-            filelist.append(self.local2uri('info'))
-#         elif path == '/calendar/':
-#             filelist.append(self.local2uri('/calendar/exchange.ics'))
+            filelist.append(self.local2uri('/calendar'))
+            filelist.append(self.local2uri('/info'))
+        elif path == '/calendar/' or path == '/calendar':
+            filelist.append(self.local2uri('/calendar/exchange.ics'))
 
         return filelist
 
@@ -88,7 +93,7 @@ class ExchangeHandler(caldav_interface):
         if path == '/info':
             return str(dir(self.handler)) 
 
-        if path == '/calendar' or path == '/calendar/':
+        if path == '/calendar/exchange.ics':
             # Get auth string from handler
             auth = ('Authorization', self.handler.headers['Authorization'])
 

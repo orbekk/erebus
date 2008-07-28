@@ -32,6 +32,7 @@ class REPORT(object):
         self._log('creating REPORT response')
         doc = impl.createDocument(None, 'multistatus', None)
         ms = doc.documentElement
+        ms.tagName = 'D:multistatus'
         ms.setAttribute('xmlns:D', 'DAV:')
         ms.setAttribute('xmlns:C', 'urn:ietf:params:xml:ns:caldav')
 
@@ -41,6 +42,7 @@ class REPORT(object):
         if self.__depth == "1":
             children = dc.get_childs(self.__uri)
             for c_uri in children:
+                self._log('adding child with uri %s' % c_uri)
                 re = self.__mk_response(doc,ms,c_uri)
         
         return doc.toxml(encoding='utf-8')
@@ -60,8 +62,11 @@ class REPORT(object):
             re.appendChild(hr)
             
             ps = doc.createElement('D:propstat')
+            pp = doc.createElement('D:prop')
             for e in props:
-                ps.appendChild(e)
+                pp.appendChild(e)
+
+            ps.appendChild(pp)
             re.appendChild(ps)
 
             status = doc.createTextNode(status_text)
@@ -73,12 +78,11 @@ class REPORT(object):
         
     
     def __mk_response(self,doc,base_element,uri):
-        uri = self.__uri
-
         # get href info
         uparts=urlparse.urlparse(uri)
         fileloc=uparts[2]
         href = uparts[0]+'://'+'/'.join(uparts[1:2]) + urllib.quote(fileloc)
+        self._log('making response for %s: href %s' %(uri,href))
         
         good_props, bad_props = self.__mk_props(doc,uri)
 
@@ -89,9 +93,11 @@ class REPORT(object):
                                               DAV.utils.gen_estring(404))
 
         if good_response:
+            self._log('adding good elements, props: %d' % len(good_props))
             base_element.appendChild(good_response)
-        if bad_response:
-            base_element.appendChild(bad_response)
+        # Ignore bad props
+        #if bad_response:
+        #    base_element.appendChild(bad_response)
                 
 
     def __mk_props(self,doc,uri):
@@ -106,6 +112,8 @@ class REPORT(object):
         nsnum = 0
         dc = self.__dataclass
 
+        self._log(self.__props)
+        
         for ns,plist in self.__props.iteritems():
             nsp = "ns" + str(nsnum)
             nsnum += 1

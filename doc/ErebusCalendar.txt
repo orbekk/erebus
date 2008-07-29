@@ -25,5 +25,7 @@ perfect, but it greatly simplifies equivalence testing of timezones.
 See the conversion visitors (especially EWS2ErebusVisitor) for more
 details. 
 
-Try `utils/icalconv.py <some iCalendar file>' to see an example tre.
+Try `utils/icalconv.py <some iCalendar file>' to see an example tree.
 
+The calendar tree currently contains only events and timezones. This
+will de extended to alarms and todos etc. in the future.

@@ -1,0 +1,12 @@
+Erebus clients
+==============
+
+Erebus have been tested mostly with Mozilla Sunbird, but should
+of course work well with any decent CalDAV client.
+
+Sunbird
+-------
+Note: Support for CalDAV in Mozilla Sunbird v0.7 is horrible, so you
+should run Sunbird v0.9 instead. As of writing, I'm running Sunbird
+0.9pre, which is quite well-behaving.
+

@@ -65,6 +65,8 @@ class ExchangeHandler(caldav_interface):
             return CALENDAR        
         elif path == '/info' or path == '/calendar/exchange.ics':
             return OBJECT
+        elif path.startswith('/calendar/eid-'):
+            return OBJECT # TODO: what if it doesn't exist?
         else:
             raise DAV_NotFound
 

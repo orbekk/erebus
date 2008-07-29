@@ -133,9 +133,8 @@ class Erebus2ICSVisitor(CNodeVisitor):
         # get uid (if exchange type)
         itemid = cnode.search('exchange_id')
         if itemid:
-            e.attr['uid'] = "%s.%s@hig.no" %(itemid.attr['id'],
-                                             itemid.attr['changekey'])
-            
+            e.attr['uid'] = "%s@hig.no" % itemid.attr['id']
+
         rec = cnode.search('Recurrence')
         if rec:
             rrule = self.visit(rec)

@@ -126,14 +126,14 @@ class ExchangeHandler(caldav_interface):
         if path.startswith('/calendar/eid-'):
             try:
                 b64 = path.split('-')[1]
-                etag = base64.b64decode(b64)
-                eid, e_chkey = etag.split('.')
-                ei = create_exchange_id(eid, e_chkey)
+                ei = etag2exchange_id(b64)
                 b = ExchangeBackend(host=host,https=False,auth=auth)
                 it = b.get_item(ei)
+
                 # TODO: if no item, then what?
                 ics = Erebus2ICSVisitor(it).run()
                 ics = cnode2ical(ics).as_string()
+
             except QueryError, e:
                 if e.status == 401:
                     self._log('Authorization failed')
@@ -177,22 +177,22 @@ class ExchangeHandler(caldav_interface):
             self._log('Uploading items, auth: %s' % str(auth))
 
             try:
-                # Flush old items and upload new calendar                
                 b = ExchangeBackend(host=host,https=False,auth=auth)
-                old_itemids = b.get_all_item_ids()
 
-                ical = icalendar.Calendar.from_string(data)
-                ics = ical2cnode(ical)
-                new_items = ICS2ErebusVisitor(ics).run()
-                self._log(new_items)
+                if self.handler.headers.has_key('If-None-Match') and \
+                       self.handler.headers['If-None-Match'] == '*':
+                    # This is a new item
+                    ical = icalendar.Calendar.from_string(data)
+                    ics = ical2cnode(ical)
+                    new_items = ICS2ErebusVisitor(ics).run()
+                    b.create_item(new_items)
+                    # TODO: return ETag!
+                    return 'Sucessfully uploaded calendar item'
                 
-                b.create_item(new_items)
-
-                # if old_itemids.search('event'):
-                #     # At least one old item
-                #     b.delete_item(old_itemids)
-
-                return "Sucessfully uploaded calendar"
+                elif self.handler.headers.has_key('If-Match'):
+                    # Update this item
+                    etag = self.handler.headers['If-Match']
+                    ei = etag2exchange_id(etag)
 
             except QueryError, e:
                 if e.status == 401:
@@ -214,3 +214,27 @@ class ExchangeHandler(caldav_interface):
 
         uri=urlparse.urljoin(self.baseuri,filename)
         return uri
+
+    def delone(self,uri):
+        path = self.uri2local(uri)
+
+        if self.handler.headers.has_key('If-Match'):
+            etag = self.handler.headers['If-Match']
+        else:
+            etag = path.split('-')[1]
+
+        ei = etag2exchange_id(etag)
+
+        try:
+            auth = ('Authorization', self.handler.headers['Authorization'])
+            b = ExchangeBackend(host=host,https=False,auth=auth)
+            b.delete_item(ei)
+        except:
+            return 404
+        
+def etag2exchange_id(b64_etag):
+    etag = base64.b64decode(b64_etag)
+    eid, e_chkey = etag.split('.')
+    ei = create_exchange_id(eid, e_chkey)
+    return ei
+

@@ -338,6 +338,7 @@ class CalDAVRequestHandler(AuthServer.BufferedAuthRequestHandler):
         try:
             dc.put(uri,body,ct)
         except DAV_Error, (ec,dd):
+            self._log('GOT DAV ERROR %d' % ec)
             self.send_status(ec)
             return
         self.send_status(201)

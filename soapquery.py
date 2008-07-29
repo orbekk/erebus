@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf8 -*-
 from xml.etree import ElementTree as ET
 from xml.parsers.expat import ExpatError
 from helper.etsearch import elementsearch
@@ -220,7 +219,30 @@ class SoapQuery:
 """%(send_invitations,
      calendar_items))
 
+    def update_item(self, itemid, chkey, item_changes,
+                    conflict_resolution='AlwaysOverwrite'):
+        if chkey:
+            iid = '<t:ItemId Id="%s" ChangeKey="%s"/>' %(itemid,chkey)
+        else:
+            iid = '<t:ItemId Id="%s"/>' % itemid
 
+        return self.msquery("""
+<UpdateItem ConflictResolution="%s"
+            MessageDisposition="SaveOnly">
+  <ItemChanges>
+    <t:ItemChange>
+      %s
+      <t:Updates>
+        <t:SetItemField>
+          %s
+        </t:SetItemField>
+      </t:Updates>
+    </t:ItemChange>
+  </ItemChanges>
+</UpdateItem>
+""" % (conflict_resolution, iid, item_changes))
+        
+            
     def get_item(self, itemids, shape="AllProperties",
                 extra_props=""):
         """

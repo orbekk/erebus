@@ -8,6 +8,7 @@ from Visitor.ToStringVisitor import *
 from xml.etree import ElementTree as ET
 from erebusconv import xml2cnode, cnode2xml
 
+from namespaces import *
 from soapquery import *
 import os
 
@@ -101,3 +102,25 @@ class ExchangeBackend(Backend):
         f.close()
 
         return self.query.create_items(ET.tostring(xml))
+
+
+    def update_item(self, id, item_changes):
+        """Update an item with the fields from item_changes"""
+
+        if id.name == 'exchange_id':
+            itemid = id.attr['id']
+            if id.attr.has_key('changekey'):
+                changekey = id.attr['changekey']
+            else:
+                changekey = None
+        else:
+            raise ValueError("Unknown item %s" % str(id))
+
+        ewsitem = Erebus2EWSVisitor(item_changes).run()
+        calendaritem = ewsitem.search(t('CalendarItem'))
+        # Delete id from new_item
+        calendaritem.delete_child(t('ItemId'))
+        xmlitem = cnode2xml(calendaritem)
+        xmlitem = ET.tostring(xmlitem)
+        
+        return self.query.update_item(itemid, changekey, xmlitem)

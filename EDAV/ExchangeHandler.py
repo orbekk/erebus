@@ -191,13 +191,24 @@ class ExchangeHandler(caldav_interface):
                 
                 elif self.handler.headers.has_key('If-Match'):
                     # Update this item
+                    self._log('Updating item!')
                     etag = self.handler.headers['If-Match']
                     ei = etag2exchange_id(etag)
+
+                    ical = icalendar.Calendar.from_string(data)
+                    ics = ical2cnode(ical)
+                    item_changes = ICS2ErebusVisitor(ics).run()
+
+                    b.update_item(ei, item_changes)
+
+                    raise DAV_Error, 204
 
             except QueryError, e:
                 if e.status == 401:
                     self.handler.send_autherror(401,"Authorization Required")
                     return
+                self._log(e)
+                raise
 
         return DAV_Forbidden
 

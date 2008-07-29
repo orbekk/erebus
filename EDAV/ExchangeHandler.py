@@ -12,6 +12,7 @@ from hashlib import sha1
 import sys
 import os
 import urlparse
+import urllib
 import icalendar
 import base64
 
@@ -47,6 +48,9 @@ class ExchangeHandler(caldav_interface):
         if content_types.has_key(path):
             return content_types[path]
 
+        if path.startswith('/calendar/eid-'):
+            return 'text/calendar'
+
         raise DAV_NotFound, 'Could not find %s' % uri
 
     def _get_dav_resourcetype(self,uri):
@@ -68,9 +72,10 @@ class ExchangeHandler(caldav_interface):
         self._log('getting getetag for %s' % uri)
 
         path = self.uri2local(uri)
-        if not path.startswith('/calendar'):
-            raise DAV_NotFound
-        
+        if path.startswith('/calendar/eid-'):
+            b64 = path.split('-')[1]
+            # Use the base64 encoded string as ETag
+            return b64
         try:
             data = self.get_data(uri)
         except DAV_Error, (ec,dd):

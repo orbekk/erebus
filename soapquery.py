@@ -194,11 +194,10 @@ class SoapQuery:
         """
 
         ids = ""
-        if type(itemids) == list:
-            for itemid,chkey in itemids:
-                ids += """<t:ItemId Id="%s" ChangeKey="%s"/>""" %(itemid,chkey)
-        else:
-            ids = """<t:ItemId Id="%s" ChangeKey="%s"/>""" % itemids
+        if type(itemids) != list:
+            itemids = [itemids]
+        for itemid,chkey in itemids:
+            ids += """<t:ItemId Id="%s"/>""" % itemid
         
         return self.msquery("""
 <DeleteItem DeleteType="%s"
@@ -238,12 +237,11 @@ class SoapQuery:
 </t:AdditionalProperties>""" % props
 
         ids = ""
-        if type(itemids) == list:
-            for itemid,chkey in itemids:
-                ids += """<t:ItemId Id="%s" ChangeKey="%s"/>""" %(itemid,chkey)
-        else:
-            ids = """<t:ItemId Id="%s" ChangeKey="%s"/>""" % itemids
-        
+        if type(itemids) != list:
+            itemids = [itemids]
+            
+        for itemid,chkey in itemids:
+            ids += """<t:ItemId Id="%s"/>""" % itemid
         
         return self.msquery("""
 <GetItem>
@@ -271,6 +269,7 @@ class SoapQuery:
             return self.get_item(item_ids, shape="IdOnly",
                                  extra_props=extra_props)
         else:
+            # By default, get items with body
             return self.get_item(item_ids, extra_props=['item:Body'])
 
 

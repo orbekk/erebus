@@ -13,8 +13,17 @@ import sys
 import os
 import urlparse
 import icalendar
+import base64
 
 class ExchangeHandler(caldav_interface):
+    """The Exchange backend for our CalDAV server
+    """
+
+    ###
+    # TODO: A lot of caching could probably be done here (like, caching
+    # items and item ids, which are fetched several times per query
+    # right now). Need to check when this class gets created.
+    
     def __init__(self,uri,verbose=False):
         self.baseuri = uri
         self.verbose = verbose
@@ -76,22 +85,40 @@ class ExchangeHandler(caldav_interface):
 
         self._log("getting children of '%s'" % path)
 
-        filelist = []
+        # Get auth string from handler
+        auth = ('Authorization', self.handler.headers['Authorization'])
+
+        children = []
 
         if path == '/':
-            filelist.append(self.local2uri('/'))
-            filelist.append(self.local2uri('/calendar'))
-            filelist.append(self.local2uri('/info'))
+            children.append(self.local2uri('/'))
+            children.append(self.local2uri('/calendar'))
+            children.append(self.local2uri('/info'))
         elif path == '/calendar/' or path == '/calendar':
-            filelist.append(self.local2uri('/calendar/exchange.ics'))
+            # All our calendar objects
+            try:
+                b = ExchangeBackend(host=host,https=False,auth=auth)
+                ids = b.get_all_item_ids()
+                for it in ids.search('exchange_id', all=True, keep_depth=True):
+                    etag = base64.b64encode(it.attr['changekey'] + '.' +
+                                            it.attr['id'])
+                    children.append(self.local2uri('/calendar/eid-' + etag))
+            except QueryError, e:
+                if e.status == 401:
+                    self._log('Authorization failed')
+                    self._log(e)
+                    raise DAV_Error, 401
 
-        return filelist
+        return children
 
     def get_data(self,uri):
         path = self.uri2local(uri)
 
         if path == '/info':
-            return str(dir(self.handler)) 
+            auth = ('Authorization', self.handler.headers['Authorization'])
+            b = ExchangeBackend(host=host,https=False,auth=auth)
+            its = b.get_all_item_ids()
+            return ToStringVisitor().visit(its)
 
         if path == '/calendar/exchange.ics':
             # Get auth string from handler

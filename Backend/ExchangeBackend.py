@@ -42,8 +42,11 @@ class ExchangeBackend(Backend):
 
     def get_item(self,id):
         if id.name == 'exchange_id':
-            changekey = id.attr['changekey']
             itemid = id.attr['id']
+            if id.attr.has_key('changekey'):
+                changekey = id.attr['changekey']
+            else:
+                changekey = None
         else:
             raise ValueError("Unknown item %s" % str(id))
 

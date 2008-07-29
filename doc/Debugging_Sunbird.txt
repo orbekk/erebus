@@ -1,0 +1,19 @@
+Debugging Mozilla Sunbird
+=========================
+
+If it doesn't exist, create the directory
+
+  $HOME/.mozilla/sunbird/<profile>/preferences
+
+where <profile> is your Sunbird profile (in most cases,
+'default'). Add a file in preferences, for example 'debug.js',
+containing:
+
+pref("browser.dom.window.dump.enabled", true);
+pref("javascript.options.showInConsole", true);
+pref("javascript.options.strict", true);
+pref("nglayout.debug.disable_xul_cache", true);
+pref("nglayout.debug.disable_xul_fastload", true);
+pref("calendar.debug.log", true);
+
+This will output debug and LOG-messages to the console.

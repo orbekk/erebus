@@ -105,8 +105,8 @@ class ExchangeHandler(caldav_interface):
                 b = ExchangeBackend(host=host,https=False,auth=auth)
                 ids = b.get_all_item_ids()
                 for it in ids.search('exchange_id', all=True, keep_depth=True):
-                    etag = base64.b64encode(it.attr['changekey'] + '.' +
-                                            it.attr['id'])
+                    etag = base64.b64encode(it.attr['id'] + '.' +
+                                            it.attr['changekey'])
                     children.append(self.local2uri('/calendar/eid-' + etag))
             except QueryError, e:
                 if e.status == 401:
@@ -118,6 +118,10 @@ class ExchangeHandler(caldav_interface):
 
     def get_data(self,uri):
         path = self.uri2local(uri)
+
+        if path.startswith('/calendar/eid-'):
+            b64 = path.split('-')[1]
+            eid, e_chkey = b64.split('.')
 
         if path == '/info':
             auth = ('Authorization', self.handler.headers['Authorization'])

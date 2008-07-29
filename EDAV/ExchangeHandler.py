@@ -5,6 +5,7 @@ from DAV.constants import COLLECTION, OBJECT, CALENDAR
 from Backend.ExchangeBackend import *
 from Visitor import *
 from erebusconv import *
+from helper.misc import *
 
 from localpw import *
 
@@ -118,21 +119,34 @@ class ExchangeHandler(caldav_interface):
 
     def get_data(self,uri):
         path = self.uri2local(uri)
+        auth = ('Authorization', self.handler.headers['Authorization'])
 
         if path.startswith('/calendar/eid-'):
             b64 = path.split('-')[1]
-            eid, e_chkey = b64.split('.')
+            etag = base64.b64decode(b64)
+            eid, e_chkey = etag.split('.')
+            ei = create_exchange_id(eid, e_chkey)
+            try:
+                b = ExchangeBackend(host=host,https=False,auth=auth)
+                it = b.get_item(ei)
+                # TODO: if no item, then what?
+                ics = Erebus2ICSVisitor(it).run()
+                ics = cnode2ical(ics).as_string()
+            except QueryError, e:
+                if e.status == 401:
+                    self._log('Authorization failed')
+                    self._log(e)
+                    raise DAV_Error, 401
+                raise
+
+            return ics
 
         if path == '/info':
-            auth = ('Authorization', self.handler.headers['Authorization'])
             b = ExchangeBackend(host=host,https=False,auth=auth)
             its = b.get_all_item_ids()
             return ToStringVisitor().visit(its)
 
         if path == '/calendar/exchange.ics':
-            # Get auth string from handler
-            auth = ('Authorization', self.handler.headers['Authorization'])
-
             try:
                 b = ExchangeBackend(host=host,https=False,auth=auth)
                 its = b.get_all_items()

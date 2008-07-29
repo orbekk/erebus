@@ -124,11 +124,11 @@ class ExchangeHandler(caldav_interface):
         auth = ('Authorization', self.handler.headers['Authorization'])
 
         if path.startswith('/calendar/eid-'):
-            b64 = path.split('-')[1]
-            etag = base64.b64decode(b64)
-            eid, e_chkey = etag.split('.')
-            ei = create_exchange_id(eid, e_chkey)
             try:
+                b64 = path.split('-')[1]
+                etag = base64.b64decode(b64)
+                eid, e_chkey = etag.split('.')
+                ei = create_exchange_id(eid, e_chkey)
                 b = ExchangeBackend(host=host,https=False,auth=auth)
                 it = b.get_item(ei)
                 # TODO: if no item, then what?
@@ -140,6 +140,9 @@ class ExchangeHandler(caldav_interface):
                     self._log(e)
                     raise DAV_Error, 401
                 raise
+            except TypeError, e:
+                # Incorrect padding means invalid url
+                raise DAV_Error, 404
 
             return ics
 

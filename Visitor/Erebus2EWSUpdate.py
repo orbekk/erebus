@@ -33,7 +33,7 @@ class Erebus2EWSUpdate(CNodeVisitor):
         AddNamespaceVisitor(self.updates,types).run()
         return self.updates
 
-    def _add_field_uri(self,uri):
+    def _create_field_uri(self,uri):
         """Add a field URI to updates.
 
         Warning: An item corresponding to `uri' must be added to
@@ -41,7 +41,7 @@ class Erebus2EWSUpdate(CNodeVisitor):
         """
         u = CNode('FieldURI')
         u.attr['FieldURI'] = uri
-        self.updates.add_child(u)
+        return u
 
     def _make_parent(self,path):
         """Make a "tree" of CNodes as a parent for an update value,
@@ -70,10 +70,16 @@ class Erebus2EWSUpdate(CNodeVisitor):
     def visit_any(self,e):
         """Check the trans table"""
         if self.trans.has_key(e.name):
-            self._add_field_uri(self.trans[e.name])
             (p,c) = self._make_parent(['CalendarItem'])
             c.add_child(e)
-            self.updates.add_child(p)
+
+            uri = self._create_field_uri(self.trans[e.name])
+
+            setitem = CNode('SetItemField')
+            setitem.add_child(uri)
+            setitem.add_child(p)
+            
+            self.updates.add_child(setitem)
 
         # Visit children
         for c in e.children:

@@ -232,11 +232,7 @@ class SoapQuery:
   <ItemChanges>
     <t:ItemChange>
       %s
-      <t:Updates>
-        <t:SetItemField>
-          %s
-        </t:SetItemField>
-      </t:Updates>
+      %s
     </t:ItemChange>
   </ItemChanges>
 </UpdateItem>

@@ -13,6 +13,8 @@ def parse_report(xml):
     caldav_ns = 'urn:ietf:params:xml:ns:caldav'
     xml_prop = doc.getElementsByTagNameNS('DAV:', 'prop')
     xml_filter = doc.getElementsByTagNameNS(caldav_ns, 'filter')
+    if len(xml_filter):
+        xml_filter = xml_filter[0]
 
     for e in xml_prop[0].childNodes:
         if e.nodeType != minidom.Node.ELEMENT_NODE:

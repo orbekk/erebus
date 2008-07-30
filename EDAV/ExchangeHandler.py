@@ -44,18 +44,26 @@ class ExchangeHandler(caldav_interface):
 
         getall = False
         getuids = []
-
-        for e in ebus.search('comp-filter'):
+        
+        self._log('---------------------------------------------------------------')
+        self._log('query calendar')
+        self._log(ToStringVisitor().visit(ebus))
+        
+        for e in ebus.search('comp-filter',all=True):
             # On an empty VEVENT, get all items
-            if e.name == 'VEVENT':
+            if e.attr['name'] == 'VEVENT':
                 if not len(e.children):
+                    self._log('found empty VEVENT. getall!')
                     getall = True
                     
-            for f in ebus.search('prop-filter'):
-                if f.name == 'UID':
-                    match = f.search('text-match')
-                    uid = match.content
-                    getuids.add(uid)
+                for f in e.search('prop-filter',all=True):
+                    if f.attr['name'] == 'UID':
+                        match = f.search('text-match')
+                        uid = match.content
+                        getuids.append(uid)
+                        self._log('found uid %s' % uid)
+
+        self._log('---------------------------------------------------------------')
 
         if getall:
             return self.get_data(uri)

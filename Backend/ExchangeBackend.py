@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from Backend import Backend
+from CNode import *
 from Visitor.EWS2ErebusVisitor import *
 from Visitor.Erebus2EWSVisitor import *
 from Visitor.Erebus2EWSUpdate import *
-
 from Visitor.ToStringVisitor import *
 
 from xml.etree import ElementTree as ET
@@ -102,7 +102,16 @@ class ExchangeBackend(Backend):
         f.write(ET.tostring(xml))
         f.close()
 
-        return self.query.create_items(ET.tostring(xml))
+        res = self.query.create_items(ET.tostring(xml))
+        cn = xml2cnode(ET.XML(res))
+        StripNamespaceVisitor().visit(cn)
+
+        eid = CNode('exchange_id')
+        itemid = cn.search('ItemId')
+        eid.attr['id'] = itemid.attr['Id']
+        eid.attr['changekey'] = itemid.attr['ChangeKey']
+
+        return eid
 
 
     def update_item(self, id, item_changes):

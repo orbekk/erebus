@@ -31,6 +31,10 @@ class ExchangeHandler(caldav_interface):
         self.baseuri = uri
         self.verbose = verbose
 
+        # This is a table to keep track of client UID's (since we
+        # change them, we need to know which item to give back)
+        self.itemids = {}
+
     def _log(self, message):
         if self.verbose:
             print >>sys.stderr, '>> (ExchangeHandler) %s' % message
@@ -70,8 +74,11 @@ class ExchangeHandler(caldav_interface):
         else:
             visitor = Erebus2ICSVisitor()
             for uid in getuids:
-                uid = uid.split('@')[0]
-                ex_id = create_exchange_id(uid)
+                if self.itemids.has_key(uid):
+                    ex_id = self.itemids[uid]
+                else:
+                    uid = uid.split('@')[0]
+                    ex_id = create_exchange_id(uid)
 
                 try:
                     auth = ('Authorization', self.handler.headers['Authorization'])
@@ -233,8 +240,13 @@ class ExchangeHandler(caldav_interface):
                     ical = icalendar.Calendar.from_string(data)
                     ics = ical2cnode(ical)
                     new_items = ICS2ErebusVisitor(ics).run()
-                    b.create_item(new_items)
-                    # TODO: return ETag!
+                    eid = b.create_item(new_items)
+
+                    # There should only be one item here
+                    ical_uid = new_items.search('event').attr['ical_uid']
+                    self.itemids[ical_uid] = eid
+
+                    self._log('Created item with id %s' % eid)
                     return 'Sucessfully uploaded calendar item'
                 
                 elif self.handler.headers.has_key('If-Match'):

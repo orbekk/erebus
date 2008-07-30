@@ -109,7 +109,8 @@ class ICS2ErebusVisitor(CNodeVisitor):
             if not new: return
 
             event.attr[ebus] = new
-            
+
+        conv('uid', 'ical_uid', identity)
         conv('summary', 'summary', identity)
         conv('dtstart', 'start', vDDD2dt)
         conv('dtend', 'end', vDDD2dt)

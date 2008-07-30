@@ -14,16 +14,14 @@ class Erebus2ICSVisitor(CNodeVisitor):
 
     def __init__(self,cnode=None):
         self.ebus = cnode
-
-
-    def run(self, ebus=None):
-        if ebus:
-            self.ebus = ebus
-
         self.cal = CNode('vcalendar')
         
         self.cal.attr['prodid'] = '-//Erebus//hig.no//'
         self.cal.attr['version'] = '2.0'
+
+    def run(self, ebus=None):
+        if ebus:
+            self.ebus = ebus
 
         for tz in self.accept(self.ebus, 'TimeZone'):
             self.cal.add_child(tz)

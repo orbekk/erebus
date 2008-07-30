@@ -100,6 +100,12 @@ class Erebus2SimpleEWSVisitor(CNodeVisitor):
             conv('start', 'Start', ical2xsdt)
             conv('end', 'End', ical2xsdt)
 
+
+        rec = self.accept1(cnode, 'Recurrence')
+        if rec:
+            item.add_child(rec)
+
+        if not allday:
             tzid = cnode.search('tzid')
             if tzid:
                 tzid = tzid.content
@@ -107,16 +113,12 @@ class Erebus2SimpleEWSVisitor(CNodeVisitor):
                 tz_e = self.visit(tz_e)
                 item.add_child(tz_e)
 
-
         conv('location', 'Location', identity)
 
         body_e = item.search('Body')
         if body_e:
             body_e.attr['BodyType'] = 'Text'
 
-        rec = self.accept1(cnode, 'Recurrence')
-        if rec:
-            item.add_child(rec)
 
         return item
 

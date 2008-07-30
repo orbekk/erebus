@@ -2,6 +2,7 @@
 from Backend import Backend
 from Visitor.EWS2ErebusVisitor import *
 from Visitor.Erebus2EWSVisitor import *
+from Visitor.Erebus2EWSUpdate import *
 
 from Visitor.ToStringVisitor import *
 
@@ -11,7 +12,7 @@ from erebusconv import xml2cnode, cnode2xml
 from namespaces import *
 from soapquery import *
 import os
-
+import sys
 
 class ExchangeBackend(Backend):
     proplist = ['item:Subject',
@@ -116,11 +117,9 @@ class ExchangeBackend(Backend):
         else:
             raise ValueError("Unknown item %s" % str(id))
 
-        ewsitem = Erebus2EWSVisitor(item_changes).run()
-        calendaritem = ewsitem.search(t('CalendarItem'))
-        # Delete id from new_item
-        calendaritem.delete_child(t('ItemId'))
-        xmlitem = cnode2xml(calendaritem)
+        ewsitem = Erebus2EWSUpdate(item_changes).run()
+        xmlitem = cnode2xml(ewsitem)
         xmlitem = ET.tostring(xmlitem)
-        
-        return self.query.update_item(itemid, changekey, xmlitem)
+
+        up = self.query.update_item(itemid, changekey, xmlitem)
+        return up

@@ -22,8 +22,24 @@ class AddNamespaceVisitor(CNodeVisitor):
 
         [self.visit(c) for c in cnode.children]
 
+class Erebus2EWSVisitor(_Erebus2EWSVisitor):
+    """Convert an Erebus tree to a EWS tree, and add namespaces"""
 
-class Erebus2EWSVisitor(CNodeVisitor):
+    def run(self):
+        _Erebus2EWSVisitor.run(self)
+
+        # Add namespaces
+        self.items.name = m(self.items.name)
+        AddNamespaceVisitor(self.items,types).run()
+
+        return self.items 
+
+
+class _Erebus2EWSVisitor(CNodeVisitor):
+    """Do the actual conversion, but don't add namespaces
+
+    * This is used directly by Erebus2EWSUpdate to make item updates.
+    """
 
     def __init__(self,cnode):
         self.ebus = cnode
@@ -33,11 +49,8 @@ class Erebus2EWSVisitor(CNodeVisitor):
         self.accept(self.ebus, 'timezones')
         self.accept(self.ebus, 'events')
 
-        # Add namespaces
-        self.items.name = m(self.items.name)
-        AddNamespaceVisitor(self.items,types).run()
-
         return self.items
+
 
     def visit_timezones(self, cnode):
         self.timezones = {}

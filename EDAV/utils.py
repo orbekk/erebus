@@ -28,5 +28,5 @@ def parse_report(xml):
 
     # TODO: filter
 
-    return props,None
+    return props,xml_filter
         

@@ -48,7 +48,13 @@ class EWS2ErebusVisitor(CNodeVisitor):
 
         return tzid.content
 
-    def run(self):
+    def run(self, calendaritems=None):
+        """Run this multiple times (with calendaritems specified) to
+        add more items to a calendar
+        """
+        if calendaritems:
+            self.ews_calendaritems = calendaritems
+
         for eci in self.ews_calendaritems:
             ci = self.visit(eci)
             self.events.add_child(ci)

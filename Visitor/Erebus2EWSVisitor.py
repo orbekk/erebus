@@ -22,19 +22,6 @@ class AddNamespaceVisitor(CNodeVisitor):
 
         [self.visit(c) for c in cnode.children]
 
-class Erebus2EWSVisitor(_Erebus2EWSVisitor):
-    """Convert an Erebus tree to a EWS tree, and add namespaces"""
-
-    def run(self):
-        _Erebus2EWSVisitor.run(self)
-
-        # Add namespaces
-        self.items.name = m(self.items.name)
-        AddNamespaceVisitor(self.items,types).run()
-
-        return self.items 
-
-
 class _Erebus2EWSVisitor(CNodeVisitor):
     """Do the actual conversion, but don't add namespaces
 
@@ -154,3 +141,17 @@ class _Erebus2EWSVisitor(CNodeVisitor):
             ci.add_child(self.visit(c))
 
         return ci
+
+class Erebus2EWSVisitor(_Erebus2EWSVisitor):
+    """Convert an Erebus tree to a EWS tree, and add namespaces"""
+
+    def run(self):
+        _Erebus2EWSVisitor.run(self)
+
+        # Add namespaces
+        self.items.name = m(self.items.name)
+        AddNamespaceVisitor(self.items,types).run()
+
+        return self.items 
+
+

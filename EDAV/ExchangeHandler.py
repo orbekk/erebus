@@ -9,6 +9,7 @@ from helper.misc import *
 
 from localpw import *
 
+from xml.etree import ElementTree as ET
 from hashlib import sha1
 import sys
 import os
@@ -36,7 +37,46 @@ class ExchangeHandler(caldav_interface):
 
     def query_calendar(self,uri,filter,calendar_data):
         self._log('querying for calendar data')
-        return self.get_data(uri)
+        
+        # Convert filter to cnodes
+        xml = filter.toxml()
+        ebus = xml2cnode(ET.XML(xml))        
+
+        getall = False
+        getuids = []
+
+        for e in ebus.search('comp-filter'):
+            # On an empty VEVENT, get all items
+            if e.name == 'VEVENT':
+                if not len(e.children):
+                    getall = True
+                    
+            for f in ebus.search('prop-filter'):
+                if f.name == 'UID':
+                    match = f.search('text-match')
+                    uid = match.content
+                    getuids.add(uid)
+
+        if getall:
+            return self.get_data(uri)
+        else:
+            visitor = Erebus2ICSVisitor()
+            for uid in getuids:
+                uid = uid.split('@')[0]
+                ex_id = create_exchange_id(uid)
+
+                try:
+                    auth = ('Authorization', self.handler.headers['Authorization'])
+                    b = ExchangeBackend(host=host,https=False,auth=auth)
+                    it = b.get_item(ex_id)
+
+                    visitor.run(it)
+                except:
+                    raise DAV_Error, 404
+
+            cal = visitor.cal
+            cal = cnode2ical(cal)
+            return cal.as_string()
 
     def _get_dav_getcontenttype(self,uri):
         path = self.uri2local(uri)

@@ -12,11 +12,14 @@ from Visitor.ToStringVisitor import *
 
 class Erebus2ICSVisitor(CNodeVisitor):
 
-    def __init__(self,cnode):
+    def __init__(self,cnode=None):
         self.ebus = cnode
 
 
-    def run(self):
+    def run(self, ebus=None):
+        if ebus:
+            self.ebus = ebus
+
         self.cal = CNode('vcalendar')
         
         self.cal.attr['prodid'] = '-//Erebus//hig.no//'

@@ -5,16 +5,43 @@ This is the Erebus Exchange CalDAV Connector.
 
 Current status
 --------------
+* Basic CalDAV support with Microsoft Exchange SP1 as a backend, and
+  Mozilla Sunbird as a client.
 
-- Basic WebDAV support with a Microsoft Exchange 2007 SP1 server
-  supported (GET/PUT).
-- Still some problems with timezone conversion between iCalendar and
-  Exchange.
+* Should be easy to make it work for other clients, by testing and
+  tweaking stuff.
+
+* Using PyWebDAV[1] by Simon Pamies to provide WebDAV
+  functionality. The CalDAV support is an extension to PyWebDAV.
+
+[1] http://sourceforge.net/projects/pywebdav/
+
+Problems
+--------
+* There are some nasty conversion problems:
+
+    Exchange strips timezone data and uses UTC for any non-recurring
+event, and recurring events that don't recur across timezones. This is
+a problem in some (all?) iCalendar clients when adding recurrence to
+an existing event (re-)fetched from Erebus, as they continue to be
+UTC, instead of the local timezone.
+
+    Exchange stores time in UTC, and adds an offset based on the
+timezone, while iCalendar stores the time as localtime, and adjusts
+the offset based on the standard/daylight offset. So when converting,
+we must understand if it's daylight saving time or not. Right now, the
+timezone conversion works, but we still get the wrong time back
+because of this (in combination with the problem above).
+
+    We haven't figured out how to make all day events the right way in
+Exchange, but this should be an easy one when we do.
+
 
 Dependencies
 ------------
-- Python 2.4
-- iCalendar, http://codespeak.net/icalendar/
+* Python 2.4
+* iCalendar, http://codespeak.net/icalendar/
+
 
 Usage
 -----
@@ -33,4 +60,4 @@ $ python pydav-serve.py
 
 Access your calendar at
 
-http://localhost:8008/calendar/exchange.ics
+http://localhost:8008/calendar/

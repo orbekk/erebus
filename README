@@ -4,6 +4,32 @@ Erebus
 This is the Erebus Exchange CalDAV Connector. 
 
 
+Dependencies
+------------
+* Python 2.4
+* iCalendar, http://codespeak.net/icalendar/
+
+
+Usage
+-----
+To use pydav-serve.py, add a file named localpw.py, containing:
+
+host     = "exchange.server.domain"
+username = <your username>
+password = <your password>
+
+username and password aren't strictly necessary, but you need them to
+run some of the scripts in utils/.
+
+Run the webdav server with
+
+$ python pydav-serve.py
+
+Access your calendar at
+
+http://localhost:8008/calendar/
+
+
 Current status
 --------------
 * Basic CalDAV support with Microsoft Exchange SP1 as a backend, and
@@ -76,27 +102,3 @@ use it. Whenever we find a *good* SOAP API, soapquery.py is easily
 replaced.
 
 
-Dependencies
-------------
-* Python 2.4
-* iCalendar, http://codespeak.net/icalendar/
-
-
-Usage
------
-To use pydav-serve.py, add a file named localpw.py, containing:
-
-host     = "exchange.server.domain"
-username = <your username>
-password = <your password>
-
-username and password aren't strictly necessary, but you need them to
-run some of the scripts in utils/.
-
-Run the webdav server with
-
-$ python pydav-serve.py
-
-Access your calendar at
-
-http://localhost:8008/calendar/

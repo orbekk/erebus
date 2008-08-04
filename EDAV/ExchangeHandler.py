@@ -34,6 +34,10 @@ class ExchangeHandler(caldav_interface):
         if self.verbose:
             print >>sys.stderr, '>> (ExchangeHandler) %s' % message
 
+    def _init_backend(self):
+        auth = ('Authorization', self.handler.headers['Authorization'])
+        return ExchangeBackend(host=host, https=use_https, auth=auth)
+    
     def query_calendar(self,uri,filter,calendar_data):
         self._log('querying for calendar data')
         return self.get_data(uri)
@@ -105,7 +109,7 @@ class ExchangeHandler(caldav_interface):
         elif path == '/calendar/' or path == '/calendar':
             # All our calendar objects
             try:
-                b = ExchangeBackend(host=host,https=False,auth=auth)
+                b = self._init_backend()
                 ids = b.get_all_item_ids()
                 for it in ids.search('exchange_id', all=True, keep_depth=True):
                     etag = base64.b64encode(it.attr['id'] + '.' +
@@ -127,7 +131,7 @@ class ExchangeHandler(caldav_interface):
             try:
                 b64 = path.split('-')[1]
                 ei = etag2exchange_id(b64)
-                b = ExchangeBackend(host=host,https=False,auth=auth)
+                b = self._init_backend()
                 it = b.get_item(ei)
 
                 # TODO: if no item, then what?
@@ -147,13 +151,13 @@ class ExchangeHandler(caldav_interface):
             return ics
 
         if path == '/info':
-            b = ExchangeBackend(host=host,https=False,auth=auth)
+            b = self._init_backend()
             its = b.get_all_item_ids()
             return ToStringVisitor().visit(its)
 
         if path == '/calendar/exchange.ics':
             try:
-                b = ExchangeBackend(host=host,https=False,auth=auth)
+                b = self._init_backend()
                 its = b.get_all_items()
                 ics = Erebus2ICSVisitor(its).run()
                 ics = cnode2ical(ics).as_string()
@@ -177,7 +181,7 @@ class ExchangeHandler(caldav_interface):
             self._log('Uploading items, auth: %s' % str(auth))
 
             try:
-                b = ExchangeBackend(host=host,https=False,auth=auth)
+                b = self._init_backend()
 
                 if self.handler.headers.has_key('If-None-Match') and \
                        self.handler.headers['If-None-Match'] == '*':
@@ -238,7 +242,7 @@ class ExchangeHandler(caldav_interface):
 
         try:
             auth = ('Authorization', self.handler.headers['Authorization'])
-            b = ExchangeBackend(host=host,https=False,auth=auth)
+            b = self._init_backend()
             b.delete_item(ei)
         except:
             return 404

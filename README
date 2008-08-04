@@ -15,6 +15,7 @@ Usage
 To use pydav-serve.py, add a file named localpw.py, containing:
 
 host     = "exchange.server.domain"
+use_https = True | False
 username = <your username>
 password = <your password>
 

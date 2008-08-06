@@ -22,9 +22,10 @@ class REPORT(object):
         self.parse_report()
 
     def parse_report(self):
-        props, filter = utils.parse_report(self.__xml)
+        props, filter, hrefs = utils.parse_report(self.__xml)
         self.__props = props
         self.__filter = filter
+        self.__hrefs = hrefs
 
     def create_response(self):
         dc = self.__dataclass
@@ -44,14 +45,10 @@ class REPORT(object):
             for c_uri in children:
                 self._log('adding child with uri %s' % c_uri)
                 re = self.__mk_response(doc,ms,c_uri)
-        
-        for e in self.__xml.getElementsByTagNameNS('DAV:', 'href'):1
-            for c in e.childNodes:
-                if c.nodeType != xml.minidom.Node.TEXT_NODE:
-                    continue
-                href = c.data
-                self.__mk_response(doc,ms,href)
 
+        for href in self.__hrefs:
+            self.__mk_response(doc,ms,href)
+        
         return doc.toxml(encoding='utf-8')
 
     def __mk_response_helper(self,doc,href,props,status_text):

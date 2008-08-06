@@ -9,10 +9,13 @@ def parse_report(xml):
 
     props = {}
     filters = []
+    hrefs = []
 
     caldav_ns = 'urn:ietf:params:xml:ns:caldav'
     xml_prop = doc.getElementsByTagNameNS('DAV:', 'prop')
     xml_filter = doc.getElementsByTagNameNS(caldav_ns, 'filter')
+    xml_hrefs = doc.getElementsByTagNameNS('DAV:', 'href')
+    
     if len(xml_filter):
         xml_filter = xml_filter[0]
 
@@ -28,7 +31,12 @@ def parse_report(xml):
         else:
             props[ns] = [tag]
 
-    # TODO: filter
+    for e in xml_hrefs:
+        for c in e.childNodes:
+            if c.nodeType != xml.minidom.Node.TEXT_NODE:
+                continue
+            href = c.data
+            hrefs.append(href)
 
-    return props,xml_filter
+    return props,xml_filter,hrefs
         

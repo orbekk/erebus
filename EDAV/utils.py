@@ -1,4 +1,9 @@
 from xml.dom import minidom
+from xml.etree import ElementTree as ET
+from erebusconv import *
+
+def _log(str):
+    pass
 
 def parse_report(xml):
     """Parse a REPORT xml string
@@ -17,7 +22,7 @@ def parse_report(xml):
     xml_hrefs = doc.getElementsByTagNameNS('DAV:', 'href')
     
     if len(xml_filter):
-        xml_filter = xml_filter[0]
+        filter = parse_filter(xml_filter[0].toxml())
 
     for e in xml_prop[0].childNodes:
         if e.nodeType != minidom.Node.ELEMENT_NODE:
@@ -38,5 +43,32 @@ def parse_report(xml):
             href = c.data
             hrefs.append(href)
 
-    return props,xml_filter,hrefs
+    return props,filter,hrefs
         
+
+def parse_filter(xml_string):
+    """Parse a DAV::filter"""
+
+    filter = {}
+
+    # Use a CNode tree
+    ctree = xml2cnode(ET.XML(xml_string))
+
+    for e in ebus.search('comp-filter',all=True):
+        # On an empty VEVENT, get all items
+        if e.attr['name'] == 'VEVENT':
+            if not len(e.children):
+                _log('found empty VEVENT. getall!')
+                getall = True
+                
+                for f in e.search('prop-filter',all=True):
+                    if f.attr['name'] == 'UID':
+                        match = f.search('text-match')
+                        uid = match.content
+
+                        if not filter.has_key('uid'):
+                            filter['uid'] = []
+
+                        filter['uid'].append(uid)
+
+    return filter

@@ -38,7 +38,6 @@ class REPORT(object):
         ms.setAttribute('xmlns:C', 'urn:ietf:params:xml:ns:caldav')
 
         if self.__filter:
-            self._log("GOT FILTER!")
             # An associated filter; we pass it to dc
             self.__mk_response(doc, ms, self.__uri, self.__filter)
 
@@ -96,7 +95,7 @@ class REPORT(object):
 
         filter is a hash (key,val) where key is the filter type, and
         val is the (custom) value for that type. As an example, filter
-        may be {'UID',<some uid>}
+        may be {'uid',<some uid>}
         """
         
         # get href info

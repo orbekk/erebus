@@ -13,7 +13,7 @@ def no_namespace(s):
     if len(arr) == 2:
         return arr[1]
     else:
-        return None
+        return s
 
 types    = "http://schemas.microsoft.com/exchange/services/2006/types"
 messages = "http://schemas.microsoft.com/exchange/services/2006/messages"

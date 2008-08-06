@@ -48,8 +48,9 @@ class ExchangeHandler(caldav_interface):
         
         # Convert filter to cnodes
         if filter:
-            if filter.has_key('UID'):
-                getuids = filter['UID']
+            self._log('we got filter!')
+            if filter.has_key('uid'):
+                getuids = filter['uid']
                 getall = False
             else:
                 getuids = []

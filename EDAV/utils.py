@@ -1,9 +1,12 @@
 from xml.dom import minidom
 from xml.etree import ElementTree as ET
+from Visitor.EWS2ErebusVisitor import StripNamespaceVisitor
+from Visitor.ToStringVisitor import *
 from erebusconv import *
 
 def _log(str):
-    pass
+    import sys
+    print >>sys.stderr, '>> (utils) %s' % str
 
 def parse_report(xml):
     """Parse a REPORT xml string
@@ -55,23 +58,28 @@ def parse_filter(xml_string):
 
     # Use a CNode tree
     ctree = xml2cnode(ET.XML(xml_string))
+    StripNamespaceVisitor().visit(ctree)
+
+    _log(ToStringVisitor().visit(ctree))
 
     for e in ctree.search('comp-filter',all=True):
         # On an empty VEVENT, get all items
         if e.attr['name'] == 'VEVENT':
             if not len(e.children):
                 _log('found empty VEVENT. getall!')
-                getall = True
+                return {}
                 
-                for f in e.search('prop-filter',all=True):
-                    if f.attr['name'] == 'UID':
-                        # TODO: support i;ascii-casemap
-                        match = f.search('text-match')
-                        uid = match.content
+            for f in e.search('prop-filter',all=True):
+                if f.attr['name'] == 'UID':
+                    # TODO: support i;ascii-casemap
+                    match = f.search('text-match')
+                    uid = match.content
 
-                        if not filter.has_key('uid'):
-                            filter['uid'] = []
+                    if not filter.has_key('uid'):
+                        filter['uid'] = []
 
-                        filter['uid'].append(uid)
+                    filter['uid'].append(uid)
+
+    _log(filter)
 
     return filter

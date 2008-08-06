@@ -11,9 +11,9 @@ class ToStringVisitor(CNodeVisitor):
 
     def visit_any(self, o, indent=0):
         if self.with_types:
-            displayname = o.name + ' ' + str(type(o.name))
+            displayname = str(o.name) + ' ' + str(type(o.name))
         else:
-            displayname = o.name
+            displayname = str(o.name)
 
         self.str += '    ' * indent + '{'+displayname+'}' + '\n'
         cont = o.content

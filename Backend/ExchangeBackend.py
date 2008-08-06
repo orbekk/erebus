@@ -59,7 +59,7 @@ class ExchangeBackend(Backend):
     def get_all_items(self):
         items = self.query.get_all_calendar_items(extra_props=self.proplist)
         ctree = self.__conv(items)
-        print ToStringVisitor().visit(ctree)
+        # print ToStringVisitor().visit(ctree)
         
         return EWS2ErebusVisitor(ctree).run()
 

@@ -23,6 +23,8 @@ def parse_report(xml):
     
     if len(xml_filter):
         filter = parse_filter(xml_filter[0].toxml())
+    else:
+        filter = {}
 
     for e in xml_prop[0].childNodes:
         if e.nodeType != minidom.Node.ELEMENT_NODE:
@@ -38,7 +40,7 @@ def parse_report(xml):
 
     for e in xml_hrefs:
         for c in e.childNodes:
-            if c.nodeType != xml.minidom.Node.TEXT_NODE:
+            if c.nodeType != minidom.Node.TEXT_NODE:
                 continue
             href = c.data
             hrefs.append(href)
@@ -54,7 +56,7 @@ def parse_filter(xml_string):
     # Use a CNode tree
     ctree = xml2cnode(ET.XML(xml_string))
 
-    for e in ebus.search('comp-filter',all=True):
+    for e in ctree.search('comp-filter',all=True):
         # On an empty VEVENT, get all items
         if e.attr['name'] == 'VEVENT':
             if not len(e.children):

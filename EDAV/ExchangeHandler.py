@@ -43,31 +43,27 @@ class ExchangeHandler(caldav_interface):
         self._log('querying for calendar data')
         
         # Convert filter to cnodes
-        xml = filter.toxml()
-        ebus = xml2cnode(ET.XML(xml))        
-
-        getall = False
-        getuids = []
+        if filter:
+            xml = filter.toxml()
+            ebus = xml2cnode(ET.XML(xml))        
+            getall = False
+            getuids = []
         
-        self._log('---------------------------------------------------------------')
-        self._log('query calendar')
-        self._log(ToStringVisitor().visit(ebus))
-        
-        for e in ebus.search('comp-filter',all=True):
-            # On an empty VEVENT, get all items
-            if e.attr['name'] == 'VEVENT':
-                if not len(e.children):
-                    self._log('found empty VEVENT. getall!')
-                    getall = True
-                    
-                for f in e.search('prop-filter',all=True):
-                    if f.attr['name'] == 'UID':
-                        match = f.search('text-match')
-                        uid = match.content
-                        getuids.append(uid)
-                        self._log('found uid %s' % uid)
-
-        self._log('---------------------------------------------------------------')
+            for e in ebus.search('comp-filter',all=True):
+                # On an empty VEVENT, get all items
+                if e.attr['name'] == 'VEVENT':
+                    if not len(e.children):
+                        self._log('found empty VEVENT. getall!')
+                        getall = True
+                        
+                    for f in e.search('prop-filter',all=True):
+                        if f.attr['name'] == 'UID':
+                            match = f.search('text-match')
+                            uid = match.content
+                            getuids.append(uid)
+                            self._log('found uid %s' % uid)
+        else:
+            getall = True
 
         if getall:
             return self.get_data(uri)
@@ -206,7 +202,7 @@ class ExchangeHandler(caldav_interface):
             its = b.get_all_item_ids()
             return ToStringVisitor().visit(its)
 
-        if path == '/calendar/exchange.ics':
+        if path == '/calendar/' or path == '/calendar':
             try:
                 b = ExchangeBackend(host=host,https=False,auth=auth)
                 its = b.get_all_items()

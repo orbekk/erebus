@@ -45,6 +45,13 @@ class REPORT(object):
                 self._log('adding child with uri %s' % c_uri)
                 re = self.__mk_response(doc,ms,c_uri)
         
+        for e in self.__xml.getElementsByTagNameNS('DAV:', 'href'):1
+            for c in e.childNodes:
+                if c.nodeType != xml.minidom.Node.TEXT_NODE:
+                    continue
+                href = c.data
+                self.__mk_response(doc,ms,href)
+
         return doc.toxml(encoding='utf-8')
 
     def __mk_response_helper(self,doc,href,props,status_text):

@@ -63,6 +63,7 @@ def parse_filter(xml_string):
                 
                 for f in e.search('prop-filter',all=True):
                     if f.attr['name'] == 'UID':
+                        # TODO: support i;ascii-casemap
                         match = f.search('text-match')
                         uid = match.content
 

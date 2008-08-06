@@ -43,7 +43,7 @@ class ExchangeHandler(caldav_interface):
         auth = ('Authorization', self.handler.headers['Authorization'])
         return ExchangeBackend(host=host, https=use_https, auth=auth)
     
-    def query_calendar(self,uri,filter,calendar_data):
+    def query_calendar(self,uri,filter,calendar_data,what):
         self._log('querying for calendar data')
         
         # Convert filter to cnodes

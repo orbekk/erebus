@@ -40,15 +40,19 @@ class REPORT(object):
         # Make this regardless of depth
         self.__mk_response(doc,ms,self.__uri)
 
-        if self.__depth == "1":
-            children = dc.get_childs(self.__uri)
-            for c_uri in children:
-                self._log('adding child with uri %s' % c_uri)
-                re = self.__mk_response(doc,ms,c_uri)
+        if len({}):
+            # Use filters (TODO: implement)
+        else:
+            # Do like PROPFIND
+            if self.__depth == "1":
+                children = dc.get_childs(self.__uri)
+                for c_uri in children:
+                    self._log('adding child with uri %s' % c_uri)
+                    re = self.__mk_response(doc,ms,c_uri)
 
-        for href in self.__hrefs:
-            self.__mk_response(doc,ms,href)
-        
+            for href in self.__hrefs:
+                self.__mk_response(doc,ms,href)
+
         return doc.toxml(encoding='utf-8')
 
     def __mk_response_helper(self,doc,href,props,status_text):
@@ -85,14 +89,21 @@ class REPORT(object):
             return None
         
     
-    def __mk_response(self,doc,base_element,uri):
+    def __mk_response(self,doc,base_element,uri,what):
+        """Make a report response for an element
+
+        what is a hash (key,val) where key is the filter type, and
+        val is the (custom) value for that type. As an example, what
+        may be {'UID',<some uid>}
+        """
+        
         # get href info
         uparts=urlparse.urlparse(uri)
         fileloc=uparts[2]
         href = uparts[0]+'://'+'/'.join(uparts[1:2]) + urllib.quote(fileloc)
         self._log('making response for %s: href %s' %(uri,href))
         
-        good_props, bad_props = self.__mk_props(doc,uri)
+        good_props, bad_props = self.__mk_props(doc,uri,what)
 
         # TODO: Use DAV.utils stuff here
         good_response = self.__mk_response_helper(doc,href,good_props,
@@ -108,10 +119,12 @@ class REPORT(object):
         #    base_element.appendChild(bad_response)
                 
 
-    def __mk_props(self,doc,uri):
+    def __mk_props(self,doc,uri,what):
         """Extract properties for uri.
 
         Like PROPFIND.get_propvalues, we return (good_props, bad_props)
+
+        what: as described above
         """
 
         good_props = []
@@ -136,7 +149,7 @@ class REPORT(object):
                     # Handle
                     caldav_ns = 'urn:ietf:params:xml:ns:caldav'
                     if ns == caldav_ns and prop == 'calendar-data':
-                        data = dc.query_calendar(uri,self.__filter,None)
+                        data = dc.query_calendar(uri,self.__filter,None,what)
                         t = doc.createTextNode(unicode(data, 'utf-8'))
                         p.appendChild(t)
                         good_props.append(p)

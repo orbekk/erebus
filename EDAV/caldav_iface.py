@@ -12,7 +12,7 @@ from DAV.iface import *
 
 class caldav_interface(dav_interface):
 
-    def query_calendar(self,uri,filter,calendar_data):
+    def query_calendar(self,uri,filter,calendar_data,what):
         """This is the filter from a calendar-query
 
         This method should return the calendar_data in `uri' after

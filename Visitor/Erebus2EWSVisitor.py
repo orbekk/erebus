@@ -22,8 +22,11 @@ class AddNamespaceVisitor(CNodeVisitor):
 
         [self.visit(c) for c in cnode.children]
 
+class Erebus2SimpleEWSVisitor(CNodeVisitor):
+    """Do the actual conversion, but don't add namespaces
 
-class Erebus2EWSVisitor(CNodeVisitor):
+    * This is used directly by Erebus2EWSUpdate to make item updates.
+    """
 
     def __init__(self,cnode):
         self.ebus = cnode
@@ -33,11 +36,8 @@ class Erebus2EWSVisitor(CNodeVisitor):
         self.accept(self.ebus, 'timezones')
         self.accept(self.ebus, 'events')
 
-        # Add namespaces
-        self.items.name = m(self.items.name)
-        AddNamespaceVisitor(self.items,types).run()
-
         return self.items
+
 
     def visit_timezones(self, cnode):
         self.timezones = {}
@@ -100,6 +100,12 @@ class Erebus2EWSVisitor(CNodeVisitor):
             conv('start', 'Start', ical2xsdt)
             conv('end', 'End', ical2xsdt)
 
+
+        rec = self.accept1(cnode, 'Recurrence')
+        if rec:
+            item.add_child(rec)
+
+        if not allday:
             tzid = cnode.search('tzid')
             if tzid:
                 tzid = tzid.content
@@ -107,16 +113,12 @@ class Erebus2EWSVisitor(CNodeVisitor):
                 tz_e = self.visit(tz_e)
                 item.add_child(tz_e)
 
-
         conv('location', 'Location', identity)
 
         body_e = item.search('Body')
         if body_e:
             body_e.attr['BodyType'] = 'Text'
 
-        rec = self.accept1(cnode, 'Recurrence')
-        if rec:
-            item.add_child(rec)
 
         return item
 
@@ -141,3 +143,17 @@ class Erebus2EWSVisitor(CNodeVisitor):
             ci.add_child(self.visit(c))
 
         return ci
+
+class Erebus2EWSVisitor(Erebus2SimpleEWSVisitor):
+    """Convert an Erebus tree to a EWS tree, and add namespaces"""
+
+    def run(self):
+        Erebus2SimpleEWSVisitor.run(self)
+
+        # Add namespaces
+        self.items.name = m(self.items.name)
+        AddNamespaceVisitor(self.items,types).run()
+
+        return self.items 
+
+

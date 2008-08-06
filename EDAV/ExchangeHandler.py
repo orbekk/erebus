@@ -9,6 +9,7 @@ from helper.misc import *
 
 from localpw import *
 
+from xml.etree import ElementTree as ET
 from hashlib import sha1
 import sys
 import os
@@ -30,6 +31,10 @@ class ExchangeHandler(caldav_interface):
         self.baseuri = uri
         self.verbose = verbose
 
+        # This is a table to keep track of client UID's (since we
+        # change them, we need to know which item to give back)
+        self.itemids = {}
+
     def _log(self, message):
         if self.verbose:
             print >>sys.stderr, '>> (ExchangeHandler) %s' % message
@@ -40,7 +45,53 @@ class ExchangeHandler(caldav_interface):
     
     def query_calendar(self,uri,filter,calendar_data):
         self._log('querying for calendar data')
-        return self.get_data(uri)
+        
+        # Convert filter to cnodes
+        if filter:
+            xml = filter.toxml()
+            ebus = xml2cnode(ET.XML(xml))        
+            getall = False
+            getuids = []
+        
+            for e in ebus.search('comp-filter',all=True):
+                # On an empty VEVENT, get all items
+                if e.attr['name'] == 'VEVENT':
+                    if not len(e.children):
+                        self._log('found empty VEVENT. getall!')
+                        getall = True
+                        
+                    for f in e.search('prop-filter',all=True):
+                        if f.attr['name'] == 'UID':
+                            match = f.search('text-match')
+                            uid = match.content
+                            getuids.append(uid)
+                            self._log('found uid %s' % uid)
+        else:
+            getall = True
+
+        if getall:
+            return self.get_data(uri)
+        else:
+            visitor = Erebus2ICSVisitor()
+            for uid in getuids:
+                if self.itemids.has_key(uid):
+                    ex_id = self.itemids[uid]
+                else:
+                    uid = uid.split('@')[0]
+                    ex_id = create_exchange_id(uid)
+
+                try:
+                    auth = ('Authorization', self.handler.headers['Authorization'])
+                    b = ExchangeBackend(host=host,https=False,auth=auth)
+                    it = b.get_item(ex_id)
+
+                    visitor.run(it)
+                except:
+                    raise DAV_Error, 404
+
+            cal = visitor.cal
+            cal = cnode2ical(cal)
+            return cal.as_string()
 
     def _get_dav_getcontenttype(self,uri):
         path = self.uri2local(uri)
@@ -155,7 +206,7 @@ class ExchangeHandler(caldav_interface):
             its = b.get_all_item_ids()
             return ToStringVisitor().visit(its)
 
-        if path == '/calendar/exchange.ics':
+        if path == '/calendar/' or path == '/calendar':
             try:
                 b = self._init_backend()
                 its = b.get_all_items()
@@ -189,8 +240,13 @@ class ExchangeHandler(caldav_interface):
                     ical = icalendar.Calendar.from_string(data)
                     ics = ical2cnode(ical)
                     new_items = ICS2ErebusVisitor(ics).run()
-                    b.create_item(new_items)
-                    # TODO: return ETag!
+                    eid = b.create_item(new_items)
+
+                    # There should only be one item here
+                    ical_uid = new_items.search('event').attr['ical_uid']
+                    self.itemids[ical_uid] = eid
+
+                    self._log('Created item with id %s' % eid)
                     return 'Sucessfully uploaded calendar item'
                 
                 elif self.handler.headers.has_key('If-Match'):

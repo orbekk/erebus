@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from Backend import Backend
+from CNode import *
 from Visitor.EWS2ErebusVisitor import *
 from Visitor.Erebus2EWSVisitor import *
-
+from Visitor.Erebus2EWSUpdate import *
 from Visitor.ToStringVisitor import *
 
 from xml.etree import ElementTree as ET
@@ -11,7 +12,7 @@ from erebusconv import xml2cnode, cnode2xml
 from namespaces import *
 from soapquery import *
 import os
-
+import sys
 
 class ExchangeBackend(Backend):
     proplist = ['item:Subject',
@@ -101,7 +102,16 @@ class ExchangeBackend(Backend):
         f.write(ET.tostring(xml))
         f.close()
 
-        return self.query.create_items(ET.tostring(xml))
+        res = self.query.create_items(ET.tostring(xml))
+        cn = xml2cnode(ET.XML(res))
+        StripNamespaceVisitor().visit(cn)
+
+        eid = CNode('exchange_id')
+        itemid = cn.search('ItemId')
+        eid.attr['id'] = itemid.attr['Id']
+        eid.attr['changekey'] = itemid.attr['ChangeKey']
+
+        return eid
 
 
     def update_item(self, id, item_changes):
@@ -116,11 +126,9 @@ class ExchangeBackend(Backend):
         else:
             raise ValueError("Unknown item %s" % str(id))
 
-        ewsitem = Erebus2EWSVisitor(item_changes).run()
-        calendaritem = ewsitem.search(t('CalendarItem'))
-        # Delete id from new_item
-        calendaritem.delete_child(t('ItemId'))
-        xmlitem = cnode2xml(calendaritem)
+        ewsitem = Erebus2EWSUpdate(item_changes).run()
+        xmlitem = cnode2xml(ewsitem)
         xmlitem = ET.tostring(xmlitem)
-        
-        return self.query.update_item(itemid, changekey, xmlitem)
+
+        up = self.query.update_item(itemid, changekey, xmlitem)
+        return up

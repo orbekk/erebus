@@ -220,7 +220,8 @@ class SoapQuery:
      calendar_items))
 
     def update_item(self, itemid, chkey, item_changes,
-                    conflict_resolution='AlwaysOverwrite'):
+                    conflict_resolution='AlwaysOverwrite',
+                    send_invitations='SendToNone'):
         if chkey:
             iid = '<t:ItemId Id="%s" ChangeKey="%s"/>' %(itemid,chkey)
         else:
@@ -228,19 +229,16 @@ class SoapQuery:
 
         return self.msquery("""
 <UpdateItem ConflictResolution="%s"
-            MessageDisposition="SaveOnly">
+            MessageDisposition="SaveOnly"
+            SendMeetingInvitationsOrCancellations="%s">
   <ItemChanges>
     <t:ItemChange>
       %s
-      <t:Updates>
-        <t:SetItemField>
-          %s
-        </t:SetItemField>
-      </t:Updates>
+      %s
     </t:ItemChange>
   </ItemChanges>
 </UpdateItem>
-""" % (conflict_resolution, iid, item_changes))
+""" % (conflict_resolution, send_invitations, iid, item_changes))
         
             
     def get_item(self, itemids, shape="AllProperties",

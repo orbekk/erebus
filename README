@@ -41,8 +41,8 @@ Current status
 * Should be easy to make it work for other clients, by testing and
   tweaking stuff.
 
-* Using PyWebDAV[1] by Simon Pamies to provide WebDAV
-  functionality. The CalDAV support is an extension to PyWebDAV.
+* Using PyWebDAV[1] to provide WebDAV functionality. The CalDAV
+  support is an extension to PyWebDAV (see below).
 
 [1] http://sourceforge.net/projects/pywebdav/
 

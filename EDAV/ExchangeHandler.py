@@ -43,29 +43,17 @@ class ExchangeHandler(caldav_interface):
         auth = ('Authorization', self.handler.headers['Authorization'])
         return ExchangeBackend(host=host, https=use_https, auth=auth)
     
-    def query_calendar(self,uri,filter,calendar_data,what):
+    def query_calendar(self,uri,calendar_data,filter):
         self._log('querying for calendar data')
         
         # Convert filter to cnodes
         if filter:
-            xml = filter.toxml()
-            ebus = xml2cnode(ET.XML(xml))        
-            getall = False
-            getuids = []
-        
-            for e in ebus.search('comp-filter',all=True):
-                # On an empty VEVENT, get all items
-                if e.attr['name'] == 'VEVENT':
-                    if not len(e.children):
-                        self._log('found empty VEVENT. getall!')
-                        getall = True
-                        
-                    for f in e.search('prop-filter',all=True):
-                        if f.attr['name'] == 'UID':
-                            match = f.search('text-match')
-                            uid = match.content
-                            getuids.append(uid)
-                            self._log('found uid %s' % uid)
+            if filter.has_key('UID'):
+                getuids = filter['UID']
+                getall = False
+            else:
+                getuids = []
+                getall = True
         else:
             getall = True
 

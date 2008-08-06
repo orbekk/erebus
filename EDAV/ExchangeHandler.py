@@ -68,6 +68,8 @@ class ExchangeHandler(caldav_interface):
                     uid = uid.split('@')[0]
                     ex_id = create_exchange_id(uid)
 
+                self._log('asked for element with uid: %s' % ex_id)
+
                 try:
                     auth = ('Authorization', self.handler.headers['Authorization'])
                     b = ExchangeBackend(host=host,https=False,auth=auth)
@@ -115,7 +117,7 @@ class ExchangeHandler(caldav_interface):
 
     def _get_dav_getetag(self,uri):
         # not good :-p
-        self._log('getting getetag for %s' % uri)
+        # self._log('getting getetag for %s' % uri)
 
         path = self.uri2local(uri)
         if path.startswith('/calendar/eid-'):
@@ -128,7 +130,7 @@ class ExchangeHandler(caldav_interface):
             if ec == 401:
                 raise DAV_Forbidden
             raise
-        self._log('got here')
+
         return sha1(data).hexdigest()
 
     def get_childs(self,uri):

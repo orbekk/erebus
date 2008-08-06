@@ -37,7 +37,8 @@ class REPORT(object):
         ms.setAttribute('xmlns:D', 'DAV:')
         ms.setAttribute('xmlns:C', 'urn:ietf:params:xml:ns:caldav')
 
-        if len(self.__filter):
+        if self.__filter:
+            self._log("GOT FILTER!")
             # An associated filter; we pass it to dc
             self.__mk_response(doc, ms, self.__uri, self.__filter)
 
@@ -48,11 +49,11 @@ class REPORT(object):
             if self.__depth == "1":
                 children = dc.get_childs(self.__uri)
                 for c_uri in children:
-                    self._log('adding child with uri %s' % c_uri)
+                    # self._log('adding child with uri %s' % c_uri)
                     re = self.__mk_response(doc, ms, c_uri, {})
 
             for href in self.__hrefs:
-                self.__mk_response(doc,ms,href)
+                self.__mk_response(doc,ms,href, {})
 
         return doc.toxml(encoding='utf-8')
 
@@ -102,7 +103,7 @@ class REPORT(object):
         uparts=urlparse.urlparse(uri)
         fileloc=uparts[2]
         href = uparts[0]+'://'+'/'.join(uparts[1:2]) + urllib.quote(fileloc)
-        self._log('making response for %s: href %s' %(uri,href))
+        # self._log('making response for %s: href %s' %(uri,href))
         
         good_props, bad_props = self.__mk_props(doc,uri,filter)
 
@@ -113,7 +114,7 @@ class REPORT(object):
                                               DAV.utils.gen_estring(404))
 
         if good_response:
-            self._log('adding good elements, props: %d' % len(good_props))
+            # self._log('adding good elements, props: %d' % len(good_props))
             base_element.appendChild(good_response)
         # Ignore bad props
         #if bad_response:

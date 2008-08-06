@@ -3,24 +3,19 @@ Erebus
 
 This is the Erebus Exchange CalDAV Connector. 
 
-Current status
---------------
-
-- Basic WebDAV support with a Microsoft Exchange 2007 SP1 server
-  supported (GET/PUT).
-- Still some problems with timezone conversion between iCalendar and
-  Exchange.
 
 Dependencies
 ------------
-- Python 2.4
-- iCalendar, http://codespeak.net/icalendar/
+* Python 2.4
+* iCalendar, http://codespeak.net/icalendar/
+
 
 Usage
 -----
 To use pydav-serve.py, add a file named localpw.py, containing:
 
 host     = "exchange.server.domain"
+use_https = True | False
 username = <your username>
 password = <your password>
 
@@ -33,4 +28,78 @@ $ python pydav-serve.py
 
 Access your calendar at
 
-http://localhost:8008/calendar/exchange.ics
+http://localhost:8008/calendar/
+
+
+Current status
+--------------
+* Basic CalDAV support with Microsoft Exchange SP1 as a backend, and
+  Mozilla Sunbird as a client.
+
+* Should be easy to make it work for other clients, by testing and
+  tweaking stuff.
+
+* Using PyWebDAV[1] by Simon Pamies to provide WebDAV
+  functionality. The CalDAV support is an extension to PyWebDAV.
+
+[1] http://sourceforge.net/projects/pywebdav/
+
+
+Problems
+--------
+* There are some nasty conversion problems:
+
+Exchange strips timezone data and uses UTC for any non-recurring
+event, and recurring events that don't recur across timezones. This is
+a problem in some (all?) iCalendar clients when adding recurrence to
+an existing event (re-)fetched from Erebus, as they continue to be
+UTC, instead of the local timezone.
+
+    Exchange stores time in UTC, and adds an offset based on the
+timezone, while iCalendar stores the time as localtime, and adjusts
+the offset based on the standard/daylight offset. So when converting,
+we must understand if it's daylight saving time or not. Right now, the
+timezone conversion works, but we still get the wrong time back
+because of this (in combination with the problem above).
+
+    We haven't figured out how to make all day events the right way in
+Exchange, but this should be an easy one when we do.
+
+
+How it works
+------------
+
+* Erebus tree and Visitors
+
+This is the conversion part of the project. Internally, the calendars
+are stored as a tree of CNodes (see CNode.py). Both XML and iCalendar
+data is easily converted to a tree structure (they are already trees,
+actually), and the CNodes is just a convenient way to handle these
+trees. CNode supports a search method, which is a breadth first search
+with a few options (keep_depth to stay on the same level, max_depth,
+etc.).
+
+    After we construct the tree of CNodes, we use visitor patterns to
+convert it to other structures. Our visitors are located in the
+Visitor/ folder. Every frontend and backend must provide two
+visitors. As an example, FooBackend must support Erebus2FooVisitor and
+Foo2ErebusVisitor. This is the main part of creating your own
+backend. More on that later.
+
+* CalDAV
+
+TODO
+
+
+* SOAP queries
+
+Since we couldn't find any good SOAP/Web Services APIs for Python, we
+decided to handle it manually. `soapquery.py' is the result of
+this. It just throws manually written XML strings at the Exchange
+server, and returns the result. It supports a https connection and
+basic authentication. While this is a little hackish, it certainly
+works. It was the first part we wrote in this project, and we still
+use it. Whenever we find a *good* SOAP API, soapquery.py is easily
+replaced.
+
+

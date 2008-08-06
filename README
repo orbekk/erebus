@@ -1,7 +1,9 @@
 Erebus
 ======
 
-This is the Erebus Exchange CalDAV Connector. 
+This is the Erebus Exchange CalDAV Connector. It was written as a
+summer project at the IT service department at Gjøvik University
+College. 
 
 
 Dependencies
@@ -45,6 +47,13 @@ Current status
 [1] http://sourceforge.net/projects/pywebdav/
 
 
+Credits
+-------
+* PyWebDAV: Erebus is heavily based on PyWebDAV by Simon
+  Pamies. PyWebDAV is included in the pywebdav/ directory. See
+  pywebdav/LICENSE for license information on PyWebDAV.
+
+
 Problems
 --------
 * There are some nasty conversion problems:
@@ -86,9 +95,15 @@ visitors. As an example, FooBackend must support Erebus2FooVisitor and
 Foo2ErebusVisitor. This is the main part of creating your own
 backend. More on that later.
 
+
 * CalDAV
 
-TODO
+The CalDAV support is an extension to PyWebDAV (as mentioned
+above). The CalDAV specific stuff is located in the EDAV
+directory. While the extensions were made for Erebus, they should be
+general enough to make a generic CalDAV server by implementing the
+caldav_interface (EDAV/caldav_iface.py), just like the dav_interface
+in PyWebDAV.
 
 
 * SOAP queries

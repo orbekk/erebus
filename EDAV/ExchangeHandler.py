@@ -245,7 +245,10 @@ class ExchangeHandler(caldav_interface):
                     # Update this item
                     self._log('Updating item!')
                     etag = self.handler.headers['If-Match']
-                    ei = etag2exchange_id(etag)
+                    if self.itemids.has_key(etag):
+                        ei = self.itemids[etag]
+                    else:
+                        ei = etag2exchange_id(etag)
 
                     ical = icalendar.Calendar.from_string(data)
                     ics = ical2cnode(ical)

@@ -156,7 +156,8 @@ class ExchangeHandler(caldav_interface):
                 for it in ids.search('exchange_id', all=True, keep_depth=True):
                     etag = base64.b64encode(it.attr['id'] + '.' +
                                             it.attr['changekey'])
-                    children.append(self.local2uri('/calendar/eid-' + etag))
+                    children.append(self.local2uri('/calendar/eid-' +
+                                                   base64.b64encode(it.attr['id'])))
             except QueryError, e:
                 if e.status == 401:
                     self._log('Authorization failed')
@@ -290,13 +291,14 @@ class ExchangeHandler(caldav_interface):
         try:
             auth = ('Authorization', self.handler.headers['Authorization'])
             b = self._init_backend()
+            self._log('deleting %s' % str(ei))
             b.delete_item(ei)
         except:
             return 404
         
 def etag2exchange_id(b64_etag):
     etag = base64.b64decode(b64_etag)
-    eid, e_chkey = etag.split('.')
-    ei = create_exchange_id(eid, e_chkey)
+    eid = etag.split('.')[0]
+    ei = create_exchange_id(eid, None)
     return ei
 

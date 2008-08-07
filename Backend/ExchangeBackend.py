@@ -125,7 +125,7 @@ class ExchangeBackend(Backend):
             if id.attr.has_key('changekey'):
                 changekey = id.attr['changekey']
             else:
-                changekey = None
+                raise ValueError("Changekey is needed to updatea an item")
         else:
             raise ValueError("Unknown item %s" % str(id))
 

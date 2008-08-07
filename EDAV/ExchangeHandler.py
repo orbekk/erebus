@@ -116,22 +116,42 @@ class ExchangeHandler(caldav_interface):
         else:
             raise DAV_NotFound
 
+
+    def _get_exchange_id(self,uri):
+        """Return the exchange id (*with* changekey) for an uri (this
+        may either be a /calendar/eid-* uri or a uri in itemids)
+        """
+        path = self.uri2local(uri)
+        self._log('getting etag for uri %s' % uri)
+
+        if path.startswith('/calendar/eid-'):
+            b64 = path.split('-')[1]
+            eid = etag2exchange_id(b64)
+            try:
+                b = self._init_backend()
+                it = b.get_item(eid, props=[])
+                eid = it.search('exchange_id')
+                return eid
+            except:
+                pass
+
+        if path.startswith('/calendar/'):
+            pp = path.replace('/calendar/', '', 1)
+            if self.itemids.has_key(pp):
+                eid = self.itemids[pp]
+                return eid
+
+        else:
+            return None
+
     def _get_dav_getetag(self,uri):
         # not good :-p
         # self._log('getting getetag for %s' % uri)
+        eid = self._get_exchange_id(uri)
+        if eid:
+            return exchange_id2etag(eid)
 
-        path = self.uri2local(uri)
-        if path.startswith('/calendar/eid-'):
-            b64 = path.split('-')[1]
-            # Use the base64 encoded string as ETag
-            return b64
-        try:
-            data = self.get_data(uri)
-        except DAV_Error, (ec,dd):
-            if ec == 401:
-                raise DAV_Forbidden
-            raise
-
+        data = self.get_data(uri)
         return sha1(data).hexdigest()
 
     def get_childs(self,uri):
@@ -154,8 +174,8 @@ class ExchangeHandler(caldav_interface):
                 b = self._init_backend()
                 ids = b.get_all_item_ids()
                 for it in ids.search('exchange_id', all=True, keep_depth=True):
-                    etag = base64.b64encode(it.attr['id'] + '.' +
-                                            it.attr['changekey'])
+                    # Don't use etag as uri anymore - just the itemid
+                    # etag = exchange_id2etag(it)
                     children.append(self.local2uri('/calendar/eid-' +
                                                    base64.b64encode(it.attr['id'])))
             except QueryError, e:
@@ -313,3 +333,7 @@ def etag2exchange_id(b64_etag):
     ei = create_exchange_id(eid, None)
     return ei
 
+def exchange_id2etag(eid):
+    etag = base64.b64encode(eid.attr['id'] + '.' +
+                            eid.attr['changekey'])
+    return etag

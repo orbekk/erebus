@@ -42,7 +42,7 @@ class ExchangeBackend(Backend):
     def __conv(self,string):
         return xml2cnode(ET.XML(string))
 
-    def get_item(self,id):
+    def get_item(self, id, props=proplist):
         if id.name == 'exchange_id':
             itemid = id.attr['id']
             if id.attr.has_key('changekey'):
@@ -52,7 +52,7 @@ class ExchangeBackend(Backend):
         else:
             raise ValueError("Unknown item %s" % str(id))
 
-        item = self.query.get_item((itemid, changekey), extra_props=['item:Body'])
+        item = self.query.get_item((itemid, changekey), extra_props=props)
         ctree = self.__conv(item)
         return EWS2ErebusVisitor(ctree).run()
 

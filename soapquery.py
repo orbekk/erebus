@@ -10,6 +10,9 @@ import os
 import sys
 from re import *
 
+# Make /tmp/{in,out}.SoapQuery files containing all queries and answers
+debug = True
+
 # workaround for a python bug (ref. soaplib)
 httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
 
@@ -83,6 +86,14 @@ class SoapConn:
 
         res  = conn.getresponse()
         data = res.read()
+
+        if debug:
+            fin = open('/tmp/in.SoapQuery.log', 'a')
+            fout = open('/tmp/out.SoapQuery.log', 'a')
+            fin.write('\n' + '=' * 72 + '\n')
+            fin.write(query)
+            fout.write('\n' + '=' * 72 + '\n')
+            fout.write(data)
 
         if str(res.status) not in ['200', '202']:
             raise QueryError('Error: %s\n %s\n'%(res.status,

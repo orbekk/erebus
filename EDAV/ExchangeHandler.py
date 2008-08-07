@@ -11,6 +11,7 @@ from localpw import *
 
 from xml.etree import ElementTree as ET
 from hashlib import sha1
+import re
 import sys
 import os
 import urlparse
@@ -197,11 +198,13 @@ class ExchangeHandler(caldav_interface):
                 ei = etag2exchange_id(b64)
             else:
                 pp = path.replace('/calendar/', '', 1)
+                pp = re.sub('\.ics$', '', pp)
                 if self.itemids.has_key(pp):
                     ei = self.itemids[pp]
                 else:
                     raise DAV_Error, 404
 
+            self._log('get data with exchangeid: %s' % ei.attr['id'])
             b = self._init_backend()
             it = b.get_item(ei)
 
@@ -265,7 +268,7 @@ class ExchangeHandler(caldav_interface):
                     # There should only be one item here
                     ical_uid = new_items.search('event').attr['ical_uid']
                     self._log('Added uid mapping: %s -> %s' %(ical_uid, eid))
-                    self.itemids[ical_uid] = eid
+                    self.itemids[str(ical_uid)] = eid
 
                     self._log('Created item with id %s' % eid)
                     return 'Sucessfully uploaded calendar item'
@@ -329,8 +332,14 @@ class ExchangeHandler(caldav_interface):
         
 def etag2exchange_id(b64_etag):
     etag = base64.b64decode(b64_etag)
-    eid = etag.split('.')[0]
-    ei = create_exchange_id(eid, None)
+    ss = etag.split('.')
+    eid = ss[0]
+    if len(ss) > 1:
+        chkey = ss[1]
+    else:
+        chkey = None
+
+    ei = create_exchange_id(eid, chkey)
     return ei
 
 def exchange_id2etag(eid):

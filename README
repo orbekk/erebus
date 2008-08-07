@@ -47,6 +47,19 @@ Current status
 [1] http://sourceforge.net/projects/pywebdav/
 
 
+License
+-------
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation. A copy of the license may
+be found in the file LICENSE.
+
+    This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+
 Credits
 -------
 * PyWebDAV: Erebus is heavily based on PyWebDAV by Simon

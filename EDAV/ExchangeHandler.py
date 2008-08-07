@@ -177,7 +177,10 @@ class ExchangeHandler(caldav_interface):
                 ei = etag2exchange_id(b64)
             else:
                 pp = path.replace('/calendar/', '', 1)
-                ei = create_exchange_id(pp)
+                if self.itemids.has_key(pp):
+                    ei = self.itemids[pp]
+                else:
+                    raise DAV_Error, 404
 
             b = self._init_backend()
             it = b.get_item(ei)

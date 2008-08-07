@@ -46,13 +46,15 @@ class REPORT(object):
             self.__mk_response(doc, ms, self.__uri, {})
 
             if self.__depth == "1":
-                children = dc.get_childs(self.__uri)
-                for c_uri in children:
-                    # self._log('adding child with uri %s' % c_uri)
-                    re = self.__mk_response(doc, ms, c_uri, {})
+                if self.__hrefs:
+                    for href in self.__hrefs:
+                        self.__mk_response(doc, ms, href, {})
 
-            for href in self.__hrefs:
-                self.__mk_response(doc,ms,href, {})
+                else:
+                    children = dc.get_childs(self.__uri)
+                    for c_uri in children:
+                        # self._log('adding child with uri %s' % c_uri)
+                        re = self.__mk_response(doc, ms, c_uri, {})
 
         return doc.toxml(encoding='utf-8')
 

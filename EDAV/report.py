@@ -43,7 +43,7 @@ class REPORT(object):
 
         else:
             # Make this regardless of depth
-            self.__mk_response(doc, ms, self.__uri, {})
+            # self.__mk_response(doc, ms, self.__uri, {})
 
             if self.__depth == "1":
                 if self.__hrefs:
@@ -103,7 +103,7 @@ class REPORT(object):
         # get href info
         uparts=urlparse.urlparse(uri)
         fileloc=uparts[2]
-        href = uparts[0]+'://'+'/'.join(uparts[1:2]) + urllib.quote(fileloc)
+        href = urllib.quote(fileloc)
         # self._log('making response for %s: href %s' %(uri,href))
         
         good_props, bad_props = self.__mk_props(doc,uri,filter)

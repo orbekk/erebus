@@ -168,51 +168,56 @@ class ExchangeHandler(caldav_interface):
 
     def get_data(self,uri):
         path = self.uri2local(uri)
-        auth = ('Authorization', self.handler.headers['Authorization'])
 
-        if path.startswith('/calendar/eid-'):
-            try:
+        self._log('getting data for uri %s' % uri)
+
+        try:
+            if path.startswith('/calendar/eid-'):
                 b64 = path.split('-')[1]
                 ei = etag2exchange_id(b64)
-                b = self._init_backend()
-                it = b.get_item(ei)
+            else:
+                pp = path.replace('/calendar/', '', 1)
+                ei = create_exchange_id(pp)
 
-                # TODO: if no item, then what?
-                ics = Erebus2ICSVisitor(it).run()
-                ics = cnode2ical(ics).as_string()
+            b = self._init_backend()
+            it = b.get_item(ei)
 
-            except QueryError, e:
-                if e.status == 401:
-                    self._log('Authorization failed')
-                    self._log(e)
-                    raise DAV_Error, 401
-                raise
-            except TypeError, e:
-                # Incorrect padding means invalid url
-                raise DAV_Error, 404
+            # TODO: if no item, then what?
+            ics = Erebus2ICSVisitor(it).run()
+            ics = cnode2ical(ics).as_string()
 
-            return ics
+        except QueryError, e:
+            if e.status == 401:
+                self._log('Authorization failed')
+                self._log(e)
+                raise DAV_Error, 401
+            raise
+        except TypeError, e:
+            # Incorrect padding means invalid url
+            raise DAV_Error, 404
+
+        return ics
 
         if path == '/info':
             b = self._init_backend()
             its = b.get_all_item_ids()
             return ToStringVisitor().visit(its)
 
-        if path == '/calendar/' or path == '/calendar':
-            try:
-                b = self._init_backend()
-                its = b.get_all_items()
-                ics = Erebus2ICSVisitor(its).run()
-                ics = cnode2ical(ics).as_string()
-            except QueryError, e:
-                if e.status == 401:
-                    self._log('Authorization failed with auth header %s' %
-                              self.handler.headers['Authorization'])
-                    print e
-                    raise DAV_Error, 401
-                raise e
-
-            return ics
+# Don't return data on a query on the collection
+#         if path == '/calendar/' or path == '/calendar':
+#             try:
+#                 b = self._init_backend()
+#                 its = b.get_all_items()
+#                 ics = Erebus2ICSVisitor(its).run()
+#                 ics = cnode2ical(ics).as_string()
+#             except QueryError, e:
+#                 if e.status == 401:
+#                     self._log('Authorization failed with auth header %s' %
+#                               self.handler.headers['Authorization'])
+#                     print e
+#                     raise DAV_Error, 401
+#                 raise e
+#             return ics
 
         raise DAV_NotFound
 
@@ -236,6 +241,7 @@ class ExchangeHandler(caldav_interface):
 
                     # There should only be one item here
                     ical_uid = new_items.search('event').attr['ical_uid']
+                    self._log('Added uid mapping: %s -> %s' %(ical_uid, eid))
                     self.itemids[ical_uid] = eid
 
                     self._log('Created item with id %s' % eid)
@@ -271,7 +277,8 @@ class ExchangeHandler(caldav_interface):
     def uri2local(self,uri):
         """ map uri in baseuri and local part """
 
-        uparts=urlparse.urlparse(uri)
+        u = urllib.unquote(uri)
+        uparts=urlparse.urlparse(u)
         fileloc=uparts[2]
         return fileloc
 

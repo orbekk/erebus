@@ -279,13 +279,8 @@ class ExchangeHandler(caldav_interface):
         return uri
 
     def delone(self,uri):
-        path = self.uri2local(uri)
 
-        if self.handler.headers.has_key('If-Match'):
-            etag = self.handler.headers['If-Match']
-        else:
-            etag = path.split('-')[1]
-
+        etag = self.handler.headers['If-Match']
         ei = etag2exchange_id(etag)
 
         try:
@@ -293,8 +288,11 @@ class ExchangeHandler(caldav_interface):
             b = self._init_backend()
             self._log('deleting %s' % str(ei))
             b.delete_item(ei)
-        except:
-            return 404
+        except QueryError, e:
+            self._log(e)
+            raise DAV_NotFound
+
+        return None
         
 def etag2exchange_id(b64_etag):
     etag = base64.b64decode(b64_etag)

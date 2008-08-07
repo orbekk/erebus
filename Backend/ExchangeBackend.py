@@ -78,7 +78,10 @@ class ExchangeBackend(Backend):
         itemids = []
         for e in exchange_ids:
             itemid = e.attr['id']
-            chkey = e.attr['changekey']
+            if e.attr.has_key('changekey'):
+                chkey = e.attr['changekey']
+            else:
+                chkey = None
             itemids.append((itemid,chkey))
                 
         if len(itemids) > 0:

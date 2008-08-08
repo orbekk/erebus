@@ -85,6 +85,9 @@ class ExchangeHandler(caldav_interface):
             cal = cnode2ical(cal)
             return cal.as_string()
 
+    def _get_dav_displayname(self,uri):
+        return "Microsoft Exchange calendar via Erebus"
+
     def _get_dav_getcontenttype(self,uri):
         path = self.uri2local(uri)
 

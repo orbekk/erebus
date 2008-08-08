@@ -88,6 +88,18 @@ class ExchangeHandler(caldav_interface):
     def _get_dav_displayname(self,uri):
         return "Microsoft Exchange calendar via Erebus"
 
+    def _get_caldav_calendar_home_set(self,uri):
+        n = self._doc.createElement('D:href')
+        t = self._doc.createTextNode('/calendar/')
+        n.appendChild(t)
+        return n
+
+    def _get_caldav_calendar_user_address_set(self,uri):
+        n = self._doc.createElement('D:href')
+        t = self._doc.createTextNode('/calendar/')
+        n.appendChild(t)
+        return n
+
     def _get_dav_getcontenttype(self,uri):
         path = self.uri2local(uri)
 

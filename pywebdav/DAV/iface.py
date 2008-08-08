@@ -13,6 +13,8 @@ import time
 from string import lower
 
 class dav_interface:
+    TAKE_DOC = False
+
     """ interface class for implementing DAV servers """
 
     ### defined properties (modify this but let the DAV stuff there!)

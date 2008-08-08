@@ -105,6 +105,7 @@ class PROPFIND:
         dc=self.__dataclass
         # create the document generator
         doc = domimpl.createDocument(None, "multistatus", None)
+
         ms = doc.documentElement
         ms.setAttribute("xmlns:D", "DAV:")
         ms.tagName = 'D:multistatus'
@@ -162,22 +163,23 @@ class PROPFIND:
 
         # create the document generator
         doc = domimpl.createDocument(None, "multistatus", None)
+
         ms = doc.documentElement
         ms.setAttribute("xmlns:D", "DAV:")
         ms.tagName = 'D:multistatus'
 
         if self.__depth=="0":
-            gp,bp=self.get_propvalues(self.__uri)
+            gp,bp=self.get_propvalues(self.__uri,doc)
             res=self.mk_prop_response(self.__uri,gp,bp,doc)
             ms.appendChild(res)
         
         elif self.__depth=="1":
-            gp,bp=self.get_propvalues(self.__uri)
+            gp,bp=self.get_propvalues(self.__uri,doc)
             res=self.mk_prop_response(self.__uri,gp,bp,doc)
             ms.appendChild(res)
         
             for newuri in self.__dataclass.get_childs(self.__uri):
-                gp,bp=self.get_propvalues(newuri)
+                gp,bp=self.get_propvalues(newuri,doc)
                 res=self.mk_prop_response(newuri,gp,bp,doc)
                 ms.appendChild(res)
 
@@ -266,7 +268,12 @@ class PROPFIND:
                         ve=doc.createElement("C:calendar")
                         pe.appendChild(ve)
                 else:
-                    ve=doc.createTextNode(str(v))
+                    if isinstance(v, xml.dom.minidom.Element):
+                        # Allow xml data in properties
+                        ve = v
+                    else:
+                        ve=doc.createTextNode(str(v))
+
                     pe.appendChild(ve)
 
                 gp.appendChild(pe)
@@ -304,7 +311,7 @@ class PROPFIND:
         # return the new response element
         return re
 
-    def get_propvalues(self,uri):
+    def get_propvalues(self,uri,doc):
         """ create lists of property values for an URI 
 
         We create two lists for an URI: the properties for
@@ -323,8 +330,14 @@ class PROPFIND:
             for prop in plist:
                 ec = 0
                 try:
-                    r=ddc.get_prop(uri,ns,prop)
-                    good_props[ns][prop]=str(r)
+                    if ddc.TAKE_DOC:
+                        r=ddc.get_prop(uri,ns,prop,doc)
+                    else:
+                        r=ddc.get_prop(uri,ns,prop)
+                    if isinstance(r, xml.dom.minidom.Element):
+                        good_props[ns][prop] = r
+                    else:
+                        good_props[ns][prop] = unicode(r)
                 except DAV_Error, error_code:
                     ec=error_code[0]
                 
